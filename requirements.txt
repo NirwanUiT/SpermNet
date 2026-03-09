@@ -1,0 +1,10 @@
+ultralytics
+opencv-python
+numpy
+pandas
+matplotlib
+requests
+tqdm
+scipy
+scikit-learn
+openai

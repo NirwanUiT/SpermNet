@@ -1,0 +1,32 @@
+# ── Data (13 GB+) ─────────────────────────────────────────
+data/raw/
+data/frames/
+data/annotations/
+*.zip
+
+# ── Model weights ─────────────────────────────────────────
+*.pt
+*.onnx
+*.engine
+
+# ── YOLO training runs ────────────────────────────────────
+runs/
+
+# ── Outputs (generated; reproducible from code) ──────────
+outputs/
+
+# ── Python cache ──────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ── OS / IDE ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ── Misc ──────────────────────────────────────────────────
+*.log
+*.swp
+*.swo
