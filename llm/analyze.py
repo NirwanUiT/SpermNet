@@ -17,6 +17,12 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass  # python-dotenv optional; key can be set via env
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 

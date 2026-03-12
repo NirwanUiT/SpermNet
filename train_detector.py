@@ -25,20 +25,24 @@ from ultralytics import YOLO
 
 
 def train(
-    epochs: int = 50,
+    epochs: int = 200,
     batch: int = 16,
     imgsz: int = 640,
-    patience: int = 10,
+    patience: int = 30,
     resume: bool = False,
-    model_name: str = "yolov8n.pt",
+    model_name: str = "yolov8l.pt",
 ):
-    """Train YOLOv8n on the VISEM-Tracking dataset."""
+    """Train YOLOv8 on the VISEM-Tracking dataset."""
 
     yaml_path = config.ANNOTATIONS_DIR / "visem.yaml"
     if not yaml_path.exists():
         print(f"ERROR: {yaml_path} not found.")
         print("Run convert_annotations.py first.")
         sys.exit(1)
+
+    # Derive run name from model variant
+    variant = Path(model_name).stem  # e.g. "yolov8l"
+    run_name = f"sperm_{variant}"
 
     # Weights output directory
     weights_dir = config.PROJECT_ROOT / "detection" / "weights"
@@ -66,20 +70,34 @@ def train(
         batch=batch,
         patience=patience,
         project=str(config.OUTPUTS_DIR / "training"),
-        name="sperm_yolov8n",
+        name=run_name,
         exist_ok=True,
         resume=resume,
         verbose=True,
         plots=True,           # generates training curves
         save=True,
         save_period=10,       # save checkpoint every 10 epochs
-        workers=4,
+        workers=8,
         device="0",           # use first GPU; change to "cpu" if no GPU
         amp=True,             # mixed precision
+        cos_lr=True,          # cosine LR schedule
+        lr0=0.01,
+        lrf=0.01,             # final LR = lr0 * lrf
+        mosaic=1.0,           # mosaic augmentation
+        close_mosaic=20,      # disable mosaic last 20 epochs
+        hsv_h=0.015,
+        hsv_s=0.7,
+        hsv_v=0.4,
+        degrees=10.0,         # rotation
+        translate=0.1,
+        scale=0.5,
+        flipud=0.5,           # sperm swim any direction
+        fliplr=0.5,
+        mixup=0.1,            # light mixup
     )
 
     # Copy best weights
-    train_dir = config.OUTPUTS_DIR / "training" / "sperm_yolov8n"
+    train_dir = config.OUTPUTS_DIR / "training" / run_name
     best_src = train_dir / "weights" / "best.pt"
     best_dst = weights_dir / "best.pt"
 
@@ -137,14 +155,14 @@ def train(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train YOLOv8n on VISEM-Tracking")
-    parser.add_argument("--epochs", type=int, default=50)
+    parser = argparse.ArgumentParser(description="Train YOLOv8 on VISEM-Tracking")
+    parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--imgsz", type=int, default=640)
-    parser.add_argument("--patience", type=int, default=10)
+    parser.add_argument("--patience", type=int, default=30)
     parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--model", type=str, default="yolov8n.pt",
-                        help="Base model (default: yolov8n.pt)")
+    parser.add_argument("--model", type=str, default="yolov8l.pt",
+                        help="Base model (default: yolov8l.pt)")
     args = parser.parse_args()
 
     train(

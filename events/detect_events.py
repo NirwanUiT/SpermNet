@@ -148,13 +148,151 @@ def classify_motility(row: dict) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Post-tracking quality filters
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Filter thresholds (applied after compute_track_metrics, before classification)
+_CONF_MIN        = 0.4    # minimum mean detection confidence per track
+_VCL_MAX         = 200.0  # µm/s — anything higher is detection noise
+_JITTER_VCL_MIN  = 20.0   # µm/s — VCL floor for the jitter check
+_JITTER_LIN_MAX  = 0.02   # linearity ceiling for jitter tracks
+_DURATION_MIN    = 0.3    # seconds — second duration gate (supplements MIN_TRACK_LENGTH)
+
+
+def filter_tracks(
+    metrics_list: list[dict],
+    tracks_df: pd.DataFrame,
+) -> tuple[list[dict], dict]:
+    """
+    Remove spurious tracks before motility classification.
+
+    Filters (a track is removed if it matches **any**):
+      1. Low confidence  – mean detection conf < _CONF_MIN
+      2. Unrealistic VCL – VCL > _VCL_MAX µm/s
+      3. Jitter          – VCL > _JITTER_VCL_MIN and LIN < _JITTER_LIN_MAX
+      4. Short duration  – duration_s < _DURATION_MIN
+
+    Parameters
+    ----------
+    metrics_list : list of per-track metric dicts (from compute_track_metrics).
+    tracks_df    : full tracking DataFrame with columns incl. track_id, conf.
+
+    Returns
+    -------
+    (filtered_list, filter_stats)
+        filtered_list – metrics dicts that survived all filters.
+        filter_stats  – dict with counts per filter reason.
+    """
+    # Pre-compute mean confidence per track_id
+    mean_conf = tracks_df.groupby("track_id")["conf"].mean()
+
+    kept: list[dict] = []
+    n_low_conf = 0
+    n_high_vcl = 0
+    n_jitter   = 0
+    n_short    = 0
+
+    for m in metrics_list:
+        tid = m["track_id"]
+
+        # 1. Low confidence
+        if mean_conf.get(tid, 0.0) < _CONF_MIN:
+            n_low_conf += 1
+            continue
+
+        # 2. Unrealistic velocity
+        if m["VCL"] > _VCL_MAX:
+            n_high_vcl += 1
+            continue
+
+        # 3. Jitter (high VCL, near-zero linearity)
+        if m["VCL"] > _JITTER_VCL_MIN and m["LIN"] < _JITTER_LIN_MAX:
+            n_jitter += 1
+            continue
+
+        # 4. Short duration
+        if m["duration_s"] < _DURATION_MIN:
+            n_short += 1
+            continue
+
+        kept.append(m)
+
+    total_before = len(metrics_list)
+    removed = total_before - len(kept)
+    print(f"  Filtered: {removed}/{total_before} tracks removed "
+          f"({n_low_conf} low-conf, {n_high_vcl} unrealistic-VCL, "
+          f"{n_jitter} jitter, {n_short} short-duration)")
+
+    stats = {
+        "tracks_before_filter":   total_before,
+        "tracks_after_filter":    len(kept),
+        "filtered_low_conf":      n_low_conf,
+        "filtered_high_vcl":      n_high_vcl,
+        "filtered_jitter":        n_jitter,
+        "filtered_short_duration": n_short,
+    }
+    return kept, stats
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Full analysis for one video
 # ─────────────────────────────────────────────────────────────────────────────
+
+def _load_detection_stats(video_name: str) -> dict | None:
+    """
+    Load detection JSON and compute average sperm detections per frame.
+
+    Returns dict with keys: avg_detections_per_frame, total_sperm_boxes,
+    n_frames_with_detections, n_frames_total.  Returns None if the file
+    doesn't exist or is unusable.
+    """
+    import json as _json
+
+    det_path = config.DETECT_OUT / f"{video_name}_detections.json"
+    if not det_path.exists():
+        return None
+
+    try:
+        with open(det_path) as f:
+            data = _json.load(f)
+    except Exception as e:
+        print(f"  WARNING: Could not read {det_path}: {e}")
+        return None
+
+    if not data:
+        return None
+
+    # Count class-0 (sperm) detections per frame
+    sperm_per_frame = []
+    for entry in data:
+        n_sperm = sum(1 for b in entry.get("boxes", [])
+                      if len(b) >= 6 and int(b[5]) == 0)
+        sperm_per_frame.append(n_sperm)
+
+    total_sperm = sum(sperm_per_frame)
+    n_frames = len(sperm_per_frame)
+    if n_frames == 0 or total_sperm == 0:
+        return None
+
+    return {
+        "avg_detections_per_frame": total_sperm / n_frames,
+        "total_sperm_boxes":       total_sperm,
+        "n_frames_with_detections": sum(1 for c in sperm_per_frame if c > 0),
+        "n_frames_total":          n_frames,
+    }
+
 
 def analyse_video(video_name: str) -> pd.DataFrame:
     """
     Load tracks CSV, compute per-track motility metrics, classify, save.
+
+    If a detection JSON exists, estimates untracked (assumed immotile)
+    sperm from the discrepancy between average detections per frame and
+    number of unique tracks.  The motility CSV is unchanged (tracked
+    sperm only); the summary JSON and printed output use adjusted counts.
     """
+    import json
+
     csv_path = config.TRACK_OUT / f"{video_name}_tracks.csv"
     if not csv_path.exists():
         print(f"ERROR: Track file not found: {csv_path}")
@@ -174,42 +312,94 @@ def analyse_video(video_name: str) -> pd.DataFrame:
         track = tracks_df[tracks_df["track_id"] == tid].sort_values("frame")
         m = compute_track_metrics(track)
         if m is not None:
-            m["motility"] = classify_motility(m)
             metrics_list.append(m)
 
     if not metrics_list:
         print("No tracks long enough to analyse.")
         return pd.DataFrame()
 
+    # ── Post-tracking quality filters ─────────────────────────────────────
+    metrics_list, filter_stats = filter_tracks(metrics_list, tracks_df)
+
+    if not metrics_list:
+        print("All tracks removed by quality filters.")
+        return pd.DataFrame()
+
+    # ── Classify motility (after filtering) ───────────────────────────────
+    for m in metrics_list:
+        m["motility"] = classify_motility(m)
+
     metrics_df = pd.DataFrame(metrics_list)
 
-    # ── Summary statistics ────────────────────────────────────────────────
+    # ── Raw (tracked-only) counts ─────────────────────────────────────────
     total = len(metrics_df)
     counts = metrics_df["motility"].value_counts()
     prog   = counts.get("progressive", 0)
     nonpro = counts.get("non_progressive", 0)
     immot  = counts.get("immotile", 0)
 
+    # ── Estimate untracked sperm from detection data ──────────────────────
+    det_stats = _load_detection_stats(video_name)
+    estimated_untracked = 0
+    avg_det_per_frame = 0.0
+    avg_active_tracks = 0.0
+    untracked_fraction = 0.0  # fraction of FOV sperm that are untracked
+
+    if det_stats is not None:
+        avg_det_per_frame = det_stats["avg_detections_per_frame"]
+
+        # Compare per-frame: avg detections vs avg active tracks
+        frame_counts = tracks_df.groupby("frame")["track_id"].nunique()
+        avg_active_tracks = frame_counts.mean()
+
+        estimated_untracked = max(0, round(avg_det_per_frame - avg_active_tracks))
+        if avg_det_per_frame > 0:
+            untracked_fraction = max(0.0, (avg_det_per_frame - avg_active_tracks) / avg_det_per_frame)
+        print(f"  Detection data: avg {avg_det_per_frame:.1f} sperm/frame, "
+              f"avg {avg_active_tracks:.1f} active tracks/frame → "
+              f"~{estimated_untracked} untracked/frame "
+              f"({100*untracked_fraction:.1f}% assumed immotile)")
+    else:
+        print(f"  No detection JSON for {video_name} — using tracked-only counts")
+
+    # ── Adjusted percentages ──────────────────────────────────────────────
+    # Among all sperm in the FOV (detected), the tracked portion has known
+    # motility; the untracked portion is assumed immotile.
+    tracked_fraction = 1.0 - untracked_fraction
+    adj_prog_pct   = round(100 * (prog / total) * tracked_fraction, 1) if total > 0 else 0.0
+    adj_nonpro_pct = round(100 * (nonpro / total) * tracked_fraction, 1) if total > 0 else 0.0
+    adj_immot_pct  = round(100.0 - adj_prog_pct - adj_nonpro_pct, 1)
+    adj_total      = total + estimated_untracked
+    adj_immot      = immot + estimated_untracked
+
+    # ── Adjusted counts ───────────────────────────────────────────────────
+
     print(f"\n{'='*50}")
     print(f"Motility Summary – {video_name}")
     print(f"{'='*50}")
-    print(f"  Total analysed tracks:  {total}")
-    print(f"  Progressive:            {prog:>4}  ({100*prog/total:.1f}%)")
-    print(f"  Non-progressive:        {nonpro:>4}  ({100*nonpro/total:.1f}%)")
-    print(f"  Immotile:               {immot:>4}  ({100*immot/total:.1f}%)")
+    print(f"  Tracked sperm:          {total}")
+    if estimated_untracked > 0:
+        print(f"  Estimated untracked:    {estimated_untracked}  (assumed immotile)")
+        print(f"  Adjusted total:         {adj_total}")
+    print(f"  Progressive:            {prog:>4}  ({adj_prog_pct}%)")
+    print(f"  Non-progressive:        {nonpro:>4}  ({adj_nonpro_pct}%)")
+    print(f"  Immotile (adjusted):    {adj_immot:>4}  ({adj_immot_pct}%)")
     print(f"  Mean VCL:               {metrics_df['VCL'].mean():.1f} µm/s")
     print(f"  Mean VSL:               {metrics_df['VSL'].mean():.1f} µm/s")
     print(f"  Mean VAP:               {metrics_df['VAP'].mean():.1f} µm/s")
     print(f"{'='*50}\n")
 
-    # Save
+    # ── Save motility CSV (tracked sperm only — unchanged) ────────────────
     out_csv = config.EVENTS_OUT / f"{video_name}_motility.csv"
     metrics_df.to_csv(out_csv, index=False)
     print(f"Metrics saved → {out_csv}")
 
-    # Save summary JSON
+    # ── Save summary JSON (both raw and adjusted) ─────────────────────────
     summary = {
         "video": video_name,
+        # Quality-filter stats
+        **filter_stats,
+        # Raw tracked-only counts (post-filter)
         "total_tracks": total,
         "progressive": int(prog),
         "non_progressive": int(nonpro),
@@ -217,13 +407,23 @@ def analyse_video(video_name: str) -> pd.DataFrame:
         "progressive_pct": round(100 * prog / total, 1),
         "non_progressive_pct": round(100 * nonpro / total, 1),
         "immotile_pct": round(100 * immot / total, 1),
+        # Adjusted counts (with untracked-as-immotile correction)
+        "estimated_untracked": estimated_untracked,
+        "avg_detections_per_frame": round(avg_det_per_frame, 2),
+        "avg_active_tracks_per_frame": round(avg_active_tracks, 2),
+        "untracked_fraction": round(untracked_fraction, 4),
+        "adjusted_total": adj_total,
+        "adjusted_immotile": int(adj_immot),
+        "adjusted_progressive_pct": adj_prog_pct,
+        "adjusted_non_progressive_pct": adj_nonpro_pct,
+        "adjusted_immotile_pct": adj_immot_pct,
+        # Kinematic means (tracked sperm only)
         "mean_VCL": round(float(metrics_df["VCL"].mean()), 2),
         "mean_VSL": round(float(metrics_df["VSL"].mean()), 2),
         "mean_VAP": round(float(metrics_df["VAP"].mean()), 2),
         "mean_LIN": round(float(metrics_df["LIN"].mean()), 3),
         "mean_STR": round(float(metrics_df["STR"].mean()), 3),
     }
-    import json
     summary_path = config.EVENTS_OUT / f"{video_name}_summary.json"
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)

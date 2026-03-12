@@ -62,17 +62,34 @@ def load_ground_truth() -> pd.DataFrame:
 
 
 def load_predictions() -> pd.DataFrame:
-    """Load pipeline motility summaries for all processed videos."""
+    """Load pipeline motility summaries for all processed videos.
+
+    Prefers adjusted percentages (which account for untracked immotile
+    sperm) when available; falls back to raw tracked-only percentages.
+    """
     rows = []
     for sp in sorted(config.EVENTS_OUT.glob("*_summary.json")):
         with open(sp) as f:
             s = json.load(f)
+
+        # Use adjusted pcts if present, else raw pcts
+        if "adjusted_progressive_pct" in s:
+            prog  = s["adjusted_progressive_pct"]
+            nonpro = s["adjusted_non_progressive_pct"]
+            immot = s["adjusted_immotile_pct"]
+        else:
+            prog  = s.get("progressive_pct", 0)
+            nonpro = s.get("non_progressive_pct", 0)
+            immot = s.get("immotile_pct", 0)
+
         rows.append({
             "video":              str(s["video"]),
-            "pred_progressive":   s.get("progressive_pct", 0),
-            "pred_non_progressive": s.get("non_progressive_pct", 0),
-            "pred_immotile":      s.get("immotile_pct", 0),
+            "pred_progressive":   prog,
+            "pred_non_progressive": nonpro,
+            "pred_immotile":      immot,
             "pred_total_tracks":  s.get("total_tracks", 0),
+            "pred_adjusted_total": s.get("adjusted_total", s.get("total_tracks", 0)),
+            "pred_estimated_untracked": s.get("estimated_untracked", 0),
             "pred_mean_VCL":      s.get("mean_VCL", 0),
             "pred_mean_VSL":      s.get("mean_VSL", 0),
             "pred_mean_VAP":      s.get("mean_VAP", 0),
@@ -305,8 +322,11 @@ def threshold_sweep():
     """
     Test different VCL and STR threshold combinations to find the
     configuration that minimises MAE against clinical ground truth.
+
+    Applies post-tracking quality filters before sweeping thresholds,
+    so that spurious tracks don't influence the optimisation.
     """
-    from events.detect_events import compute_track_metrics
+    from events.detect_events import compute_track_metrics, filter_tracks
 
     gt = load_ground_truth()
     if gt.empty:
@@ -324,8 +344,8 @@ def threshold_sweep():
         print("No track CSVs found. Run pipeline first.")
         return
 
-    # Pre-compute per-track metrics for all videos
-    print("Pre-computing track metrics for all videos...")
+    # Pre-compute per-track metrics for all videos (with quality filters)
+    print("Pre-computing track metrics for all videos (with quality filters)...")
     video_metrics = {}
     for vid, tracks_df in all_tracks.items():
         metrics_list = []
@@ -335,8 +355,10 @@ def threshold_sweep():
             if m is not None:
                 metrics_list.append(m)
         if metrics_list:
-            video_metrics[vid] = pd.DataFrame(metrics_list)
-    print(f"  Computed metrics for {len(video_metrics)} videos.")
+            filtered, fstats = filter_tracks(metrics_list, tracks_df)
+            if filtered:
+                video_metrics[vid] = pd.DataFrame(filtered)
+    print(f"  Computed & filtered metrics for {len(video_metrics)} videos.")
 
     # Sweep parameters
     vcl_prog_range = np.arange(10, 60, 5)       # VCL_PROGRESSIVE_MIN
