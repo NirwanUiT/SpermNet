@@ -27,10 +27,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-from scipy.ndimage import uniform_filter1d
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config
+from events.detect_events import px_to_um, classify_window
 
 # ── Try to use Arial; fall back gracefully ────────────────────────────────────
 try:
@@ -47,8 +47,7 @@ plt.rcParams.update({
 })
 
 # ── Output directory ──────────────────────────────────────────────────────────
-MARKOV_DIR = config.OUTPUTS_DIR / "markov"
-MARKOV_DIR.mkdir(parents=True, exist_ok=True)
+MARKOV_DIR = config.MARKOV_OUT
 
 # ── States ────────────────────────────────────────────────────────────────────
 STATES = ["Progressive", "Non-progressive", "Immotile"]
@@ -63,42 +62,7 @@ WINDOW_FRAMES = 25  # 0.5 s at 50 fps — enough for instantaneous VCL
 # Per-frame instantaneous motility
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def px_to_um(px):
-    return px / config.PIXELS_PER_MICRON
-
-
-def classify_window(xs: np.ndarray, ys: np.ndarray, dt: float) -> str:
-    """Classify a short positional window into a motility state."""
-    n = len(xs)
-    if n < 3:
-        return "Immotile"
-
-    # VCL: mean step speed
-    dx = np.diff(xs)
-    dy = np.diff(ys)
-    steps_um = px_to_um(np.sqrt(dx**2 + dy**2))
-    vcl = np.mean(steps_um) / dt
-
-    # VSL / VAP for STR
-    disp_um = px_to_um(np.sqrt((xs[-1] - xs[0])**2 + (ys[-1] - ys[0])**2))
-    total_t = (n - 1) * dt
-    vsl = disp_um / total_t if total_t > 0 else 0.0
-
-    w = min(5, n)
-    xs_s = uniform_filter1d(xs, size=w)
-    ys_s = uniform_filter1d(ys, size=w)
-    sdx = np.diff(xs_s)
-    sdy = np.diff(ys_s)
-    vap = np.mean(px_to_um(np.sqrt(sdx**2 + sdy**2))) / dt
-
-    str_ = vsl / vap if vap > 0 else 0.0
-
-    if vcl <= config.VCL_IMMOTILE_MAX:
-        return "Immotile"
-    elif vcl >= config.VCL_PROGRESSIVE_MIN and str_ >= config.STR_PROGRESSIVE_MIN:
-        return "Progressive"
-    else:
-        return "Non-progressive"
+# px_to_um and classify_window are imported from events.detect_events
 
 
 def compute_frame_states(track_df: pd.DataFrame) -> list:

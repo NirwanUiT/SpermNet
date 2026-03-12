@@ -147,6 +147,54 @@ def classify_motility(row: dict) -> str:
         return "non_progressive"
 
 
+def classify_window(xs: np.ndarray, ys: np.ndarray, dt: float) -> str:
+    """
+    Classify a short positional window into a motility state.
+
+    Used by Markov and temporal analyses for per-frame instantaneous
+    motility classification via a sliding window over raw positions.
+
+    Parameters
+    ----------
+    xs, ys : 1-D arrays of centroid positions (pixels).
+    dt     : Seconds between consecutive frames (1/FPS).
+
+    Returns
+    -------
+    One of 'Progressive', 'Non-progressive', 'Immotile'.
+    """
+    n = len(xs)
+    if n < 3:
+        return "Immotile"
+
+    # VCL: mean step speed
+    dx = np.diff(xs)
+    dy = np.diff(ys)
+    steps_um = px_to_um(np.sqrt(dx**2 + dy**2))
+    vcl = np.mean(steps_um) / dt
+
+    # VSL / VAP for STR
+    disp_um = px_to_um(np.sqrt((xs[-1] - xs[0])**2 + (ys[-1] - ys[0])**2))
+    total_t = (n - 1) * dt
+    vsl = disp_um / total_t if total_t > 0 else 0.0
+
+    w = min(5, n)
+    xs_s = uniform_filter1d(xs.astype(float), size=w)
+    ys_s = uniform_filter1d(ys.astype(float), size=w)
+    sdx = np.diff(xs_s)
+    sdy = np.diff(ys_s)
+    vap = np.mean(px_to_um(np.sqrt(sdx**2 + sdy**2))) / dt
+
+    str_ = vsl / vap if vap > 0 else 0.0
+
+    if vcl <= config.VCL_IMMOTILE_MAX:
+        return "Immotile"
+    elif vcl >= config.VCL_PROGRESSIVE_MIN and str_ >= config.STR_PROGRESSIVE_MIN:
+        return "Progressive"
+    else:
+        return "Non-progressive"
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Post-tracking quality filters
 # ─────────────────────────────────────────────────────────────────────────────

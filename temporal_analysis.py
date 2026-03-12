@@ -29,10 +29,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from scipy import stats as sp_stats
-from scipy.ndimage import uniform_filter1d
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config
+from events.detect_events import px_to_um, classify_window
 
 # ── Font setup ────────────────────────────────────────────────────────────────
 try:
@@ -49,8 +49,7 @@ plt.rcParams.update({
 })
 
 # ── Output directory ──────────────────────────────────────────────────────────
-TEMPORAL_DIR = config.OUTPUTS_DIR / "temporal"
-TEMPORAL_DIR.mkdir(parents=True, exist_ok=True)
+TEMPORAL_DIR = config.TEMPORAL_OUT
 
 # ── States ────────────────────────────────────────────────────────────────────
 STATES = ["Progressive", "Non-progressive", "Immotile"]
@@ -63,41 +62,10 @@ SUB_WINDOW = 25                              # for instantaneous motility
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Motility classification (same logic as markov_analysis.py)
+# Motility classification — imported from events.detect_events
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def px_to_um(px):
-    return px / config.PIXELS_PER_MICRON
-
-
-def classify_window(xs, ys, dt):
-    n = len(xs)
-    if n < 3:
-        return "Immotile"
-
-    dx = np.diff(xs)
-    dy = np.diff(ys)
-    vcl = np.mean(px_to_um(np.sqrt(dx**2 + dy**2))) / dt
-
-    disp_um = px_to_um(np.sqrt((xs[-1] - xs[0])**2 + (ys[-1] - ys[0])**2))
-    total_t = (n - 1) * dt
-    vsl = disp_um / total_t if total_t > 0 else 0.0
-
-    w = min(5, n)
-    xs_s = uniform_filter1d(xs.astype(float), size=w)
-    ys_s = uniform_filter1d(ys.astype(float), size=w)
-    sdx = np.diff(xs_s)
-    sdy = np.diff(ys_s)
-    vap = np.mean(px_to_um(np.sqrt(sdx**2 + sdy**2))) / dt
-
-    str_ = vsl / vap if vap > 0 else 0.0
-
-    if vcl <= config.VCL_IMMOTILE_MAX:
-        return "Immotile"
-    elif vcl >= config.VCL_PROGRESSIVE_MIN and str_ >= config.STR_PROGRESSIVE_MIN:
-        return "Progressive"
-    else:
-        return "Non-progressive"
+# px_to_um and classify_window are imported from events.detect_events
 
 
 def classify_track_at_frame(track_df: pd.DataFrame, frame: int) -> str:

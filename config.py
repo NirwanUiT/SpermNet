@@ -28,6 +28,8 @@ TRACK_OUT       = OUTPUTS_DIR / "tracks"
 EVENTS_OUT      = OUTPUTS_DIR / "events"
 REPORTS_OUT     = OUTPUTS_DIR / "reports"
 VIS_OUT         = OUTPUTS_DIR / "visualisations"
+MARKOV_OUT      = OUTPUTS_DIR / "markov"
+TEMPORAL_OUT    = OUTPUTS_DIR / "temporal"
 
 # ── Detection settings ────────────────────────────────────────────────────────
 YOLO_MODEL       = "yolov8n.pt"          # base model for fine-tuning / inference
@@ -72,5 +74,5 @@ VIS_COLORS       = {
 }
 
 # ── Ensure output dirs exist ─────────────────────────────────────────────────
-for d in [DETECT_OUT, TRACK_OUT, EVENTS_OUT, REPORTS_OUT, VIS_OUT]:
+for d in [DETECT_OUT, TRACK_OUT, EVENTS_OUT, REPORTS_OUT, VIS_OUT, MARKOV_OUT, TEMPORAL_OUT]:
     d.mkdir(parents=True, exist_ok=True)

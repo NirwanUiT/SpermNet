@@ -133,6 +133,8 @@ def main():
                         help="Specific video IDs to process (default: all 20)")
     parser.add_argument("--skip-vis", action="store_true",
                         help="Skip visualisation stage for faster processing")
+    parser.add_argument("--skip-research", action="store_true",
+                        help="Skip Markov and temporal research analyses")
     args = parser.parse_args()
 
     videos = args.videos or ALL_VIDEOS
@@ -149,6 +151,7 @@ def main():
     print("=" * 60)
     print(f"  Videos:   {len(videos)}")
     print(f"  Skip vis: {args.skip_vis}")
+    print(f"  Skip research: {args.skip_research}")
     print(f"  Output:   {config.OUTPUTS_DIR}")
     print("=" * 60)
 
@@ -188,6 +191,26 @@ def main():
             print("evaluate.py not found. Skipping GT comparison.")
         except Exception as e:
             print(f"Evaluation error: {e}")
+
+    # Research analyses (Markov + temporal)
+    if not args.skip_research:
+        print(f"\n{'='*60}")
+        print("  RESEARCH ANALYSES")
+        print(f"{'='*60}")
+
+        try:
+            from markov_analysis import run_markov_analysis
+            run_markov_analysis()
+        except Exception as e:
+            print(f"  Markov analysis error: {e}")
+
+        try:
+            from temporal_analysis import run_temporal_analysis
+            run_temporal_analysis()
+        except Exception as e:
+            print(f"  Temporal analysis error: {e}")
+    else:
+        print("\n  Skipping research analyses (--skip-research)")
 
 
 if __name__ == "__main__":
