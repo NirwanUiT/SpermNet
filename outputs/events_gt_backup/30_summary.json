@@ -1,0 +1,15 @@
+{
+  "video": "30",
+  "total_tracks": 52,
+  "progressive": 26,
+  "non_progressive": 21,
+  "immotile": 5,
+  "progressive_pct": 50.0,
+  "non_progressive_pct": 40.4,
+  "immotile_pct": 9.6,
+  "mean_VCL": 61.65,
+  "mean_VSL": 25.89,
+  "mean_VAP": 43.01,
+  "mean_LIN": 0.475,
+  "mean_STR": 0.594
+}

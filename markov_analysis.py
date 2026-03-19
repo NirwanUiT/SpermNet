@@ -8,16 +8,29 @@ Computes per-frame instantaneous motility via a sliding window over raw
 track positions, then builds transition count/probability matrices and
 derives the stationary distribution.
 
-Outputs:
+Outputs (default mode):
   outputs/markov/transition_matrix.csv
   outputs/markov/transition_matrix.png
   outputs/markov/stationary_distribution.png
   outputs/markov/per_video_transitions.png
 
+Outputs (experiment mode):
+  outputs/markov/{experiment}/transition_matrix.csv
+  outputs/markov/{experiment}/transition_matrix.png
+  outputs/markov/{experiment}/stationary_distribution.png
+  outputs/markov/{experiment}/per_video_transitions.png
+
+Outputs (comparison mode):
+  outputs/markov/experiment_comparison_transitions.png
+  outputs/markov/experiment_comparison_stationary.png
+
 Usage:
-    python markov_analysis.py
+    python markov_analysis.py                             # default (legacy tracks)
+    python markov_analysis.py --experiment yolov8n_botsort # single experiment
+    python markov_analysis.py --compare yolov8n_botsort,yolov8l_bytetrack  # compare
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -95,17 +108,30 @@ def compute_frame_states(track_df: pd.DataFrame) -> list:
 # Load data + build transitions
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def load_all_track_states():
+def load_all_track_states(tracks_dir: Path | None = None):
     """
     Load all track CSVs and compute per-frame states.
 
+    Parameters
+    ----------
+    tracks_dir : Path, optional
+        Directory containing ``{video}_tracks.csv`` files.
+        Defaults to ``config.TRACK_OUT``.
+
     Returns dict: video_id -> list of state sequences (one per track).
     """
+    if tracks_dir is None:
+        tracks_dir = config.TRACK_OUT
+    tracks_dir = Path(tracks_dir)
+
     video_states = {}
-    track_files = sorted(config.TRACK_OUT.glob("*_tracks.csv"))
+    track_files = sorted(tracks_dir.glob("*_tracks.csv"))
 
     for tf in track_files:
         vid = tf.stem.replace("_tracks", "")
+        # Strip tracker suffix if present (e.g. "11_botsort_tracks" -> "11")
+        for suffix in ("_botsort", "_bytetrack", "_ocsort"):
+            vid = vid.replace(suffix, "")
         df = pd.read_csv(tf)
         if df.empty:
             continue
@@ -261,14 +287,38 @@ def plot_per_video_transitions(video_matrices: dict, save_path: Path):
 # Main
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def run_markov_analysis():
+def run_markov_analysis(
+    tracks_dir: Path | None = None,
+    output_dir: Path | None = None,
+    label: str = "",
+):
+    """
+    Run the full Markov analysis.
+
+    Parameters
+    ----------
+    tracks_dir : Path, optional
+        Directory containing track CSVs.  Defaults to ``config.TRACK_OUT``.
+    output_dir : Path, optional
+        Where to write outputs.  Defaults to ``config.MARKOV_OUT``.
+    label : str, optional
+        Label printed in the banner (e.g. experiment name).
+    """
+    if output_dir is None:
+        output_dir = config.MARKOV_OUT
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    banner = "MARKOV CHAIN TRANSITION ANALYSIS"
+    if label:
+        banner += f"  [{label}]"
     print("=" * 60)
-    print("  MARKOV CHAIN TRANSITION ANALYSIS")
+    print(f"  {banner}")
     print("=" * 60)
 
     # 1. Load all track states
     print("\n  Loading tracks and computing per-frame motility states...")
-    video_states = load_all_track_states()
+    video_states = load_all_track_states(tracks_dir)
 
     if not video_states:
         print("  No track data found.")
@@ -294,19 +344,19 @@ def run_markov_analysis():
 
     # 4. Save transition matrix CSV
     T_df = pd.DataFrame(T, index=STATES, columns=STATES)
-    T_df.to_csv(MARKOV_DIR / "transition_matrix.csv")
-    print(f"\n  Transition matrix CSV -> {MARKOV_DIR / 'transition_matrix.csv'}")
+    T_df.to_csv(output_dir / "transition_matrix.csv")
+    print(f"\n  Transition matrix CSV -> {output_dir / 'transition_matrix.csv'}")
 
     # Save counts too
     C_df = pd.DataFrame(counts.astype(int), index=STATES, columns=STATES)
-    C_df.to_csv(MARKOV_DIR / "transition_counts.csv")
+    C_df.to_csv(output_dir / "transition_counts.csv")
 
     # 5. Visualise
     print("\n  Generating plots...")
-    plot_transition_heatmap(T, MARKOV_DIR / "transition_matrix.png")
-    plot_stationary_bar(pi, MARKOV_DIR / "stationary_distribution.png")
+    plot_transition_heatmap(T, output_dir / "transition_matrix.png")
+    plot_stationary_bar(pi, output_dir / "stationary_distribution.png")
     plot_per_video_transitions(video_matrices,
-                               MARKOV_DIR / "per_video_transitions.png")
+                               output_dir / "per_video_transitions.png")
 
     # 6. Summary printout
     print(f"\n{'=' * 60}")
@@ -349,11 +399,207 @@ def run_markov_analysis():
         else:
             print(f"    {s:>16}: absorbing state (no exits)")
 
-    print(f"\n  Outputs in: {MARKOV_DIR}")
+    print(f"\n  Outputs in: {output_dir}")
     print(f"{'=' * 60}")
 
     return T, pi, video_matrices
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Experiment helpers
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def run_markov_for_experiment(
+    experiment_name: str,
+    tracks_dir: Path | str | None = None,
+    output_dir: Path | str | None = None,
+):
+    """
+    Run the full Markov analysis for one experiment.
+
+    Parameters
+    ----------
+    experiment_name : str
+        E.g. ``"yolov8n_botsort"``.
+    tracks_dir : Path, optional
+        Where the experiment track CSVs live.
+        Defaults to ``outputs/tracks/{experiment_name}/``.
+    output_dir : Path, optional
+        Where to write outputs.
+        Defaults to ``outputs/markov/{experiment_name}/``.
+
+    Returns
+    -------
+    T : ndarray        – transition probability matrix (3×3)
+    pi : ndarray       – stationary distribution (3,)
+    video_matrices : dict  – per-video transition matrices
+    """
+    if tracks_dir is None:
+        tracks_dir = config.TRACK_OUT / experiment_name
+    if output_dir is None:
+        output_dir = config.MARKOV_OUT / experiment_name
+    tracks_dir = Path(tracks_dir)
+    output_dir = Path(output_dir)
+
+    if not tracks_dir.exists():
+        print(f"  ERROR: tracks directory not found: {tracks_dir}")
+        return None, None, None
+
+    return run_markov_analysis(
+        tracks_dir=tracks_dir,
+        output_dir=output_dir,
+        label=experiment_name,
+    )
+
+
+def compare_markov_experiments(experiment_names: list[str]):
+    """
+    Run Markov analysis for each experiment and produce side-by-side
+    comparison plots (transition heatmaps + stationary bar chart).
+
+    Saves:
+      outputs/markov/experiment_comparison_transitions.png
+      outputs/markov/experiment_comparison_stationary.png
+    """
+    try:
+        import seaborn as sns
+    except ImportError:
+        sns = None
+
+    results = {}  # name -> (T, pi, video_matrices)
+
+    for name in experiment_names:
+        print(f"\n{'─' * 60}")
+        ret = run_markov_for_experiment(name)
+        if ret[0] is not None:
+            results[name] = ret
+        else:
+            print(f"  Skipping {name} (no data).")
+
+    if not results:
+        print("\n  No experiment data available for comparison.")
+        return
+
+    names = list(results.keys())
+    n_exp = len(names)
+    comp_dir = config.MARKOV_OUT
+    comp_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── 1. Side-by-side transition heatmaps ───────────────────────────────
+    fig, axes = plt.subplots(1, n_exp, figsize=(3.6 * n_exp, 3.6))
+    if n_exp == 1:
+        axes = [axes]
+
+    short_labels = ["P", "NP", "Im"]
+    for ax, name in zip(axes, names):
+        T = results[name][0]
+        if sns is not None:
+            sns.heatmap(
+                T, annot=True, fmt=".3f", cmap="YlOrRd",
+                xticklabels=short_labels, yticklabels=short_labels,
+                linewidths=0.5, linecolor="white",
+                cbar=False, ax=ax, vmin=0, vmax=1,
+            )
+        else:
+            im = ax.imshow(T, cmap="YlOrRd", vmin=0, vmax=1)
+            for i in range(N_STATES):
+                for j in range(N_STATES):
+                    ax.text(j, i, f"{T[i, j]:.3f}", ha="center", va="center",
+                            fontsize=9)
+            ax.set_xticks(range(N_STATES), short_labels)
+            ax.set_yticks(range(N_STATES), short_labels)
+        ax.set_title(name, fontsize=10)
+        ax.tick_params(axis="both", which="both", length=0, labelsize=9)
+
+    fig.suptitle("Transition Probability Matrices by Experiment",
+                 fontsize=13, y=1.02)
+    fig.tight_layout()
+    out_path = comp_dir / "experiment_comparison_transitions.png"
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"\n  Comparison heatmaps -> {out_path}")
+
+    # ── 2. Grouped bar chart of stationary distributions ──────────────────
+    x = np.arange(N_STATES)
+    width = 0.8 / n_exp
+    fig, ax = plt.subplots(figsize=(max(7, 2.5 * n_exp), 4.5))
+
+    import matplotlib
+    cmap = matplotlib.colormaps.get_cmap("tab10").resampled(max(n_exp, 3))
+
+    for idx, name in enumerate(names):
+        pi = results[name][1]
+        offset = (idx - n_exp / 2 + 0.5) * width
+        bars = ax.bar(x + offset, pi, width, label=name,
+                      color=cmap(idx), edgecolor="white", linewidth=0.6)
+        for bar, val in zip(bars, pi):
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() + 0.005,
+                    f"{val:.2f}", ha="center", va="bottom", fontsize=7)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(STATES)
+    ax.set_ylabel("Stationary Probability")
+    ax.set_title("Stationary Distribution Comparison")
+    ax.set_ylim(0, 1.0)
+    ax.legend(fontsize=8, loc="upper right")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    fig.tight_layout()
+    out_path = comp_dir / "experiment_comparison_stationary.png"
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  Comparison stationary -> {out_path}")
+
+    # ── 3. Summary table ──────────────────────────────────────────────────
+    print(f"\n{'=' * 80}")
+    print("  STATIONARY DISTRIBUTION COMPARISON")
+    print(f"{'=' * 80}")
+    hdr = f"  {'Experiment':<28} {'Progressive':>12} {'Non-prog':>12} {'Immotile':>12}"
+    print(hdr)
+    print(f"  {'─' * 28} {'─' * 12} {'─' * 12} {'─' * 12}")
+    for name in names:
+        pi = results[name][1]
+        print(f"  {name:<28} {pi[0]:>11.3f}  {pi[1]:>11.3f}  {pi[2]:>11.3f}")
+    print(f"{'=' * 80}")
+
+    return results
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLI
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        description="Markov chain transition analysis of sperm motility.",
+    )
+    p.add_argument(
+        "--experiment",
+        type=str,
+        default=None,
+        help="Run Markov analysis for a specific experiment "
+             "(reads from outputs/tracks/{experiment}/).",
+    )
+    p.add_argument(
+        "--compare",
+        type=str,
+        default=None,
+        help="Comma-separated experiment names to compare.  "
+             "E.g. --compare yolov8n_botsort,yolov8l_bytetrack",
+    )
+    return p
+
+
 if __name__ == "__main__":
-    run_markov_analysis()
+    parser = _build_parser()
+    args = parser.parse_args()
+
+    if args.compare:
+        names = [n.strip() for n in args.compare.split(",") if n.strip()]
+        compare_markov_experiments(names)
+    elif args.experiment:
+        run_markov_for_experiment(args.experiment)
+    else:
+        # Default: legacy behaviour (reads from config.TRACK_OUT root)
+        run_markov_analysis()

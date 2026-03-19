@@ -26,7 +26,7 @@ def test_chatbot_reset():
     from llm.chatbot import SpermAnalysisChatbot
     bot = SpermAnalysisChatbot("99999")
     # Manually add a fake user message
-    bot.messages.append({"role": "user", "content": "test"})
+    bot.history.append({"role": "user", "content": "test"})
     assert bot.turn_count == 1
     bot.reset()
     assert bot.turn_count == 0
@@ -52,7 +52,7 @@ def test_chatbot_chat_calls_openai(mock_openai):
     mock_response.choices[0].message.content = "Test response"
     mock_openai.OpenAI.return_value.chat.completions.create.return_value = mock_response
 
-    bot = SpermAnalysisChatbot("99999")
+    bot = SpermAnalysisChatbot("99999", provider="openai")
     result = bot.chat("Hello")
 
     assert result == "Test response"

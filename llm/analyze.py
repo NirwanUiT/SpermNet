@@ -3,7 +3,7 @@
 llm/analyze.py
 
 Generate natural-language semen analysis reports from motility metrics
-using an LLM (OpenAI-compatible API or local model).
+using an LLM (OpenAI or Anthropic API, or local template).
 
 Usage:
     python -m llm.analyze <video_name>
@@ -16,6 +16,8 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
+
+import pandas as pd
 
 try:
     from dotenv import load_dotenv
@@ -31,6 +33,12 @@ try:
     HAS_OPENAI = True
 except ImportError:
     HAS_OPENAI = False
+
+try:
+    import anthropic
+    HAS_ANTHROPIC = True
+except ImportError:
+    HAS_ANTHROPIC = False
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -58,8 +66,65 @@ CASA Metrics (JSON):
 ```json
 {metrics_json}
 ```
-
+{extra_context}
 Please write the clinical report."""
+
+
+def _build_extra_context(video_name: str) -> str:
+    """Build additional context sections from events CSV and Markov data."""
+    parts: list[str] = []
+
+    # ── Per-track motility CSV: category counts + top-5 progressive by VCL ──
+    motility_path = config.EVENTS_OUT / f"{video_name}_motility.csv"
+    if motility_path.exists():
+        try:
+            df = pd.read_csv(motility_path)
+            mot_col = ("motility" if "motility" in df.columns
+                       else "motility_class" if "motility_class" in df.columns
+                       else None)
+            if mot_col:
+                counts = df[mot_col].value_counts()
+                parts.append("\nTracks per motility category:")
+                for cat, n in counts.items():
+                    parts.append(f"  {cat}: {n}")
+
+                vcl_col = "VCL" if "VCL" in df.columns else "vcl"
+                if vcl_col in df.columns:
+                    prog = df[df[mot_col].str.lower() == "progressive"]
+                    if not prog.empty:
+                        top5 = prog.nlargest(5, vcl_col)
+                        keep = [c for c in ("track_id", vcl_col, "VSL", "vsl",
+                                            "VAP", "vap")
+                                if c in top5.columns]
+                        parts.append("\nTop 5 fastest progressive tracks by VCL:")
+                        parts.append(top5[keep].to_string(
+                            index=False, float_format="%.2f"))
+        except Exception:
+            pass
+
+    # ── Markov transition matrix ──────────────────────────────────────────
+    markov_path = config.MARKOV_OUT / "transition_matrix.csv"
+    if markov_path.exists():
+        try:
+            tm = pd.read_csv(markov_path, index_col=0)
+            parts.append("\nMarkov transition matrix (frame-to-frame probabilities):")
+            parts.append(tm.to_string(float_format="%.4f"))
+            # Highlight notable patterns
+            diag = [tm.iloc[i, i] for i in range(min(tm.shape))]
+            labels = list(tm.index)
+            notes = []
+            for label, p in zip(labels, diag):
+                if p > 0.95:
+                    notes.append(f"  {label} is highly persistent (p={p:.3f})")
+            if notes:
+                parts.append("Notable patterns:")
+                parts.extend(notes)
+        except Exception:
+            pass
+
+    if not parts:
+        return ""
+    return "\n" + "\n".join(parts) + "\n"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -78,6 +143,7 @@ def generate_report_llm(summary: dict, video_name: str) -> str:
         video=video_name,
         date=datetime.now().strftime("%Y-%m-%d"),
         metrics_json=json.dumps(summary, indent=2),
+        extra_context=_build_extra_context(video_name),
     )
 
     try:
@@ -93,6 +159,36 @@ def generate_report_llm(summary: dict, video_name: str) -> str:
         return response.choices[0].message.content
     except Exception as e:
         print(f"LLM API error: {e}")
+        print("Falling back to local template report.")
+        return generate_report_local(summary, video_name)
+
+
+def generate_report_anthropic(summary: dict, video_name: str) -> str:
+    """Call Anthropic API to generate a report."""
+    if not HAS_ANTHROPIC:
+        print("WARNING: anthropic package not installed. Falling back to local template.")
+        return generate_report_local(summary, video_name)
+
+    client = anthropic.Anthropic()  # uses ANTHROPIC_API_KEY env var
+
+    user_msg = USER_TEMPLATE.format(
+        video=video_name,
+        date=datetime.now().strftime("%Y-%m-%d"),
+        metrics_json=json.dumps(summary, indent=2),
+        extra_context=_build_extra_context(video_name),
+    )
+
+    try:
+        response = client.messages.create(
+            model=config.LLM_MODEL_ANTHROPIC,
+            max_tokens=config.LLM_MAX_TOKENS,
+            temperature=config.LLM_TEMPERATURE,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_msg}],
+        )
+        return response.content[0].text
+    except Exception as e:
+        print(f"Anthropic API error: {e}")
         print("Falling back to local template report.")
         return generate_report_local(summary, video_name)
 
@@ -176,7 +272,11 @@ def analyse_and_report(video_name: str, use_llm: bool = True) -> str:
         summary = json.load(f)
 
     if use_llm:
-        report = generate_report_llm(summary, video_name)
+        provider = config.LLM_PROVIDER.lower()
+        if provider == "anthropic":
+            report = generate_report_anthropic(summary, video_name)
+        else:
+            report = generate_report_llm(summary, video_name)
     else:
         report = generate_report_local(summary, video_name)
 

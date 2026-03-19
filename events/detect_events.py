@@ -330,9 +330,21 @@ def _load_detection_stats(video_name: str) -> dict | None:
     }
 
 
-def analyse_video(video_name: str) -> pd.DataFrame:
+def analyse_video(
+    video_name: str,
+    tracks_dir: Path | None = None,
+    events_dir: Path | None = None,
+) -> pd.DataFrame:
     """
     Load tracks CSV, compute per-track motility metrics, classify, save.
+
+    Parameters
+    ----------
+    video_name : Name / ID of the video (e.g. "14").
+    tracks_dir : Directory containing ``{video_name}_tracks.csv``.
+                 Defaults to ``config.TRACK_OUT``.
+    events_dir : Directory to write motility CSV and summary JSON.
+                 Defaults to ``config.EVENTS_OUT``.
 
     If a detection JSON exists, estimates untracked (assumed immotile)
     sperm from the discrepancy between average detections per frame and
@@ -341,7 +353,11 @@ def analyse_video(video_name: str) -> pd.DataFrame:
     """
     import json
 
-    csv_path = config.TRACK_OUT / f"{video_name}_tracks.csv"
+    tracks_dir = Path(tracks_dir) if tracks_dir is not None else config.TRACK_OUT
+    events_dir = Path(events_dir) if events_dir is not None else config.EVENTS_OUT
+    events_dir.mkdir(parents=True, exist_ok=True)
+
+    csv_path = tracks_dir / f"{video_name}_tracks.csv"
     if not csv_path.exists():
         print(f"ERROR: Track file not found: {csv_path}")
         print("Run tracking first:  python -m tracking.track_sperm ...")
@@ -438,7 +454,7 @@ def analyse_video(video_name: str) -> pd.DataFrame:
     print(f"{'='*50}\n")
 
     # ── Save motility CSV (tracked sperm only — unchanged) ────────────────
-    out_csv = config.EVENTS_OUT / f"{video_name}_motility.csv"
+    out_csv = events_dir / f"{video_name}_motility.csv"
     metrics_df.to_csv(out_csv, index=False)
     print(f"Metrics saved → {out_csv}")
 
@@ -472,7 +488,7 @@ def analyse_video(video_name: str) -> pd.DataFrame:
         "mean_LIN": round(float(metrics_df["LIN"].mean()), 3),
         "mean_STR": round(float(metrics_df["STR"].mean()), 3),
     }
-    summary_path = config.EVENTS_OUT / f"{video_name}_summary.json"
+    summary_path = events_dir / f"{video_name}_summary.json"
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
     print(f"Summary saved → {summary_path}")
@@ -480,16 +496,26 @@ def analyse_video(video_name: str) -> pd.DataFrame:
     return metrics_df
 
 
-def analyse_all():
-    """Analyse all tracked videos."""
-    track_files = sorted(config.TRACK_OUT.glob("*_tracks.csv"))
+def analyse_all(
+    tracks_dir: Path | None = None,
+    events_dir: Path | None = None,
+):
+    """Analyse all tracked videos.
+
+    Parameters
+    ----------
+    tracks_dir : Where to find ``*_tracks.csv`` files.  Default: ``config.TRACK_OUT``.
+    events_dir : Where to save results.  Default: ``config.EVENTS_OUT``.
+    """
+    tracks_dir = Path(tracks_dir) if tracks_dir is not None else config.TRACK_OUT
+    track_files = sorted(tracks_dir.glob("*_tracks.csv"))
     if not track_files:
-        print("No track CSVs found. Run tracking first.")
+        print(f"No track CSVs found in {tracks_dir}. Run tracking first.")
         return
 
     for tf in track_files:
         video_name = tf.stem.replace("_tracks", "")
-        analyse_video(video_name)
+        analyse_video(video_name, tracks_dir=tracks_dir, events_dir=events_dir)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

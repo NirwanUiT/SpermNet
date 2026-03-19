@@ -1,0 +1,570 @@
+{
+  "yolo11n_botsort": [
+    {
+      "video": "11",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/11_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/11_summary.json",
+      "error": null
+    },
+    {
+      "video": "12",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/12_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/12_summary.json",
+      "error": null
+    },
+    {
+      "video": "13",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/13_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/13_summary.json",
+      "error": null
+    },
+    {
+      "video": "14",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/14_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/14_summary.json",
+      "error": null
+    },
+    {
+      "video": "15",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/15_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/15_summary.json",
+      "error": null
+    },
+    {
+      "video": "19",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/19_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/19_summary.json",
+      "error": null
+    },
+    {
+      "video": "21",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/21_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/21_summary.json",
+      "error": null
+    },
+    {
+      "video": "22",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/22_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/22_summary.json",
+      "error": null
+    },
+    {
+      "video": "23",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/23_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/23_summary.json",
+      "error": null
+    },
+    {
+      "video": "24",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/24_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/24_summary.json",
+      "error": null
+    },
+    {
+      "video": "29",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/29_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/29_summary.json",
+      "error": null
+    },
+    {
+      "video": "30",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/30_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/30_summary.json",
+      "error": null
+    },
+    {
+      "video": "35",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/35_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/35_summary.json",
+      "error": null
+    },
+    {
+      "video": "36",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/36_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/36_summary.json",
+      "error": null
+    },
+    {
+      "video": "38",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/38_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/38_summary.json",
+      "error": null
+    },
+    {
+      "video": "47",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/47_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/47_summary.json",
+      "error": null
+    },
+    {
+      "video": "52",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/52_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/52_summary.json",
+      "error": null
+    },
+    {
+      "video": "54",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/54_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/54_summary.json",
+      "error": null
+    },
+    {
+      "video": "60",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/60_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/60_summary.json",
+      "error": null
+    },
+    {
+      "video": "82",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_botsort/82_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_botsort/82_summary.json",
+      "error": null
+    }
+  ],
+  "yolo11n_bytetrack": [
+    {
+      "video": "11",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/11_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/11_summary.json",
+      "error": null
+    },
+    {
+      "video": "12",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/12_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/12_summary.json",
+      "error": null
+    },
+    {
+      "video": "13",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/13_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/13_summary.json",
+      "error": null
+    },
+    {
+      "video": "14",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/14_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/14_summary.json",
+      "error": null
+    },
+    {
+      "video": "15",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/15_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/15_summary.json",
+      "error": null
+    },
+    {
+      "video": "19",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/19_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/19_summary.json",
+      "error": null
+    },
+    {
+      "video": "21",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/21_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/21_summary.json",
+      "error": null
+    },
+    {
+      "video": "22",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/22_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/22_summary.json",
+      "error": null
+    },
+    {
+      "video": "23",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/23_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/23_summary.json",
+      "error": null
+    },
+    {
+      "video": "24",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/24_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/24_summary.json",
+      "error": null
+    },
+    {
+      "video": "29",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/29_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/29_summary.json",
+      "error": null
+    },
+    {
+      "video": "30",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/30_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/30_summary.json",
+      "error": null
+    },
+    {
+      "video": "35",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/35_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/35_summary.json",
+      "error": null
+    },
+    {
+      "video": "36",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/36_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/36_summary.json",
+      "error": null
+    },
+    {
+      "video": "38",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/38_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/38_summary.json",
+      "error": null
+    },
+    {
+      "video": "47",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/47_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/47_summary.json",
+      "error": null
+    },
+    {
+      "video": "52",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/52_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/52_summary.json",
+      "error": null
+    },
+    {
+      "video": "54",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/54_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/54_summary.json",
+      "error": null
+    },
+    {
+      "video": "60",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/60_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/60_summary.json",
+      "error": null
+    },
+    {
+      "video": "82",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolo11n_bytetrack/82_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolo11n_bytetrack/82_summary.json",
+      "error": null
+    }
+  ],
+  "yolov9t_botsort": [
+    {
+      "video": "11",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/11_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/11_summary.json",
+      "error": null
+    },
+    {
+      "video": "12",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/12_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/12_summary.json",
+      "error": null
+    },
+    {
+      "video": "13",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/13_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/13_summary.json",
+      "error": null
+    },
+    {
+      "video": "14",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/14_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/14_summary.json",
+      "error": null
+    },
+    {
+      "video": "15",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/15_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/15_summary.json",
+      "error": null
+    },
+    {
+      "video": "19",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/19_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/19_summary.json",
+      "error": null
+    },
+    {
+      "video": "21",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/21_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/21_summary.json",
+      "error": null
+    },
+    {
+      "video": "22",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/22_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/22_summary.json",
+      "error": null
+    },
+    {
+      "video": "23",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/23_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/23_summary.json",
+      "error": null
+    },
+    {
+      "video": "24",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/24_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/24_summary.json",
+      "error": null
+    },
+    {
+      "video": "29",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/29_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/29_summary.json",
+      "error": null
+    },
+    {
+      "video": "30",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/30_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/30_summary.json",
+      "error": null
+    },
+    {
+      "video": "35",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/35_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/35_summary.json",
+      "error": null
+    },
+    {
+      "video": "36",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/36_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/36_summary.json",
+      "error": null
+    },
+    {
+      "video": "38",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/38_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/38_summary.json",
+      "error": null
+    },
+    {
+      "video": "47",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/47_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/47_summary.json",
+      "error": null
+    },
+    {
+      "video": "52",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/52_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/52_summary.json",
+      "error": null
+    },
+    {
+      "video": "54",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/54_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/54_summary.json",
+      "error": null
+    },
+    {
+      "video": "60",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/60_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/60_summary.json",
+      "error": null
+    },
+    {
+      "video": "82",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_botsort/82_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_botsort/82_summary.json",
+      "error": null
+    }
+  ],
+  "yolov9t_bytetrack": [
+    {
+      "video": "11",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/11_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/11_summary.json",
+      "error": null
+    },
+    {
+      "video": "12",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/12_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/12_summary.json",
+      "error": null
+    },
+    {
+      "video": "13",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/13_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/13_summary.json",
+      "error": null
+    },
+    {
+      "video": "14",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/14_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/14_summary.json",
+      "error": null
+    },
+    {
+      "video": "15",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/15_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/15_summary.json",
+      "error": null
+    },
+    {
+      "video": "19",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/19_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/19_summary.json",
+      "error": null
+    },
+    {
+      "video": "21",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/21_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/21_summary.json",
+      "error": null
+    },
+    {
+      "video": "22",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/22_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/22_summary.json",
+      "error": null
+    },
+    {
+      "video": "23",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/23_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/23_summary.json",
+      "error": null
+    },
+    {
+      "video": "24",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/24_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/24_summary.json",
+      "error": null
+    },
+    {
+      "video": "29",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/29_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/29_summary.json",
+      "error": null
+    },
+    {
+      "video": "30",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/30_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/30_summary.json",
+      "error": null
+    },
+    {
+      "video": "35",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/35_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/35_summary.json",
+      "error": null
+    },
+    {
+      "video": "36",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/36_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/36_summary.json",
+      "error": null
+    },
+    {
+      "video": "38",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/38_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/38_summary.json",
+      "error": null
+    },
+    {
+      "video": "47",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/47_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/47_summary.json",
+      "error": null
+    },
+    {
+      "video": "52",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/52_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/52_summary.json",
+      "error": null
+    },
+    {
+      "video": "54",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/54_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/54_summary.json",
+      "error": null
+    },
+    {
+      "video": "60",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/60_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/60_summary.json",
+      "error": null
+    },
+    {
+      "video": "82",
+      "status": "ok",
+      "tracks": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/tracks/yolov9t_bytetrack/82_tracks.csv",
+      "events": "/mnt/nas1/nba055-2/WP4_/sperm_analysis/outputs/events/yolov9t_bytetrack/82_summary.json",
+      "error": null
+    }
+  ]
+}

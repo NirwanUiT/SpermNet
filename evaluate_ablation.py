@@ -14,6 +14,7 @@ Usage:
     python evaluate_ablation.py
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -39,10 +40,32 @@ TEST_VIDEOS = ["29", "52"]
 GT_CSV = config.RAW_DIR / "semen_analysis_data_Train.csv"
 EVAL_DIR = config.OUTPUTS_DIR / "evaluation_ablation"
 
+ALL_VIDEOS = [
+    "11", "12", "13", "14", "15", "19", "21", "22", "23", "24",
+    "29", "30", "35", "36", "38", "47", "52", "54", "60", "82",
+]
+
+VIDEO_SETS = {
+    "val": VAL_VIDEOS,
+    "test": TEST_VIDEOS,
+    "held_out": HELD_OUT_VIDEOS,
+    "all": ALL_VIDEOS,
+}
+
 # Clean event output directories (each pipeline's results saved separately)
 GT_EVENTS_DIR = config.OUTPUTS_DIR / "events_gt_clean"
 YOLOV8L_EVENTS_DIR = config.OUTPUTS_DIR / "events_yolov8l_backup"
 YOLOV8N_EVENTS_DIR = config.OUTPUTS_DIR / "events_yolov8n_clean"
+
+# Legacy directories for backward compatibility
+LEGACY_DIRS: dict[str, tuple[Path, bool]] = {
+    "GT-ceiling": (GT_EVENTS_DIR, False),       # use_adjusted=False
+    "YOLOv8n-legacy": (YOLOV8N_EVENTS_DIR, True),
+    "YOLOv8l-legacy": (YOLOV8L_EVENTS_DIR, True),
+}
+
+# Directory where run_experiments.py writes per-experiment event results
+EXPERIMENTS_EVENTS_DIR = config.OUTPUTS_DIR / "events"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -141,7 +164,263 @@ def compute_metrics(gt_df: pd.DataFrame, pred_df: pd.DataFrame) -> dict:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Main evaluation
+# Multi-model discovery & loading
+# ─────────────────────────────────────────────────────────────────────────────
+
+def discover_experiments() -> dict[str, Path]:
+    """Scan outputs/events/ for experiment subdirectories.
+
+    Each subdirectory name is an experiment name (e.g. "yolov8n_botsort",
+    "rtdetr-l_botsort").  Returns a dict mapping experiment name → events
+    directory Path.
+    """
+    experiments: dict[str, Path] = {}
+    if not EXPERIMENTS_EVENTS_DIR.is_dir():
+        return experiments
+    for child in sorted(EXPERIMENTS_EVENTS_DIR.iterdir()):
+        if child.is_dir():
+            # Check the subdir actually contains at least one summary JSON
+            if any(child.glob("*_summary.json")):
+                experiments[child.name] = child
+    return experiments
+
+
+def load_experiment_results(
+    events_dir: Path,
+    video_ids: list[str],
+    use_adjusted: bool = True,
+) -> pd.DataFrame:
+    """Load all _summary.json files from *events_dir* for *video_ids*.
+
+    Returns a DataFrame with columns:
+        video, progressive_pct, non_progressive_pct, immotile_pct
+    (plus extra bookkeeping columns matching the existing format).
+    """
+    rows: list[dict] = []
+    for vid in video_ids:
+        sp = events_dir / f"{vid}_summary.json"
+        if not sp.exists():
+            continue
+        with open(sp) as f:
+            s = json.load(f)
+
+        if use_adjusted and "adjusted_progressive_pct" in s:
+            prog = s["adjusted_progressive_pct"]
+            nonpro = s["adjusted_non_progressive_pct"]
+            immot = s["adjusted_immotile_pct"]
+        else:
+            prog = s.get("progressive_pct", 0)
+            nonpro = s.get("non_progressive_pct", 0)
+            immot = s.get("immotile_pct", 0)
+
+        rows.append({
+            "video": str(s["video"]),
+            "pred_progressive": prog,
+            "pred_non_progressive": nonpro,
+            "pred_immotile": immot,
+            "total_tracks": s.get("total_tracks", 0),
+            "adjusted_total": s.get("adjusted_total", s.get("total_tracks", 0)),
+            "untracked_fraction": s.get("untracked_fraction", 0),
+            "mean_VCL": s.get("mean_VCL", 0),
+        })
+    return pd.DataFrame(rows)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Multi-model evaluation
+# ─────────────────────────────────────────────────────────────────────────────
+
+def evaluate_multi(
+    experiment_names: list[str] | None = None,
+    video_set: str = "held_out",
+) -> pd.DataFrame:
+    """Evaluate any set of experiments against clinical ground truth.
+
+    Parameters
+    ----------
+    experiment_names : list[str] | None
+        Experiment names to evaluate.  ``None`` = all discovered + legacy.
+    video_set : str
+        Which video IDs to use: "val", "test", "held_out", or "all".
+
+    Returns
+    -------
+    pd.DataFrame
+        Comparison table with one row per (experiment, category).
+    """
+    EVAL_DIR.mkdir(parents=True, exist_ok=True)
+    video_ids = VIDEO_SETS.get(video_set, HELD_OUT_VIDEOS)
+
+    # Load clinical ground truth
+    gt = load_ground_truth()
+    gt_filtered = gt[gt["video"].isin(video_ids)].copy()
+    print(f"Clinical GT available for {len(gt_filtered)} / {len(video_ids)} "
+          f"videos (set='{video_set}')")
+
+    # Collect experiment sources: {name: (events_dir, use_adjusted)}
+    sources: dict[str, tuple[Path, bool]] = {}
+
+    # Legacy directories (backward compat)
+    for name, (edir, adj) in LEGACY_DIRS.items():
+        if edir.is_dir():
+            sources[name] = (edir, adj)
+
+    # Discovered experiment subdirectories
+    discovered = discover_experiments()
+    for name, edir in discovered.items():
+        sources[name] = (edir, True)  # experiment outputs always use adjusted
+
+    # Filter to requested experiments
+    if experiment_names:
+        sources = {
+            k: v for k, v in sources.items() if k in experiment_names
+        }
+
+    if not sources:
+        print("No experiments found to evaluate.")
+        return pd.DataFrame()
+
+    print(f"Evaluating {len(sources)} experiment(s): "
+          f"{', '.join(sources.keys())}")
+
+    # Evaluate each experiment
+    all_metrics: dict[str, dict] = {}
+    all_preds: dict[str, pd.DataFrame] = {}
+    summary_rows: list[dict] = []
+
+    for exp_name, (events_dir, use_adjusted) in sources.items():
+        print(f"\n━━━ {exp_name} ━━━")
+        pred_df = load_experiment_results(events_dir, video_ids, use_adjusted)
+        if pred_df.empty:
+            print(f"  No results found in {events_dir}")
+            continue
+
+        metrics = compute_metrics(gt_filtered, pred_df)
+        if not metrics:
+            print(f"  No overlapping videos with GT")
+            continue
+
+        all_metrics[exp_name] = metrics
+        all_preds[exp_name] = pred_df
+
+        for cat in ["progressive", "non_progressive", "immotile"]:
+            if cat in metrics:
+                m = metrics[cat]
+                summary_rows.append({
+                    "experiment": exp_name,
+                    "category": cat,
+                    "MAE": m["MAE"],
+                    "RMSE": m["RMSE"],
+                    "r": m["r"],
+                    "p": m["p"],
+                    "bias": m["bias"],
+                    "n_videos": metrics["n_videos"],
+                })
+
+    if not summary_rows:
+        print("\nNo valid results to compare.")
+        return pd.DataFrame()
+
+    comparison_df = pd.DataFrame(summary_rows)
+
+    # ── Print comparison table ─────────────────────────────────────────────
+    print(f"\n{'='*95}")
+    print(f"  MULTI-MODEL COMPARISON  (videos: {video_set})")
+    print(f"{'='*95}")
+    print(f"  {'Experiment':<25} {'Category':<18} {'MAE':>7} {'RMSE':>7} "
+          f"{'Bias':>7} {'r':>7} {'p':>8} {'n':>4}")
+    print(f"  {'─'*25} {'─'*18} {'─'*7} {'─'*7} {'─'*7} {'─'*7} {'─'*8} {'─'*4}")
+
+    for exp_name in all_metrics:
+        metrics = all_metrics[exp_name]
+        for cat in ["progressive", "non_progressive", "immotile"]:
+            if cat in metrics:
+                m = metrics[cat]
+                print(f"  {exp_name:<25} {cat:<18} {m['MAE']:>7.1f} "
+                      f"{m['RMSE']:>7.1f} {m['bias']:>+7.1f} {m['r']:>7.3f} "
+                      f"{m['p']:>8.4f} {metrics['n_videos']:>4}")
+        print()
+    print(f"{'='*95}")
+
+    # ── Save results ───────────────────────────────────────────────────────
+    comparison_df.to_csv(
+        EVAL_DIR / "multi_model_comparison.csv", index=False,
+    )
+    print(f"\n  Comparison CSV → {EVAL_DIR / 'multi_model_comparison.csv'}")
+
+    multi_json = {}
+    for exp_name, metrics in all_metrics.items():
+        multi_json[exp_name] = {
+            "n_videos": metrics.get("n_videos", 0),
+            **{cat: metrics[cat] for cat in
+               ["progressive", "non_progressive", "immotile"]
+               if cat in metrics},
+        }
+    with open(EVAL_DIR / "multi_model_metrics.json", "w") as f:
+        json.dump(multi_json, f, indent=2)
+    print(f"  Metrics JSON  → {EVAL_DIR / 'multi_model_metrics.json'}")
+
+    # ── Plots ──────────────────────────────────────────────────────────────
+    _plot_multi_comparison(all_metrics, video_set)
+    _plot_scatter(gt_filtered, all_preds)
+
+    return comparison_df
+
+
+def _plot_multi_comparison(all_metrics: dict, video_set: str):
+    """Grouped bar chart: MAE per experiment for each motility category."""
+    categories = ["progressive", "non_progressive", "immotile"]
+    cat_labels = ["Progressive", "Non-progressive", "Immotile"]
+    exp_names = list(all_metrics.keys())
+    n_exp = len(exp_names)
+    n_cats = len(categories)
+
+    if n_exp == 0:
+        return
+
+    fig, ax = plt.subplots(figsize=(max(10, 2.5 * n_exp), 6))
+
+    x = np.arange(n_cats)
+    width = 0.8 / n_exp
+    cmap = matplotlib.colormaps.get_cmap("tab10").resampled(max(n_exp, 3))
+
+    max_mae = 0.0
+    for i, exp in enumerate(exp_names):
+        metrics = all_metrics[exp]
+        maes = [metrics[cat]["MAE"] if cat in metrics else 0 for cat in categories]
+        max_mae = max(max_mae, max(maes))
+        offset = i * width - (n_exp - 1) * width / 2
+        bars = ax.bar(
+            x + offset, maes, width,
+            label=exp, color=cmap(i), alpha=0.85,
+        )
+        for bar, val in zip(bars, maes):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 0.3,
+                f"{val:.1f}",
+                ha="center", va="bottom", fontsize=8,
+            )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(cat_labels, fontsize=12)
+    ax.set_ylabel("MAE (%)", fontsize=12)
+    ax.set_title(
+        f"Multi-Model Comparison: MAE (videos: {video_set})", fontsize=14,
+    )
+    ax.legend(fontsize=9, loc="upper left", bbox_to_anchor=(1.02, 1))
+    ax.set_ylim(0, max_mae * 1.35 if max_mae > 0 else 10)
+    ax.grid(axis="y", alpha=0.3)
+
+    fig.tight_layout()
+    out = EVAL_DIR / "multi_model_comparison.png"
+    fig.savefig(out, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  Comparison plot → {out}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Legacy evaluation (kept as fallback)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run_ablation():
@@ -371,5 +650,48 @@ def _plot_scatter(gt_held: pd.DataFrame, all_preds: dict):
     print(f"  Scatter plot → {out}")
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# CLI
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(
+        description="Evaluate experiments against clinical GT",
+    )
+    p.add_argument(
+        "--experiments",
+        type=str,
+        default=None,
+        help="Comma-separated experiment names to evaluate (default: all).",
+    )
+    p.add_argument(
+        "--videos",
+        type=str,
+        default="held_out",
+        choices=["val", "test", "held_out", "all"],
+        help="Which video set to evaluate on (default: held_out).",
+    )
+    p.add_argument(
+        "--legacy",
+        action="store_true",
+        default=False,
+        help="Run legacy three-model ablation (run_ablation) instead.",
+    )
+    return p.parse_args()
+
+
 if __name__ == "__main__":
-    run_ablation()
+    args = _parse_args()
+
+    if args.legacy:
+        run_ablation()
+    else:
+        exp_list = (
+            [e.strip() for e in args.experiments.split(",")]
+            if args.experiments
+            else None
+        )
+        evaluate_multi(
+            experiment_names=exp_list,
+            video_set=args.videos,
+        )

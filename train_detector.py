@@ -2,15 +2,23 @@
 """
 train_detector.py
 
-Train YOLOv8n on the VISEM-Tracking sperm detection dataset.
+Train YOLOv8 or RT-DETR on the VISEM-Tracking sperm detection dataset.
 
 Prerequisites:
     1. Run convert_annotations.py first to set up the YOLO data layout
     2. The visem.yaml dataset config must exist
 
-Usage:
-    python train_detector.py
+Usage — YOLO (CNN-based):
+    python train_detector.py                          # YOLOv8n (default)
+    python train_detector.py --model-size l           # YOLOv8l with auto-tuned LR & freeze
+    python train_detector.py --model-size l --lr0 0.001 --freeze 5  # manual overrides
+    python train_detector.py --model path/to/custom.pt              # custom weights
     python train_detector.py --epochs 100 --batch 8 --resume
+
+Usage — RT-DETR (transformer-based):
+    python train_detector.py --architecture rtdetr                   # RT-DETR-l (default)
+    python train_detector.py --architecture rtdetr --model-size x    # RT-DETR-x
+    python train_detector.py --architecture rtdetr --lr0 0.0002      # custom LR
 """
 
 import argparse
@@ -23,6 +31,16 @@ import config
 
 from ultralytics import YOLO
 
+# ── Auto-tuning defaults for large models ──
+_LARGE_MODEL_SIZES = {"l", "x"}
+_LARGE_DEFAULT_FREEZE = 10
+_LARGE_DEFAULT_LR0 = 0.0005
+
+# ── RT-DETR defaults ──
+_RTDETR_DEFAULT_LR0 = 0.0001
+_RTDETR_DEFAULT_BATCH = 8
+_RTDETR_SIZE_MAP = {"l": "rtdetr-l", "x": "rtdetr-x"}  # other sizes fall back to "rtdetr-l"
+
 
 def train(
     epochs: int = 200,
@@ -30,9 +48,22 @@ def train(
     imgsz: int = 640,
     patience: int = 30,
     resume: bool = False,
-    model_name: str = "yolov8l.pt",
+    model_name: str = "yolov8n.pt",
+    lr0: float = 0.001,
+    lrf: float = 0.1,
+    freeze: int = 0,
+    architecture: str = "yolo",
 ):
-    """Train YOLOv8 on the VISEM-Tracking dataset."""
+    """Train YOLOv8 or RT-DETR on the VISEM-Tracking dataset.
+
+    Args:
+        lr0:          Initial learning rate (default 0.001; use lower for
+                      large pretrained models / transformers).
+        lrf:          Final LR multiplier (final_lr = lr0 * lrf).
+        freeze:       Number of backbone layers to freeze (0 = train all;
+                      ignored for RT-DETR).
+        architecture: "yolo" or "rtdetr".
+    """
 
     yaml_path = config.ANNOTATIONS_DIR / "visem.yaml"
     if not yaml_path.exists():
@@ -48,22 +79,30 @@ def train(
     weights_dir = config.PROJECT_ROOT / "detection" / "weights"
     weights_dir.mkdir(parents=True, exist_ok=True)
 
+    arch_label = "RT-DETR" if architecture == "rtdetr" else "YOLOv8"
     print("=" * 60)
-    print("  YOLOv8 TRAINING — VISEM-Tracking Sperm Detection")
+    print(f"  {arch_label} TRAINING — VISEM-Tracking Sperm Detection")
     print("=" * 60)
-    print(f"  Model:     {model_name}")
-    print(f"  Dataset:   {yaml_path}")
-    print(f"  Epochs:    {epochs}")
-    print(f"  Batch:     {batch}")
-    print(f"  Image size: {imgsz}")
-    print(f"  Patience:  {patience}")
+    print(f"  Architecture: {architecture}")
+    print(f"  Model:        {model_name}")
+    print(f"  Dataset:      {yaml_path}")
+    print(f"  Epochs:       {epochs}")
+    print(f"  Batch:        {batch}")
+    print(f"  Image size:   {imgsz}")
+    print(f"  Patience:     {patience}")
+    print(f"  lr0:          {lr0}")
+    print(f"  lrf:          {lrf}  (final LR = {lr0 * lrf:.6f})")
+    if architecture == "yolo":
+        print(f"  Freeze:       {freeze} backbone layers")
+    else:
+        print(f"  Freeze:       N/A (RT-DETR)")
     print("=" * 60)
 
     # Load model
     model = YOLO(model_name)
 
-    # Train
-    results = model.train(
+    # Build train kwargs — shared between architectures
+    train_kwargs = dict(
         data=str(yaml_path),
         epochs=epochs,
         imgsz=imgsz,
@@ -81,20 +120,47 @@ def train(
         device="0",           # use first GPU; change to "cpu" if no GPU
         amp=True,             # mixed precision
         cos_lr=True,          # cosine LR schedule
-        lr0=0.01,
-        lrf=0.01,             # final LR = lr0 * lrf
-        mosaic=1.0,           # mosaic augmentation
-        close_mosaic=20,      # disable mosaic last 20 epochs
-        hsv_h=0.015,
-        hsv_s=0.7,
-        hsv_v=0.4,
-        degrees=10.0,         # rotation
-        translate=0.1,
-        scale=0.5,
-        flipud=0.5,           # sperm swim any direction
-        fliplr=0.5,
-        mixup=0.1,            # light mixup
+        lr0=lr0,
+        lrf=lrf,              # final LR = lr0 * lrf
     )
+
+    if architecture == "rtdetr":
+        # RT-DETR (transformer): no mosaic, AdamW optimizer, no freeze
+        train_kwargs.update(
+            optimizer="AdamW",   # transformers train best with AdamW
+            mosaic=0.0,          # mosaic disabled for RT-DETR
+            close_mosaic=0,
+            hsv_h=0.015,
+            hsv_s=0.7,
+            hsv_v=0.4,
+            degrees=10.0,
+            translate=0.1,
+            scale=0.5,
+            flipud=0.5,
+            fliplr=0.5,
+            mixup=0.0,           # no mixup for transformers
+        )
+    else:
+        # YOLO (CNN): full augmentation pipeline, SGD
+        train_kwargs.update(
+            optimizer="SGD",     # explicit SGD — 'auto' overrides lr0!
+            mosaic=1.0,          # mosaic augmentation
+            close_mosaic=20,     # disable mosaic last 20 epochs
+            hsv_h=0.015,
+            hsv_s=0.7,
+            hsv_v=0.4,
+            degrees=10.0,        # rotation
+            translate=0.1,
+            scale=0.5,
+            flipud=0.5,          # sperm swim any direction
+            fliplr=0.5,
+            mixup=0.1,           # light mixup
+        )
+        if freeze > 0:
+            train_kwargs["freeze"] = freeze
+
+    # Train
+    results = model.train(**train_kwargs)
 
     # Copy best weights
     train_dir = config.OUTPUTS_DIR / "training" / run_name
@@ -155,23 +221,96 @@ def train(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train YOLOv8 on VISEM-Tracking")
+    parser = argparse.ArgumentParser(
+        description="Train YOLOv8 or RT-DETR on VISEM-Tracking")
+    parser.add_argument("--architecture", type=str, default="yolo",
+                        choices=["yolo", "rtdetr"],
+                        help="Model family: 'yolo' (CNN) or 'rtdetr' "
+                             "(transformer). Default: yolo.")
     parser.add_argument("--epochs", type=int, default=200)
-    parser.add_argument("--batch", type=int, default=16)
+    parser.add_argument("--batch", type=int, default=None,
+                        help="Batch size (default: 16 for YOLO, 8 for RT-DETR)")
     parser.add_argument("--imgsz", type=int, default=640)
     parser.add_argument("--patience", type=int, default=30)
     parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--model", type=str, default="yolov8l.pt",
-                        help="Base model (default: yolov8l.pt)")
+    parser.add_argument("--model", type=str, default=None,
+                        help="Custom model path (overrides --model-size)")
+    parser.add_argument("--model-size", type=str, default="n",
+                        choices=["n", "s", "m", "l", "x"],
+                        help="Model variant size (default: n). "
+                             "Ignored when --model is provided.")
+    parser.add_argument("--lr0", type=float, default=None,
+                        help="Initial learning rate (default: 0.001 YOLO, "
+                             "0.0001 RT-DETR; auto-set for l/x YOLO models)")
+    parser.add_argument("--lrf", type=float, default=0.1,
+                        help="Final LR = lr0 * lrf (default: 0.1)")
+    parser.add_argument("--freeze", type=int, default=None,
+                        help="Backbone layers to freeze (default: 0; "
+                             "auto-set to 10 for l/x YOLO models; "
+                             "ignored for RT-DETR)")
     args = parser.parse_args()
+
+    architecture = args.architecture
+
+    # ── Resolve model name ──
+    if args.model is not None:
+        model_name = args.model
+        stem = Path(model_name).stem.lower()
+        model_size = stem[-1] if stem[-1] in {"n", "s", "m", "l", "x"} else "n"
+    elif architecture == "rtdetr":
+        # Map size → RT-DETR variant; default to rtdetr-l
+        rtdetr_variant = _RTDETR_SIZE_MAP.get(args.model_size, "rtdetr-l")
+        model_name = f"{rtdetr_variant}.pt"
+        model_size = args.model_size
+    else:
+        model_size = args.model_size
+        model_name = f"yolov8{model_size}.pt"
+
+    # ── Resolve hyperparameters ──
+    lr0 = args.lr0
+    freeze = args.freeze
+    lr0_explicit = args.lr0 is not None
+    freeze_explicit = args.freeze is not None
+    batch = args.batch
+
+    if architecture == "rtdetr":
+        # RT-DETR-specific defaults
+        if not lr0_explicit:
+            lr0 = _RTDETR_DEFAULT_LR0
+        if batch is None:
+            batch = _RTDETR_DEFAULT_BATCH
+        freeze = 0  # freeze is not used for RT-DETR
+        print(f"  Using RT-DETR config: lr0={lr0}, batch={batch}, no mosaic")
+    else:
+        # YOLO auto-tuning for large models
+        if model_size in _LARGE_MODEL_SIZES:
+            if not freeze_explicit:
+                freeze = _LARGE_DEFAULT_FREEZE
+            if not lr0_explicit:
+                lr0 = _LARGE_DEFAULT_LR0
+            if not freeze_explicit or not lr0_explicit:
+                print(f"  Auto-tuning: freeze={freeze}, lr0={lr0} "
+                      f"for large model fine-tuning ({model_name})")
+
+    # Fall back to standard defaults if not set by auto-tuning or CLI
+    if lr0 is None:
+        lr0 = 0.001
+    if freeze is None:
+        freeze = 0
+    if batch is None:
+        batch = 16
 
     train(
         epochs=args.epochs,
-        batch=args.batch,
+        batch=batch,
         imgsz=args.imgsz,
         patience=args.patience,
         resume=args.resume,
-        model_name=args.model,
+        model_name=model_name,
+        lr0=lr0,
+        lrf=args.lrf,
+        freeze=freeze,
+        architecture=architecture,
     )
 
 

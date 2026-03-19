@@ -1,0 +1,74 @@
+{
+  "GT-ceiling": {
+    "n_videos": 6,
+    "progressive": {
+      "MAE": 15.15,
+      "RMSE": 20.37,
+      "r": -0.236,
+      "p": 0.6521,
+      "bias": -0.42
+    },
+    "non_progressive": {
+      "MAE": 9.93,
+      "RMSE": 11.57,
+      "r": 0.936,
+      "p": 0.0059,
+      "bias": 4.33
+    },
+    "immotile": {
+      "MAE": 16.15,
+      "RMSE": 20.3,
+      "r": 0.623,
+      "p": 0.1862,
+      "bias": -3.92
+    }
+  },
+  "YOLOv8n": {
+    "n_videos": 6,
+    "progressive": {
+      "MAE": 10.67,
+      "RMSE": 14.3,
+      "r": 0.608,
+      "p": 0.1999,
+      "bias": 7.9
+    },
+    "non_progressive": {
+      "MAE": 10.1,
+      "RMSE": 11.83,
+      "r": 0.613,
+      "p": 0.1954,
+      "bias": 7.87
+    },
+    "immotile": {
+      "MAE": 17.93,
+      "RMSE": 22.05,
+      "r": 0.738,
+      "p": 0.094,
+      "bias": -15.77
+    }
+  },
+  "YOLOv8l": {
+    "n_videos": 6,
+    "progressive": {
+      "MAE": 15.1,
+      "RMSE": 17.28,
+      "r": 0.501,
+      "p": 0.3116,
+      "bias": 11.57
+    },
+    "non_progressive": {
+      "MAE": 12.67,
+      "RMSE": 13.0,
+      "r": 0.773,
+      "p": 0.0715,
+      "bias": 10.1
+    },
+    "immotile": {
+      "MAE": 21.67,
+      "RMSE": 25.21,
+      "r": 0.804,
+      "p": 0.0539,
+      "bias": -21.67
+    }
+  }
+}

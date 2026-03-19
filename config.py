@@ -42,7 +42,12 @@ CLASS_NAMES      = ["sperm", "cluster", "small_pinhead"]  # VISEM 3-class
 NUM_CLASSES      = len(CLASS_NAMES)
 
 # ── Tracking settings ─────────────────────────────────────────────────────────
-TRACKER_TYPE     = "botsort.yaml"        # ultralytics tracker config
+TRACKER_TYPE     = "botsort.yaml"        # ultralytics tracker config (default)
+TRACKER_CONFIGS  = {                     # supported trackers
+    "botsort":   "botsort.yaml",
+    "bytetrack": "bytetrack.yaml",
+    "ocsort":    "ocsort.yaml",
+}
 TRACK_PERSIST    = True                  # persist tracks across frames
 
 # ── Motility analysis (WHO 2021 thresholds) ───────────────────────────────────
@@ -61,7 +66,9 @@ STR_PROGRESSIVE_MIN   = 0.50            # STR ≥ 0.50 for progressive motility 
 MIN_TRACK_LENGTH = 10
 
 # ── LLM settings ──────────────────────────────────────────────────────────────
-LLM_MODEL        = "gpt-4o-mini"         # or local model path
+LLM_PROVIDER     = "anthropic"            # "openai" or "anthropic"
+LLM_MODEL        = "gpt-4o-mini"          # OpenAI model
+LLM_MODEL_ANTHROPIC = "claude-sonnet-4-20250514"  # Anthropic model
 LLM_TEMPERATURE  = 0.3
 LLM_MAX_TOKENS   = 2048
 
