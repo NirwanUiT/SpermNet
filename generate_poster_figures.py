@@ -38,7 +38,7 @@ import config
 POSTER_DPI = 300
 FONT_FAMILY = "sans-serif"
 
-# Consistent colour palette for motility classes
+# Consistent color palette for motility classes
 CLASS_COLORS = {
     "Progressive":     "#2ecc71",   # vibrant green
     "Non-progressive": "#f39c12",   # warm amber
@@ -310,7 +310,7 @@ def fig3_kinematic_violins(out_dir: Path):
 
         ax.set_xlabel("")
         ax.set_ylabel(ylabel, fontsize=10)
-        ax.tick_params(axis="x", rotation=25)
+        plt.setp(ax.get_xticklabels(), rotation=25, ha="right")
 
     fig.suptitle("WHO Kinematic Parameters by Motility Class (n = {:,} tracks)"
                  .format(len(all_mot)),
@@ -528,7 +528,7 @@ def fig7_model_comparison(out_dir: Path):
     with open(metrics_json) as f:
         all_metrics = json.load(f)
 
-    # Select most interesting experiments (prioritise bytetrack variants)
+    # Select most interesting experiments (prioritize bytetrack variants)
     preferred = [
         "yolov8n_bytetrack", "yolov8l_bytetrack",
         "yolov9t_bytetrack", "yolo11n_bytetrack",
