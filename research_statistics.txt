@@ -1,0 +1,698 @@
+================================================================================
+  WP4_ SPERM MOTILITY ANALYSIS PIPELINE — COMPLETE RESEARCH STATISTICS
+================================================================================
+  Generated: 2026-03-22
+  Project: Automated Sperm Motility Analysis using Deep Learning & LLM Reporting
+  Dataset: VISEM-Tracking (Zenodo)
+  Pipeline: Detection → Tracking → WHO 2021 Motility Classification → LLM Report
+================================================================================
+
+
+################################################################################
+  1. HARDWARE & SOFTWARE ENVIRONMENT
+################################################################################
+
+  GPU:              NVIDIA A100 80GB PCIe (81,152 MiB)
+  CUDA:             12.1
+  PyTorch:          2.1.2+cu121
+  Ultralytics:      8.4.21
+  Python:           3.11.3
+  LLM Provider:     Anthropic (Claude Sonnet 4) / OpenAI (GPT-4o-mini)
+
+
+################################################################################
+  2. DATASET (VISEM-Tracking)
+################################################################################
+
+  Number of videos:       20 (IDs: 11, 12, 13, 14, 15, 19, 21, 22, 23, 24,
+                                     29, 30, 35, 36, 38, 47, 52, 54, 60, 82)
+  Frame rate:             50 fps
+  Video duration:         30 seconds each
+  Resolution:             640 × 480 pixels
+  Magnification:          400×
+  Total frames:           29,370
+  Frames per video:       1,470
+  Training images:        20,580
+  Validation images:      5,880
+  Train/Val split:        ~78% / 22%
+  Object classes:         3 (sperm, cluster, small_pinhead)
+  Calibration:            1.422 pixels/µm (640 px / 450 µm FOV at 400×)
+
+
+################################################################################
+  3. DETECTOR MODEL ARCHITECTURES
+################################################################################
+
+  Model         | Parameters       | GFLOPs | Layers | Layers (fused)
+  --------------|------------------|--------|--------|---------------
+  YOLOv8n       | ~3.0M            | ~8.1   | ~225   | —
+  YOLOv8l       | 43,632,153       | 165.4  | 210    | —
+  YOLO11n       | 2,590,425        | 6.4    | 182    | 101
+  YOLOv9t       | 2,005,993        | 7.9    | 544    | 197
+  RT-DETR-l     | ~32M             | ~110   | ~481   | —
+
+  Note: YOLOv8n/RT-DETR-l exact counts from log were partially truncated;
+  approximate values marked with ~.
+
+
+################################################################################
+  4. TRAINING CONFIGURATION
+################################################################################
+
+  Parameter       | YOLOv8n | YOLOv8l  | YOLO11n  | YOLOv9t  | RT-DETR-l
+  ----------------|---------|----------|----------|----------|----------
+  Max epochs      | 50      | 200      | 200      | 200      | 200
+  Epochs run      | 13      | 32       | 32       | 41       | 38
+  Best epoch      | 3       | 2        | 2        | 11       | 8
+  Patience        | 10      | 30       | 30       | 30       | 30
+  Batch size      | 16      | 16       | 16       | 16       | 8
+  Image size      | 640     | 640      | 640      | 640      | 640
+  Optimizer       | auto    | SGD      | SGD      | SGD      | AdamW
+  lr0             | 0.01    | 0.0005   | —        | —        | 0.0001
+  lrf             | 0.01    | 0.1      | —        | —        | 0.1
+  Freeze layers   | None    | 10       | —        | —        | None
+  Cosine LR       | No      | Yes      | Yes      | Yes      | Yes
+  AMP (fp16)      | Yes     | Yes      | Yes      | Yes      | Yes
+  Weight decay    | 0.0005  | 0.0005   | 0.0005   | 0.0005   | 0.0005
+  Momentum        | 0.937   | 0.937    | 0.937    | 0.937    | 0.937
+  Warmup epochs   | 3.0     | 3.0      | 3.0      | 3.0      | 3.0
+  Close mosaic    | 10      | 20       | 20       | 20       | 0
+  Mixup           | 0.0     | 0.1      | —        | —        | 0.0
+  FlipUD          | 0.0     | 0.5      | —        | —        | 0.5
+  Degrees (rot)   | 0.0     | 10.0     | —        | —        | 10.0
+  Early stopping  | Yes     | Yes      | Yes      | Yes      | Yes
+
+
+################################################################################
+  5. GPU TRAINING TIME
+################################################################################
+
+  Model         | Total Time   | Epochs Completed | Early Stopped At
+  --------------|-------------|------------------|------------------
+  YOLOv8n       | 1.97 hours  | 13               | Best @ epoch 3
+  YOLOv8l       | 1.34 hours  | 32               | Best @ epoch 2
+  YOLO11n       | 1.24 hours  | 32               | Best @ epoch 2
+  YOLOv9t       | 3.74 hours  | 41               | Best @ epoch 11
+  RT-DETR-l     | 6.65 hours  | 38               | Best @ epoch 8
+
+  Total combined training time: ~14.94 hours on a single A100 GPU.
+
+
+################################################################################
+  6. BEST DETECTION PERFORMANCE (mAP on Validation Set)
+################################################################################
+
+  Model         | mAP50   | mAP50-95 | Precision | Recall
+  --------------|---------|----------|-----------|-------
+  YOLOv8n       | 0.3550  | 0.1141   | 0.371     | 0.480
+  YOLOv8l       | 0.3815  | 0.0807   | 0.384     | 0.512
+  YOLO11n       | 0.2927  | 0.0698   | 0.259     | 0.321
+  YOLOv9t       | 0.2854  | 0.0809   | 0.485     | 0.321
+  RT-DETR-l     | 0.3236  | 0.1431   | 0.745     | 0.359
+
+  Best mAP50:     YOLOv8l (0.3815)
+  Best mAP50-95:  RT-DETR-l (0.1431)
+  Best Precision: RT-DETR-l (0.745)
+  Best Recall:    YOLOv8l (0.512)
+
+
+################################################################################
+  7. INFERENCE SPEED (NVIDIA A100 GPU)
+################################################################################
+
+  Model         | Preprocess | Inference | Loss   | Postprocess | Total/image
+  --------------|-----------|-----------|--------|-------------|------------
+  YOLOv8l       | 0.1 ms    | 1.8 ms    | 0.0 ms | 0.7 ms      | ~2.6 ms
+  YOLO11n       | 0.1 ms    | 0.3 ms    | 0.0 ms | 0.6 ms      | ~1.0 ms
+  YOLOv9t       | 0.2 ms    | 0.7 ms    | 0.0 ms | 3.5 ms      | ~4.4 ms
+
+
+################################################################################
+  8. MOTILITY CLASSIFICATION — GT CEILING EVALUATION (n=20 videos)
+################################################################################
+
+  Using ground-truth bounding boxes → BoT-SORT tracking → WHO 2021 thresholds.
+  This measures the upper-bound accuracy of the motility classification module
+  independent of detector quality.
+
+  Category         | MAE (%)  | RMSE (%) | Pearson r | p-value  | Bias (%)
+  -----------------|----------|----------|-----------|----------|----------
+  Progressive      | 8.01     | 11.05    | 0.744     | 0.0002   | +4.07
+  Non-progressive  | 11.19    | 14.16    | 0.343     | 0.1392   | −0.76
+  Immotile         | 15.64    | 19.47    | 0.584     | 0.0069   | −3.31
+
+  Source: outputs/evaluation/evaluation_metrics.json
+
+
+################################################################################
+  9. FULL MULTI-MODEL ABLATION — DETECTOR × TRACKER (n=20 videos)
+################################################################################
+
+  10 configurations: 5 detectors × 2 trackers (BoT-SORT, ByteTrack)
+
+  --- PROGRESSIVE MOTILITY (ranked by MAE) ---
+
+  Configuration            | MAE (%) | RMSE (%) | r      | p-value | Bias (%)
+  -------------------------|---------|----------|--------|---------|----------
+  YOLOv9t + ByteTrack      | 7.78    | 10.15    | 0.799  | <0.001  | +3.70
+  YOLOv8n + ByteTrack      | 9.84    | 12.41    | 0.675  | 0.001   | +3.14
+  YOLO11n + ByteTrack      | 10.14   | 12.30    | 0.721  | <0.001  | +5.67
+  YOLOv8l + ByteTrack      | 11.12   | 14.76    | 0.666  | 0.001   | +8.26
+  RT-DETR-l + ByteTrack    | 11.75   | 14.17    | 0.471  | 0.036   | +0.29
+  YOLOv9t + BoT-SORT       | 14.08   | 17.92    | 0.482  | 0.031   | +11.10
+  YOLO11n + BoT-SORT       | 15.09   | 18.66    | 0.539  | 0.014   | +12.81
+  YOLOv8l + BoT-SORT       | 15.36   | 18.50    | 0.573  | 0.008   | +13.18
+  YOLOv8n + BoT-SORT       | 15.48   | 18.66    | 0.460  | 0.041   | +11.90
+  RT-DETR-l + BoT-SORT     | 15.84   | 18.56    | 0.275  | 0.240   | +7.58
+
+  --- NON-PROGRESSIVE MOTILITY (ranked by MAE) ---
+
+  Configuration            | MAE (%) | RMSE (%) | r      | p-value | Bias (%)
+  -------------------------|---------|----------|--------|---------|----------
+  YOLOv8n + BoT-SORT       | 24.54   | 28.51    | −0.308 | 0.186   | +22.20
+  YOLOv8n + ByteTrack      | 24.89   | 28.44    | −0.234 | 0.320   | +22.65
+  RT-DETR-l + ByteTrack    | 25.62   | 29.33    | 0.031  | 0.898   | +25.16
+  YOLOv9t + BoT-SORT       | 26.09   | 30.27    | −0.388 | 0.091   | +22.46
+  YOLO11n + ByteTrack      | 26.36   | 29.35    | −0.206 | 0.383   | +24.32
+  YOLO11n + BoT-SORT       | 26.82   | 31.23    | −0.439 | 0.053   | +23.79
+  YOLOv8l + BoT-SORT       | 26.83   | 31.09    | −0.479 | 0.033   | +23.40
+  YOLOv9t + ByteTrack      | 27.04   | 30.81    | −0.323 | 0.165   | +23.64
+  RT-DETR-l + BoT-SORT     | 28.08   | 31.82    | −0.257 | 0.274   | +26.19
+  YOLOv8l + ByteTrack      | 28.56   | 32.09    | −0.567 | 0.009   | +25.54
+
+  --- IMMOTILE (ranked by MAE) ---
+
+  Configuration            | MAE (%) | RMSE (%) | r      | p-value | Bias (%)
+  -------------------------|---------|----------|--------|---------|----------
+  RT-DETR-l + ByteTrack    | 25.44   | 29.28    | 0.591  | 0.006   | −25.44
+  YOLOv8n + ByteTrack      | 25.80   | 30.21    | 0.521  | 0.019   | −25.80
+  YOLOv9t + ByteTrack      | 29.29   | 32.58    | 0.369  | 0.109   | −27.33
+  YOLO11n + ByteTrack      | 29.99   | 33.59    | 0.557  | 0.011   | −29.99
+  RT-DETR-l + BoT-SORT     | 33.78   | 36.53    | 0.689  | <0.001  | −33.78
+  YOLOv8l + ByteTrack      | 33.81   | 37.18    | 0.464  | 0.040   | −33.81
+  YOLOv8n + BoT-SORT       | 34.11   | 37.52    | 0.454  | 0.044   | −34.11
+  YOLOv9t + BoT-SORT       | 35.16   | 38.93    | 0.016  | 0.948   | −33.56
+  YOLOv8l + BoT-SORT       | 36.59   | 40.60    | 0.158  | 0.505   | −36.59
+  YOLO11n + BoT-SORT       | 36.60   | 40.46    | 0.197  | 0.406   | −36.60
+
+  Key finding: ByteTrack consistently outperforms BoT-SORT across all detectors
+  for progressive motility. YOLOv9t + ByteTrack is the overall best configuration
+  for progressive classification (MAE 7.78%, r = 0.799).
+
+  Source: outputs/evaluation_ablation/multi_model_metrics.json
+         outputs/evaluation_ablation/multi_model_comparison.csv
+
+
+################################################################################
+  10. 3-WAY ABLATION STUDY (n=6 videos with dense ground truth)
+################################################################################
+
+  Compares GT-ceiling (perfect detection) vs YOLOv8n vs YOLOv8l detectors.
+
+  Config       | Prog. MAE | Prog. r  | NP MAE | NP r   | Imm. MAE | Imm. r
+  -------------|-----------|----------|--------|--------|----------|-------
+  GT-ceiling   | 15.15     | −0.236   | 9.93   | 0.936  | 16.15    | 0.623
+  YOLOv8n      | 10.67     | 0.608    | 10.10  | 0.613  | 17.93    | 0.738
+  YOLOv8l      | 15.10     | 0.501    | 12.67  | 0.773  | 21.67    | 0.804
+
+  Source: outputs/evaluation_ablation/ablation_metrics.json
+
+
+################################################################################
+  11. OPTIMAL MOTILITY CLASSIFICATION THRESHOLDS (WHO 2021)
+################################################################################
+
+  Determined via grid search (threshold sweep):
+
+  Parameter                    | Optimal Value
+  -----------------------------|---------------
+  VCL progressive minimum      | 25.0 µm/s
+  STR progressive minimum      | 0.50
+  VCL immotile maximum         | 5.0 µm/s
+  Average total MAE at optimal | 34.11%
+
+  Top-5 threshold combinations from sweep:
+  VCL_PROG  | STR_PROG | VCL_IMM | Avg Total MAE (%)
+  ----------|----------|---------|-------------------
+  25        | 0.50     | 5       | 34.11
+  25        | 0.50     | 4       | 34.27
+  25        | 0.55     | 5       | 34.48
+  30        | 0.50     | 5       | 34.49
+  30        | 0.50     | 6       | 34.63
+
+  Source: outputs/evaluation/best_thresholds.json
+         outputs/evaluation/threshold_sweep.csv
+
+
+################################################################################
+  12. MARKOV TRANSITION MATRIX (Frame-Level State Transitions)
+################################################################################
+
+  Computed from frame-to-frame motility state changes across all tracked sperm.
+
+  From \ To        | Progressive | Non-progressive | Immotile
+  -----------------|-------------|-----------------|----------
+  Progressive      | 0.9801      | 0.0199          | 0.0001
+  Non-progressive  | 0.0294      | 0.9650          | 0.0055
+  Immotile         | 0.0000      | 0.0009          | 0.9991
+
+  Key findings:
+  - Immotile state is essentially absorbing (99.91% self-transition).
+  - Progressive-to-immotile direct transitions are nearly zero (0.01%).
+  - Non-progressive acts as an intermediate state between progressive and immotile.
+
+  Source: outputs/markov/transition_matrix.csv
+
+
+################################################################################
+  13. TEMPORAL DYNAMICS (5-Second Windows, n=20 videos)
+################################################################################
+
+  Window (s)  | Prog % (mean ± std)    | NP % (mean ± std)      | Imm % (mean ± std)
+  ------------|------------------------|------------------------|------------------------
+  0–5         | 28.5 ± 21.0            | 16.9 ± 11.9            | 54.5 ± 24.4
+  5–10        | 25.6 ± 21.6            | 16.1 ± 10.6            | 58.3 ± 23.5
+  10–15       | 27.3 ± 21.6            | 13.3 ± 9.2             | 59.4 ± 26.6
+  15–20       | 31.9 ± 23.0            | 14.3 ± 10.3            | 53.8 ± 24.5
+  20–25       | 35.1 ± 26.7            | 13.8 ± 9.4             | 51.1 ± 27.0
+
+  Source: outputs/temporal/temporal_aggregate.csv
+
+
+################################################################################
+  14. PER-VIDEO GROUND TRUTH vs PREDICTED MOTILITY (n=20)
+################################################################################
+
+  Video | GT Prog% | GT NP% | GT Imm% | Pred Prog% | Pred NP% | Pred Imm% | Tracks | Mean VCL | Mean VSL | Mean VAP
+  ------|----------|--------|---------|------------|----------|-----------|--------|----------|----------|----------
+  11    | 11       | 17     | 72      | 12.3       | 26.3     | 61.4      | 57     | 30.16    | 11.29    | 23.63
+  12    | 33       | 54     | 13      | 40.4       | 55.3     | 4.4       | 114    | 81.29    | 30.44    | 66.66
+  13    | 33       | 30     | 37      | 32.5       | 28.6     | 39.0      | 77     | 22.23    | 15.82    | 20.72
+  14    | 41       | 43     | 16      | 40.0       | 42.2     | 17.8      | 45     | 70.97    | 32.67    | 48.36
+  15    | 15       | 46     | 39      | 20.0       | 15.0     | 65.0      | 40     | 14.82    | 8.11     | 12.47
+  19    | 58       | 19     | 23      | 50.0       | 24.0     | 26.0      | 50     | 40.83    | 21.99    | 33.42
+  21    | 30       | 31     | 39      | 28.8       | 31.8     | 39.4      | 66     | 38.90    | 16.64    | 31.34
+  22    | 56       | 25     | 19      | 44.4       | 41.7     | 13.9      | 36     | 53.92    | 31.31    | 48.32
+  23    | 18       | 34     | 48      | 21.1       | 21.1     | 57.8      | 19     | 25.33    | 15.34    | 19.28
+  24    | 35       | 25     | 40      | 32.1       | 16.5     | 51.4      | 109    | 29.79    | 18.56    | 26.49
+  29    | 4        | 20     | 76      | 10.5       | 42.1     | 47.4      | 19     | 12.94    | 3.07     | 7.24
+  30    | 26       | 40     | 34      | 50.0       | 40.4     | 9.6       | 52     | 61.65    | 25.89    | 43.01
+  35    | 1        | 26     | 73      | 11.5       | 16.4     | 72.1      | 61     | 12.76    | 7.93     | 10.65
+  36    | 36       | 35     | 29      | 29.1       | 11.9     | 59.0      | 134    | 16.34    | 9.86     | 13.87
+  38    | 38       | 31     | 31      | 41.9       | 44.2     | 14.0      | 43     | 53.74    | 28.68    | 45.85
+  47    | 12       | 42     | 46      | 33.9       | 60.7     | 5.4       | 56     | 52.14    | 18.49    | 38.87
+  52    | 14       | 32     | 54      | 24.1       | 47.1     | 28.8      | 87     | 19.90    | 9.52     | 14.29
+  54    | 22       | 37     | 41      | 22.4       | 17.1     | 60.5      | 76     | 16.40    | 9.46     | 14.38
+  60    | 19       | 44     | 37      | 45.7       | 45.7     | 8.6       | 81     | 42.78    | 19.56    | 29.62
+  82    | 17       | 33     | 50      | 9.7        | 20.8     | 69.4      | 72     | 9.67     | 5.03     | 8.73
+
+  Tracks per video range: 19 (video 23) to 134 (video 36).
+  VCL range: 9.67 µm/s (video 82) to 81.29 µm/s (video 12).
+
+  Additional clinical data available per video: concentration (×10⁶/mL),
+  total sperm count (×10⁶), ejaculate volume (mL), vitality (%),
+  normal spermatozoa (%), head/midpiece/tail defects (%),
+  DNA fragmentation index (%), HDS (%).
+
+  Source: outputs/evaluation/gt_comparison.csv
+
+
+################################################################################
+  15. MOTILITY ANALYSIS PARAMETERS (config.py)
+################################################################################
+
+  VCL progressive minimum:    25.0 µm/s
+  VCL immotile maximum:       5.0 µm/s
+  STR progressive minimum:    0.50
+  Minimum track length:       10 frames
+  FPS:                        50
+  Pixels per micron:          1.422
+  YOLO confidence threshold:  0.25
+  YOLO NMS IoU threshold:     0.45
+  Tracker:                    BoT-SORT (default), ByteTrack (ablation)
+  Track persistence:          Enabled
+  Visualisation trail length: 30 frames
+
+  WHO 2021 motility metrics computed:
+  - VCL (Curvilinear Velocity, µm/s)
+  - VSL (Straight-Line Velocity, µm/s)
+  - VAP (Average Path Velocity, µm/s)
+  - LIN (Linearity = VSL/VCL)
+  - STR (Straightness = VSL/VAP)
+  - WOB (Wobble = VAP/VCL)
+  - ALH (Amplitude of Lateral Head displacement)
+  - BCF (Beat Cross Frequency)
+
+
+================================================================================
+================================================================================
+  16. FILE DESCRIPTIONS — ALL IMPORTANT OUTPUT FILES
+================================================================================
+================================================================================
+
+
+--- TRAINING CURVES & DETECTION METRIC PLOTS ---
+
+outputs/training/sperm_yolov8n/results.png
+  Training and validation loss curves (box, cls, dfl) and metric curves
+  (precision, recall, mAP50, mAP50-95) plotted over 13 epochs for YOLOv8n.
+
+outputs/training/sperm_yolov8l/results.png
+  Same as above for YOLOv8l over 32 epochs. Shows training/val loss convergence
+  and detection metrics over time.
+
+outputs/training/sperm_yolo11n/results.png
+  Training curves for YOLO11n over 32 epochs.
+
+outputs/training/sperm_yolov9t/results.png
+  Training curves for YOLOv9t over 41 epochs.
+
+outputs/training/sperm_rtdetr-l/results.png
+  Training curves for RT-DETR-l over 38 epochs. Uses giou_loss instead of
+  box_loss and l1_loss instead of dfl_loss.
+
+outputs/training/sperm_yolov8n/confusion_matrix.png
+  Raw-count confusion matrix for the YOLOv8n detector on the validation set.
+  Shows true vs predicted class counts for sperm, cluster, small_pinhead,
+  and background.
+
+outputs/training/sperm_yolov8n/confusion_matrix_normalized.png
+  Row-normalized (recall-based) confusion matrix showing per-class detection
+  accuracy as proportions.
+
+outputs/training/sperm_yolov8n/BoxP_curve.png
+  Precision vs confidence threshold curve for YOLOv8n. Shows how precision
+  changes as the detection confidence threshold is varied.
+
+outputs/training/sperm_yolov8n/BoxR_curve.png
+  Recall vs confidence threshold curve for YOLOv8n.
+
+outputs/training/sperm_yolov8n/BoxF1_curve.png
+  F1-score vs confidence threshold curve. The peak indicates the optimal
+  confidence threshold balancing precision and recall.
+
+outputs/training/sperm_yolov8n/BoxPR_curve.png
+  Precision-Recall curve for YOLOv8n. Area under this curve equals mAP50.
+
+outputs/training/sperm_yolov8n/labels.jpg
+  Dataset label distribution visualization showing class frequency histogram,
+  bounding box center distribution, and bounding box width/height distribution
+  across the training set.
+
+outputs/training/sperm_yolov8n/train_batch0.jpg
+outputs/training/sperm_yolov8n/train_batch1.jpg
+outputs/training/sperm_yolov8n/train_batch2.jpg
+  Sample training batch visualizations showing augmented images with ground
+  truth bounding boxes overlaid. Useful for verifying data augmentation and
+  annotation quality.
+
+outputs/training/sperm_yolov8n/val_batch0_labels.jpg
+outputs/training/sperm_yolov8n/val_batch0_pred.jpg
+outputs/training/sperm_yolov8n/val_batch1_labels.jpg
+outputs/training/sperm_yolov8n/val_batch1_pred.jpg
+outputs/training/sperm_yolov8n/val_batch2_labels.jpg
+outputs/training/sperm_yolov8n/val_batch2_pred.jpg
+  Side-by-side validation batch visualizations. *_labels.jpg shows ground truth
+  annotations; *_pred.jpg shows model predictions. Allows visual quality
+  assessment of detection performance.
+
+
+--- EVALUATION PLOTS ---
+
+outputs/evaluation/bland_altman.png
+  Bland-Altman plot comparing predicted vs ground-truth motility percentages
+  for all 20 videos. Shows mean bias and 95% limits of agreement for
+  progressive, non-progressive, and immotile categories. Standard clinical
+  agreement assessment method.
+
+outputs/evaluation/gt_comparison_plot.png
+  Scatter plot of ground-truth vs predicted motility percentages with identity
+  line (y=x). Each point is one video; separate panels or colors for
+  progressive, non-progressive, and immotile. Pearson r annotated.
+
+outputs/evaluation/per_video_bars.png
+  Grouped bar chart showing per-video predicted vs ground-truth motility
+  percentages side by side for all 20 videos. Allows identification of
+  which videos the pipeline handles well or poorly.
+
+
+--- ABLATION STUDY PLOTS ---
+
+outputs/evaluation_ablation/ablation_mae_comparison.png
+  Bar chart comparing MAE across GT-ceiling, YOLOv8n, and YOLOv8l for the
+  3-way ablation study (n=6 videos). Separate bars for progressive,
+  non-progressive, and immotile categories.
+
+outputs/evaluation_ablation/ablation_scatter.png
+  Scatter plots for the 3-way ablation comparing predicted vs ground truth
+  for each detector configuration, showing regression lines and correlation.
+
+outputs/evaluation_ablation/multi_model_comparison.png
+  Comprehensive bar chart comparing all 10 detector×tracker configurations
+  (5 detectors × 2 trackers) across MAE for progressive, non-progressive,
+  and immotile categories. The main ablation results figure.
+
+
+--- MARKOV ANALYSIS PLOTS ---
+
+outputs/markov/transition_matrix.png
+  Heatmap of the Markov transition matrix showing frame-to-frame state
+  transition probabilities between Progressive, Non-progressive, and Immotile.
+  Diagonal values near 1.0 indicate high state persistence.
+
+outputs/markov/stationary_distribution.png
+  Bar chart of the stationary (equilibrium) distribution of the Markov chain,
+  showing the long-run expected proportion of sperm in each motility state.
+
+outputs/markov/experiment_comparison_stationary.png
+  Comparison of stationary distributions across different detector×tracker
+  configurations. Shows how detection quality affects equilibrium motility
+  estimates.
+
+outputs/markov/experiment_comparison_transitions.png
+  Comparison of key transition probabilities across different experimental
+  configurations. Highlights how detector choice affects state transition
+  estimates.
+
+outputs/markov/per_video_transitions.png
+  Per-video breakdown of transition probabilities, showing inter-video
+  variability in motility dynamics.
+
+
+--- TEMPORAL ANALYSIS PLOTS ---
+
+outputs/temporal/line_plot_with_ci.png
+  Time-series line plot showing mean motility percentages (progressive,
+  non-progressive, immotile) over 5-second windows with 95% confidence
+  intervals shaded. Shows how motility proportions evolve over the 30-second
+  observation period.
+
+outputs/temporal/per_video_temporal_heatmap.png
+  Heatmap with videos on y-axis and time windows on x-axis, colored by
+  motility proportion. Reveals temporal patterns and inter-video variability.
+
+outputs/temporal/stacked_area_chart.png
+  Stacked area chart showing the mean proportion of progressive,
+  non-progressive, and immotile sperm over time. Areas sum to 100% at each
+  time point.
+
+
+--- PER-VIDEO VISUALIZATIONS (20 videos × 3 types = 60 files) ---
+
+outputs/visualisations/{video_id}_trajectories.png
+  (video_id = 11, 12, 13, 14, 15, 19, 21, 22, 23, 24, 29, 30, 35, 36, 38,
+   47, 52, 54, 60, 82)
+  Sperm trajectory plots overlaid on a representative frame. Each tracked
+  sperm path is drawn with the last 30 positions (trail), color-coded by
+  motility class: green = progressive, orange = non-progressive, red = immotile.
+
+outputs/visualisations/{video_id}_motility_chart.png
+  Bar chart for each video showing the percentage of sperm classified as
+  progressive, non-progressive, and immotile. Includes total track count.
+
+outputs/visualisations/{video_id}_velocity_heatmap.png
+  Spatial heatmap showing velocity (VCL) distribution across the microscope
+  field of view. Hot regions indicate areas with high sperm velocity; cold
+  regions indicate slow/immotile sperm concentration.
+
+
+--- LLM-GENERATED CLINICAL REPORTS (20 files) ---
+
+outputs/reports/{video_id}_report.md
+  (video_id = 11, 12, 13, 14, 15, 19, 21, 22, 23, 24, 29, 30, 35, 36, 38,
+   47, 52, 54, 60, 82)
+  Markdown-formatted clinical analysis reports generated by the LLM (Claude
+  Sonnet / GPT-4o-mini). Each report contains: sample identification,
+  motility summary (progressive/NP/immotile percentages), kinematic parameters
+  (VCL, VSL, VAP, LIN, STR), clinical interpretation per WHO 2021 guidelines,
+  and recommendations. One-shot generation from event summary JSON input.
+
+
+--- DATA FILES ---
+
+outputs/evaluation/evaluation_metrics.json
+  Primary evaluation results: MAE, RMSE, Pearson r, p-value, and bias for
+  progressive, non-progressive, and immotile categories across 20 videos.
+  Uses GT bounding boxes with BoT-SORT tracking.
+
+outputs/evaluation/gt_comparison.csv
+  Per-video table with 20 rows. Columns include ground-truth motility
+  percentages, predicted motility percentages, total tracks, mean VCL/VSL/VAP,
+  and clinical metadata (concentration, volume, vitality, morphology, DFI, HDS).
+
+outputs/evaluation/best_thresholds.json
+  Optimized WHO motility classification thresholds found via grid search:
+  VCL progressive min, STR progressive min, VCL immotile max, and the
+  resulting average total MAE.
+
+outputs/evaluation/threshold_sweep.csv
+  Full grid search results: all tested combinations of VCL_PROG_MIN (20–50),
+  STR_PROG_MIN (0.3–0.8), VCL_IMM_MAX (3–8) with their avg_total_mae.
+  Sorted by MAE ascending.
+
+outputs/evaluation_ablation/ablation_metrics.json
+  3-way ablation results comparing GT-ceiling, YOLOv8n, and YOLOv8l on
+  6 videos with dense ground truth.
+
+outputs/evaluation_ablation/multi_model_metrics.json
+  Complete multi-model ablation: 10 configurations (5 detectors × 2 trackers)
+  evaluated on all 20 videos. Contains MAE, RMSE, r, p, bias per category
+  per configuration.
+
+outputs/evaluation_ablation/multi_model_comparison.csv
+  Tabular version of multi_model_metrics.json with one row per
+  experiment×category combination. 40 rows total.
+
+outputs/experiment_summary.json
+  Experiment execution log listing all 20 videos processed per configuration
+  with status (ok/error), output file paths for tracks and events.
+
+outputs/markov/transition_matrix.csv
+  3×3 Markov transition probability matrix computed from frame-level motility
+  state sequences across all tracked sperm.
+
+outputs/markov/transition_counts.csv
+  Raw transition counts (before normalization) between motility states.
+
+outputs/temporal/temporal_dynamics.csv
+  Raw per-video temporal motility data in 5-second windows.
+
+outputs/temporal/temporal_aggregate.csv
+  Aggregated temporal data: mean and standard deviation of motility percentages
+  across all 20 videos for each 5-second window.
+
+outputs/events/{config}/{video_id}_summary.json
+  Per-video motility event summary JSONs. Each contains: total tracks,
+  progressive/NP/immotile counts and percentages, mean VCL/VSL/VAP/LIN/STR,
+  filtering statistics (low-conf, high-VCL, jitter, short-duration removed).
+  Config subfolders: yolov8n_botsort, yolov8n_bytetrack, yolov8l_botsort,
+  yolov8l_bytetrack, rtdetr-l_botsort, rtdetr-l_bytetrack, yolo11n_botsort,
+  yolo11n_bytetrack, yolov9t_botsort, yolov9t_bytetrack.
+
+outputs/tracks/{config}/{video_id}_tracks.csv
+  Raw tracking data CSVs with per-frame per-track bounding box coordinates,
+  confidence scores, and computed kinematics. One file per video per
+  detector×tracker configuration.
+
+
+--- TRAINING RESULTS (CSVs and YAMLs) ---
+
+outputs/training/sperm_yolov8n/results.csv
+  Per-epoch training metrics for YOLOv8n: epoch, cumulative time (s),
+  train losses (box, cls, dfl), val metrics (P, R, mAP50, mAP50-95),
+  val losses, and learning rates.
+
+outputs/training/sperm_yolov8l/results.csv
+  Same format for YOLOv8l (32 epochs).
+
+outputs/training/sperm_rtdetr-l/results.csv
+  Per-epoch metrics for RT-DETR-l. Uses giou_loss and l1_loss instead of
+  box_loss and dfl_loss (38 epochs).
+
+outputs/training/sperm_yolo11n/results.csv
+  Per-epoch metrics for YOLO11n (32 epochs).
+
+outputs/training/sperm_yolov9t/results.csv
+  Per-epoch metrics for YOLOv9t (41 epochs).
+
+outputs/training/sperm_*/args.yaml
+  Complete training hyperparameter configurations for each model: optimizer,
+  learning rate schedule, augmentation settings, patience, image size, etc.
+
+
+--- TRAINING LOGS ---
+
+training_yolov8l.log
+  Full training console output for YOLOv8l. Contains GPU info, model
+  architecture summary (layers, parameters, GFLOPs), per-epoch progress
+  with loss values, early stopping message, total time (1.34 hours),
+  and final validation speed benchmarks.
+
+training_yolo11n.log
+  Full training log for YOLO11n. Total time: 1.236 hours. Architecture:
+  2,590,425 parameters, 6.4 GFLOPs. Inference speed: 0.3 ms/image.
+
+training_yolov9t.log
+  Full training log for YOLOv9t. Total time: 3.738 hours. Architecture:
+  2,005,993 parameters, 7.9 GFLOPs. Inference speed: 0.7 ms/image.
+
+training_chain.log
+  Pipeline orchestration log for sequential multi-model training.
+
+experiments.log
+experiments_round2.log
+experiments_round3.log
+  Logs from running the full detection→tracking→classification pipeline
+  across all videos with different detector×tracker configurations.
+
+experiments_ablation.log
+experiments_ablation2.log
+experiments_ablation3.log
+  Logs from ablation study experiments comparing detector and tracker
+  combinations.
+
+
+--- MODEL WEIGHTS ---
+
+outputs/training/sperm_yolov8n/weights/best.pt   — Best YOLOv8n checkpoint (epoch 3)
+outputs/training/sperm_yolov8l/weights/best.pt   — Best YOLOv8l checkpoint (epoch 2)
+outputs/training/sperm_yolo11n/weights/best.pt   — Best YOLO11n checkpoint (epoch 2)
+outputs/training/sperm_yolov9t/weights/best.pt   — Best YOLOv9t checkpoint (epoch 11)
+outputs/training/sperm_rtdetr-l/weights/best.pt  — Best RT-DETR-l checkpoint (epoch 8)
+detection/weights/best_yolov8n.pt                — Deployed YOLOv8n weights
+detection/weights/best_yolov8l.pt                — Deployed YOLOv8l weights
+detection/weights/best.pt                        — Default deployed weights
+
+
+--- SOURCE CODE ---
+
+config.py                  — Centralised configuration (paths, thresholds, model settings)
+detection/detect_sperm.py  — YOLO detection module (inference wrapper)
+tracking/track_sperm.py    — BoT-SORT/ByteTrack tracker implementation
+events/detect_events.py    — WHO 2021 motility metric computation (VCL, VSL, VAP, LIN, STR, WOB, ALH, BCF)
+llm/analyze.py             — One-shot LLM clinical report generation
+llm/chatbot.py             — Multi-turn interactive LLM chatbot
+visualise.py               — Per-video visualizations (trajectories, motility charts, velocity heatmaps)
+visualise_aggregate.py     — Cross-video aggregate plots
+markov_analysis.py         — Markov chain state transition analysis
+temporal_analysis.py       — Temporal motility dynamics analysis
+evaluate.py                — Evaluation metrics (MAE, RMSE, Pearson r, Bland-Altman)
+evaluate_ablation.py       — Multi-model ablation study evaluation
+train_detector.py          — YOLOv8/v9/v11/RT-DETR fine-tuning script
+run_all_gt.py              — Batch processor for all 20 videos (GT annotations)
+run_pipeline.py            — Batch processor using YOLO detection
+run_single_gt.py           — Single-video GT processing
+run_single.py              — Single-video YOLO detection processing
+run_experiments.py         — Multi-experiment runner (all detector×tracker combos)
+calibrate.py               — Microscope pixel-to-micron calibration
+convert_annotations.py     — VISEM to YOLO annotation format converter
+prepare_annotations.py     — Train/val split preparation
+extract_frames.py          — Video frame extraction
+download_data.py           — Zenodo dataset downloader (~5.9 GB)
+demo_pipeline.ipynb        — Interactive Jupyter notebook demo
+data/annotations/visem.yaml — YOLO dataset config (3 classes, train/val/test paths)
+
+
+================================================================================
+  END OF STATISTICS
+================================================================================
