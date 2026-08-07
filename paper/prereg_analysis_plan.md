@@ -6,7 +6,7 @@
 **Author:** N. Barnard (UiT).
 **Status:** To be frozen and timestamped (OSF/Zenodo) BEFORE any model is fit against DFI, HDS, vitality, or morphology.
 **Dataset:** VISEM-Tracking (Zenodo 7293726), 20 videos with paired clinical semen analysis (the *orig20* cohort; hand-annotated tracks).
-**Code freeze commit:** `<HASH>` — the commit that adds `experiments/features_track.py`, `features_sample.py`, `cluster_tracks.py`, `predict_clinical.py`, `figures_prereg.py`. Filled in at freeze time.
+**Code freeze commit:** `eff51b0` — the commit that adds `experiments/features_track.py`, `features_sample.py`, `cluster_tracks.py`, `predict_clinical.py`, `figures_prereg.py`.
 
 ---
 
