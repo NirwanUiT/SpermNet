@@ -1,6 +1,12 @@
 # Human sperm motility switching is non-Markovian: single-cell memory and a stable mover–stayer population structure that population-average CASA discards
 
-*Working manuscript draft — WP4. Cohorts: VISEM & VISEM-Tracking (n = 77 with paired tracks + clinical). All results cross-validated on two independently tracked cohorts.*
+*Working manuscript draft — Work Package 4 (Event Detection and Tracking) of the doctoral
+project "Shape representation and event detection of sub-cellular structures in
+high-content/high-throughput microscopy" (UiT, BioAI group). Sperm motility is the primary
+use case for the event-detection methodology; the same detect–track–represent–detect-events
+pipeline targets sub-cellular structures such as mitochondria. Cohorts: VISEM &
+VISEM-Tracking (n = 77 with paired tracks + clinical). All results cross-validated on two
+independently tracked cohorts.*
 
 ---
 
@@ -34,10 +40,25 @@ Markov/HMM models.
 
 ## 1. Introduction
 
+A recurring problem in high-content and high-throughput microscopy is to turn long image
+sequences of many moving biological objects into a compact description of their *state* and
+of the *events* — the changes of state — that they undergo over time. This couples two
+sub-problems: a *representation* problem (choosing a small vocabulary of canonical states
+for objects whose morphology or behaviour is in reality continuous and pleomorphic) and an
+*event-detection* problem (modelling how a tracked object transitions between those states
+along its trajectory). We study both in the setting that yields the richest single-object
+statistics available to us — the motility of individual human spermatozoa imaged by video
+microscopy — and use it to expose a general failure mode of the standard approach: a coarse
+discrete state vocabulary combined with a memoryless transition model systematically
+mis-describes the events. Sperm motility is thus the primary use case for a methodology
+whose target domain is event detection in tracked biological structures.
+
 Semen motility is clinically scored by CASA as the proportion of spermatozoa that are
 progressively motile, non-progressively motile, or immotile at one instant. This reduces
 a population of independently swimming cells, each following its own time-varying
-trajectory, to three numbers. Two modelling assumptions are built into this reduction and
+trajectory, to three numbers — a discretisation of a continuous kinematic phenotype into
+three canonical states, exactly the kind of state vocabulary the representation problem
+must supply. Two modelling assumptions are built into this reduction and
 into the Markov-chain models commonly fitted to CASA state sequences: (1) *memorylessness*
 — a cell's next state depends only on its current state; and (2) *homogeneity* — all cells
 are draws from one transition process. Neither has been tested at scale on single-cell
@@ -221,6 +242,24 @@ standard composition, and the one apparently promising association proved to be 
 in disguise. We report this as a null. DFI is in any case a surrogate; the biologically
 decisive test — whether switching dynamics or population structure predict fertilisation or
 live birth — requires outcome-linked cohorts we do not have here.
+
+**Relation to event detection in sub-cellular structures.** The pipeline used here — detect
+objects, track them, assign each a per-frame state from a small canonical vocabulary, then
+model the sequence of state-changes — is the same pipeline required to detect morphological
+events in sub-cellular organelles such as mitochondria, where a pleomorphic, continuously
+deforming shape must likewise be reduced to a few canonical states whose transitions
+(fission, fusion, elongation) are the events of interest. The two lessons drawn here transfer
+directly to that domain, the central object of this doctoral project. First, the canonical
+state vocabulary is a *discretisation of a continuum*: in a pre-registered single-cell
+analysis the kinematic phenotype showed no discrete cluster structure (the model-selection
+criterion improved monotonically to the search cap), so the three motility categories are a
+coarse slice of a continuous manifold rather than its natural geometry — a caution for any
+scheme that assigns organelle morphology to a fixed number of shape classes. Second, the
+*events are not memoryless*: transition dynamics carry history and reflect stable
+object-to-object heterogeneity, both invisible to the population-average snapshot and to
+homogeneous Markov models. An event-detection method for tracked biological structures
+should therefore represent state as a position on a continuous manifold and model
+transitions with memory, not as a homogeneous Markov chain over a handful of bins.
 
 **Limitations.** States are derived from a sliding-window classifier; although the dwell law
 and its rejection of the exponential are invariant across window sizes, finite track lengths
