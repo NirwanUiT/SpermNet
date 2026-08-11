@@ -209,7 +209,64 @@ no consistent residual: the observed–null gap is small and *opposite in sign* 
 two cohorts (Δρ = −0.019 and +0.020), so the heterogeneity is *quenched* (fixed per cell)
 rather than a slow within-cell drift, confirming the earlier read with censoring respected.
 
-### 3.4 The heterogeneity is a reliable trait but not clinically incremental over CASA
+### 3.4 A minimal mechanism reproduces the memory only by over-dispersing dwell times
+
+The decomposition above *measures* the memory; it does not *explain* it. We therefore asked
+whether a single, minimal generative mechanism can reproduce the phenomenology, and — because
+a model that can be tuned to fit anything explains nothing — we designed the test so the
+mechanism could fail. Each cell is a three-state (progressive / non-progressive / immotile)
+continuous-time switch. Its per-state baseline switching rates and its embedded transition
+topology are *calibrated*, not fitted, from the empirical mean dwell times and off-diagonal
+transition counts; each simulated cell is then cut to a track length drawn from the empirical
+track-length distribution, so finite-track censoring is reproduced by construction. On top of
+these fixed timescales the cell carries two slow internal variables (independent
+Ornstein–Uhlenbeck processes): a *rate gear* z^r that speeds up or slows down switching, and a
+*vigour* z^v that biases *which* state the cell prefers along an ordered progressive→immotile
+axis. Because consecutive dwells share the same slowly drifting vigour, the coarse three-state
+read-out acquires state momentum — a candidate generative source of the observed second-order
+memory. Setting both couplings to zero collapses the model to a memoryless mixture. Real and
+simulated sequences are scored with the *identical* self-contained functions (per-state dwell
+coefficient of variation; held-out second-order gain g₂ on decorrelated 0.5 s blocks), so the
+comparison is internally consistent; on this internal statistic the empirical targets are
+g₂ = +0.047 and per-state dwell CV = (2.83, 3.01, 2.06) (`experiments/generative_model.py`).
+
+Three findings emerge, and they are only partly in the model's favour. First, the memoryless
+mixture reproduces essentially none of the memory (g₂ = −0.001, with near-memoryless dwell
+CV ≈ 1.0), independently confirming — now generatively — that the second-order signal is not
+an artifact of the calibrated marginals or topology. Second, switching on the slow vigour does
+generate genuine memory *and* heavy-tailed dwells: the simulated dwell distribution is
+strongly log-normal over exponential (ΔAIC = +4.6×10⁴), and the mechanism recovers a majority
+of the empirical gain (g₂ = +0.028, 61 % of the observed value on orig20), reproducing the
+full magnitude on the independent cohort (g₂ = +0.044, 108 % of that cohort's +0.041), while
+the memoryless null stays at zero there too (−0.004). A slowly drifting internal variable is
+therefore a *sufficient in-principle* mechanism for memory of the right order, and its
+necessity is not an artifact of one dataset. Third — and this is where the minimal model
+honestly breaks — it cannot produce that memory *at the observed dwell dispersion*. The
+configuration that best matches the per-state dwell CV (rate gear only, no vigour coupling;
+CV = 2.56, 2.68, 2.48) generates no memory at all (g₂ ≈ 0), whereas reaching 61 % of the
+memory forces the dwell CV up to (3.6, 3.6, 4.0), well above the data. No single
+parameterization matches both the heavy-tailed dwells and the memory magnitude; a
+within-cell-drifting vigour (correlation time ≈ track length) does *worse* than a quasi-static
+between-cell vigour (29 % vs 61 %), so the extra memory the model can muster comes mostly from
+stable cell-to-cell heterogeneity rather than genuine within-cell drift — consistent in
+direction with the empirical-Bayes split of §3.3.
+
+We read this as a constructive negative result. Slow internal modulation of switching is a
+*necessary* ingredient (removing it kills the memory) and can account for a large fraction of
+the effect, but a mechanism whose only memory source is a slowly varying rate/preference is
+forced to couple memory to dwell dispersion, and the real cells decouple the two — strong
+history-dependence at only moderate dwell heterogeneity. The residual implicates a distinct,
+faster ingredient in the transitions themselves (directional momentum or short-lived
+refractoriness on the ~0.5–1 s scale) that a slow doubly-stochastic model does not contain.
+Two caveats bound this conclusion in both directions: the internal g₂ statistic
+(block-modal down-sampling of the frame-level state sequence) is not identical to the kinematic
+re-classification used for the headline g₂ in §3.2, and part of the empirical block-scale
+autocorrelation may be induced by the 0.5 s sliding-window classifier, which the state-level
+simulation does not emulate — so the *biological* memory the mechanism must explain may be
+smaller than the raw target, narrowing (but, given the cross-cohort robustness of the null and
+the dispersion mismatch, not closing) the gap.
+
+### 3.5 The heterogeneity is a reliable trait but not clinically incremental over CASA
 
 ![Figure 3](figures/fig3_heterogeneity.png)
 
@@ -308,6 +365,7 @@ defines current practice.
 | Independent replication of memory | `experiments/replicate_markov_extra.py` | `outputs/markov/replication_extra.json` |
 | Within- vs between-cell decomposition | `experiments/memory_decomposition.py` | `outputs/markov/memory_decomposition.json` |
 | Censoring-aware dwell law + within/between (frailty) | `experiments/dwell_censoring.py` | `outputs/markov/dwell_censoring.json` |
+| Minimal generative mechanism (two-latent switch) | `experiments/generative_model.py` | `outputs/markov/generative_model.json` |
 | Mover–stayer nulls (HOM/HET/EB) | `experiments/mover_stayer_null.py`, `mover_stayer_eb.py` | `outputs/markov/mover_stayer_*.json` |
 | Per-cell heterogeneity + reliability | `experiments/per_cell_kinetics.py` | `outputs/markov/per_cell_kinetics.{json,csv}` |
 | Stayer→DFI robustness | `experiments/stayer_dfi.py` | `outputs/markov/stayer_dfi.json` |
