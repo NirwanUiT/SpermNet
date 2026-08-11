@@ -148,7 +148,12 @@ frames the log-normal remains best and the exponential is rejected by ΔAIC = +1
 but the *form* does not change. The law is also invariant across the two independently
 tracked cohorts despite a ~3× difference in absolute dwell scale — a signature of a
 mechanism, not a pipeline artefact. Pooled dwell CV is 1.9–3.0 versus 1 for a memoryless
-process.
+process. The law also survives censoring: finite tracks truncate the first and last dwell
+of every cell, so we refit each distribution by *censored* maximum likelihood (interior
+episodes contribute the density, the two boundary episodes their survival function, i.e.
+lower bounds). The log-normal remains the best of the four laws in every state and cohort
+and still rejects the exponential by ΔAIC = +1.1×10³ to +2.1×10⁵ (`dwell_censoring.py`), so
+the heavy-tailed dwell law is not an artefact of treating truncated dwells as complete.
 
 ### 3.2 Switching carries memory beyond the current state
 
@@ -170,9 +175,10 @@ essentially none of the signal; a heterogeneous memoryless population reproduces
 it; the observed data exceeds even the (over-fit, upper-bound) heterogeneous null. (B) The
 empirical-Bayes fair null splits the non-Markovian signal into ~53–60 % genuine
 within-cell memory and ~40–47 % stable cell-to-cell (mover–stayer) heterogeneity,
-consistently across cohorts. (C) Within a single cell, dwell times are near-memoryless
-(median CV ≈ 1); the pooled population is strongly dispersed (CV ≈ 2), the arithmetic
-signature of population heterogeneity.
+consistently across cohorts. (C) Within a single cell, dwell times are far less dispersed
+than the pooled population, the arithmetic signature of population heterogeneity (shown
+here as the model-free CV; a censoring- and selection-aware hierarchical model gives the
+same qualitative split and is used for the quantitative claims in §3.3).
 
 A homogeneous memoryless population (HOM null) yields g₂ ≈ 0 (+0.0011 / −0.0012),
 confirming the test does not manufacture memory. A heterogeneous memoryless population —
@@ -185,11 +191,23 @@ exceeds even this upper bound** in both cohorts, so a genuine within-cell memory
 is required. The fair decomposition attributes **53–60 % to single-cell memory and
 40–47 % to stable mover–stayer heterogeneity**, with the immotile state the most
 homogeneous across cells (Dirichlet concentration k ≈ 3.8–7.3) and the progressive state
-the least (k ≈ 1.0–2.7). This is corroborated model-free: within a single cell dwell CV is
-≈ 1 (near-memoryless) while the pooled CV is ≈ 2 (Fig. 2C), and successive dwell durations
-along a track show no temporal drift beyond the population baseline (state-controlled
-lag-1 ρ equals the shuffle null), so the heterogeneity is *quenched* (fixed per cell) rather
-than a slow within-cell drift.
+the least (k ≈ 1.0–2.7). This is corroborated at the level of dwell dispersion, and here we
+are careful about a bias: the model-free within-cell dwell CV (Fig. 2C) both right-censors
+long dwells and, by requiring ≥ 5 episodes per cell, selects fast-switchers, so it
+understates single-cell dispersion. We therefore refit a censoring- and selection-aware
+hierarchical survival model (a random-effects Tobit on log-dwell with the two boundary
+episodes right-censored, fit by EM; `dwell_censoring.py`). The decomposition holds and
+sharpens: a cell's *own* dwell dispersion sits close to a memoryless process (within-cell
+log-SD 0.7–1.8 against the exponential value π/√6 = 1.28; ratio 0.6–1.4), while a large
+between-cell component inflates the pool. That between-cell share is state-resolved and
+consistent across cohorts at the extremes: it dominates the progressive state (ICC =
+0.67 and 0.92 of log-dwell variance is between-cell) but is minor for the immotile state
+(ICC = 0.13 and 0.11), with the non-progressive state intermediate and cohort-sensitive.
+Finally, a censoring-clean test — lag-1 rank correlation of successive within-cell dwells
+against a within-cell permutation null that preserves each cell's dwell multiset — leaves
+no consistent residual: the observed–null gap is small and *opposite in sign* across the
+two cohorts (Δρ = −0.019 and +0.020), so the heterogeneity is *quenched* (fixed per cell)
+rather than a slow within-cell drift, confirming the earlier read with censoring respected.
 
 ### 3.4 The heterogeneity is a reliable trait but not clinically incremental over CASA
 
@@ -261,10 +279,16 @@ homogeneous Markov models. An event-detection method for tracked biological stru
 should therefore represent state as a position on a continuous manifold and model
 transitions with memory, not as a homogeneous Markov chain over a handful of bins.
 
-**Limitations.** States are derived from a sliding-window classifier; although the dwell law
-and its rejection of the exponential are invariant across window sizes, finite track lengths
-right-censor the longest dwells, so absolute dwell scales and the within-cell CV are
-lower-bounded rather than exact. Cross-participant clinical correlations of dynamics features
+**Limitations.** States are derived from a sliding-window classifier; the dwell law and its
+rejection of the exponential are invariant across window sizes and, as shown above, survive
+censored maximum likelihood, and the within- versus between-cell decomposition is
+reproduced by a censoring- and selection-aware hierarchical model rather than the biased
+model-free CV. Two caveats remain: absolute dwell *scales* are still lower-bounded by
+finite track length (the *form* and the decomposition are robust, the millisecond scale is
+not), and the between-cell share for the non-progressive state is not identified
+consistently across cohorts (ICC 0.88 vs 0.18), reflecting the smaller orig20 cohort and
+heavy boundary censoring; we therefore rest the heterogeneity claim on the progressive and
+immotile states, which agree across cohorts. Cross-participant clinical correlations of dynamics features
 are sensitive to the tracking pipeline (a cohort batch effect), which is why all clinical
 statistics are computed within cohort and never pooled. The genuine-memory/heterogeneity
 split is bracketed (fair EB estimate with an over-fit upper bound), not a point estimate.
@@ -283,6 +307,7 @@ defines current practice.
 | Dwell-time law + window invariance | `experiments/dwell_physics.py`, `dwell_physics_robust.py` | `outputs/markov/dwell_physics*.json` |
 | Independent replication of memory | `experiments/replicate_markov_extra.py` | `outputs/markov/replication_extra.json` |
 | Within- vs between-cell decomposition | `experiments/memory_decomposition.py` | `outputs/markov/memory_decomposition.json` |
+| Censoring-aware dwell law + within/between (frailty) | `experiments/dwell_censoring.py` | `outputs/markov/dwell_censoring.json` |
 | Mover–stayer nulls (HOM/HET/EB) | `experiments/mover_stayer_null.py`, `mover_stayer_eb.py` | `outputs/markov/mover_stayer_*.json` |
 | Per-cell heterogeneity + reliability | `experiments/per_cell_kinetics.py` | `outputs/markov/per_cell_kinetics.{json,csv}` |
 | Stayer→DFI robustness | `experiments/stayer_dfi.py` | `outputs/markov/stayer_dfi.json` |
