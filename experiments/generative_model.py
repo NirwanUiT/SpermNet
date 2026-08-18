@@ -532,13 +532,24 @@ def main():
     ap.add_argument("--beta-step", type=float, default=1.0)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--no-val", action="store_true", help="skip cross-cohort validation")
+    ap.add_argument("--fit-dir", type=str, default=None,
+                    help="alternative fit track directory (e.g. outputs/tracks_gt); "
+                         "output goes to generative_model_<fit-name>.json")
+    ap.add_argument("--fit-name", type=str, default=None,
+                    help="cohort label for --fit-dir (default: dir name)")
     args = ap.parse_args()
 
     OUTDIR.mkdir(parents=True, exist_ok=True)
     val_dir = None if args.no_val else EXTRA
-    res = analyse(ORIG, "orig20", val_dir, "extra57", args)
+    if args.fit_dir:
+        fit_dir = Path(args.fit_dir)
+        fit_name = args.fit_name or fit_dir.name
+        out = OUTDIR / f"generative_model_{fit_name}.json"
+    else:
+        fit_dir, fit_name = ORIG, "orig20"
+        out = OUTDIR / "generative_model.json"
+    res = analyse(fit_dir, fit_name, val_dir, "extra57", args)
 
-    out = OUTDIR / "generative_model.json"
     with open(out, "w") as f:
         json.dump(res, f, indent=2, default=float)
     print(f"\nwrote {out}", flush=True)
