@@ -37,8 +37,12 @@ boundary; 41 % are whole tracks). **One statistic survives every control**: succ
 dwell durations of the same cell anti-correlate far beyond the continuum null
 (Δρ = −0.23, video-cluster bootstrap CI [−0.30, −0.18]; null −0.06 [−0.14, +0.01];
 difference CI excludes zero), is robust to leave-one-video-out, to a per-cell estimator,
-and to merging up to 38 % of episodes as suspected classifier flicker (which *strengthens*
-it). Single human sperm are refractory switchers — an anti-bursty, resource-recovery-like
+to merging up to 38 % of episodes as suspected classifier flicker (which *strengthens*
+it), and is invariant across sixteen classifier configurations — thresholds, windows,
+and hysteresis — while the null's artefact swings from 0.00 to −0.20 with classifier
+design (a hysteresis classifier, being a latch, manufactures refractoriness on memoryless
+input; at a 51-frame window the artefact vanishes and the full gap is biological).
+Single human sperm are refractory switchers — an anti-bursty, resource-recovery-like
 timing signature that is genuine biology, and that automated tracking (which inflates all
 artefactual statistics a further ~1.9-fold) *erases* rather than inflates. Our results
 re-open the interpretation of non-Markovian claims from track-then-discretise pipelines
@@ -164,6 +168,14 @@ track boundaries, re-fit all laws by censored maximum likelihood (interior episo
 contribute density, boundary episodes survival), and redo the ground-truth-vs-automated
 dwell contrast with ground-truth tracks truncated to the automated track-length
 distribution (`dwell_resolution_audit.py`).
+
+**Threshold and classifier-design sweep.** The refractoriness test is repeated across
+eleven classifier-threshold configurations (immotile cut 3–8 µm/s, progressive cut
+20–30 µm/s, STR cut 0.40–0.60, and joint loose/strict extremes), across classifier
+windows of 13 and 51 frames, and under a hysteresis (Schmitt-trigger) classifier with
+10–30 % entry/exit deadbands — each configuration applied identically to ground truth and
+to the continuum null, with video-cluster bootstrap CIs throughout
+(`threshold_hysteresis.py`).
 
 **Tracking-fidelity audit.** The 20 annotated videos are re-tracked by three automated
 pipelines (BoT-SORT+ReID, BoT-SORT, ByteTrack over the same fine-tuned detector). For each
@@ -336,6 +348,26 @@ observed within-cell CV is 0.77 — below the exponential value and at the botto
 continuum null's range — so a flicker-dominated record is inconsistent with the observed
 regularity; the two statistics jointly over-constrain the artefact.
 
+The final artefactual explanation is the *placement and design of the classifier
+thresholds themselves*. A sixteen-configuration sweep rules it out and, in doing so,
+produces the cleanest single comparison in the paper. Across eleven threshold
+configurations — immotile cut varied 3–8 µm/s, progressive cut 20–30 µm/s, STR cut
+0.40–0.60, plus jointly loose and jointly strict extremes — the ground-truth effect is
+invariant (Δρ = −0.20 to −0.26, every cluster CI excluding zero) while the continuum
+null never exceeds −0.08; the GT-minus-null gap is −0.13 to −0.19 in every
+configuration. At a 51-frame classifier window the null's residual artefact vanishes
+entirely (Δρ = +0.002 [−0.056, +0.052]) while ground truth holds at −0.196 [−0.250,
+−0.154]: with the artefact eliminated, the full gap is biological. The hysteresis
+control yields a finding of independent value: a Schmitt-trigger classifier — the
+standard prescription against threshold flicker — *itself manufactures* Δρ ≈ −0.17 to
+−0.20 on the memoryless continuum, because a deadband classifier is a latch and
+therefore carries memory by construction; it is unusable as a control here, and its use
+in any pipeline would manufacture spurious refractoriness. The overall pattern is
+exactly what a genuine cellular signature predicts: the ground-truth effect is
+classifier-invariant (−0.20 to −0.26 across all sixteen configurations), whereas the
+null's artefact swings from 0.00 to −0.20 depending on how much memory the classifier
+design injects — and wherever the artefact is eliminated, the gap reappears in full.
+
 The surviving biological claim is deliberately minimal: *individual human sperm switch
 motility states with a refractory, anti-bursty timing structure — a long dwell is followed
 by a short one and vice versa, well beyond anything a memoryless continuum, censoring,
@@ -438,8 +470,10 @@ structure, push it through the identical classifier, and compare.
 Against that null, one biological result stands, and it is sharper for having survived:
 **single human sperm switch motility states with a refractory, anti-bursty timing
 structure** (Δρ = −0.23, video-cluster CI [−0.30, −0.18]; continuum null −0.06;
-difference excludes zero; robust to leave-one-video-out, per-cell estimation, and
-aggressive flicker merging, which strengthens it). Successive dwells anti-correlate: the
+difference excludes zero; robust to leave-one-video-out, per-cell estimation,
+aggressive flicker merging — which strengthens it — and invariant across sixteen
+threshold, window and hysteresis classifier configurations, while the null's artefact
+vanishes at the longest window). Successive dwells anti-correlate: the
 cell behaves as if switching consumes a resource that must recover — an adaptation-like
 mechanism analogous to spike-frequency adaptation in neurons, plausibly rooted in Ca²⁺ or
 ATP dynamics of flagellar beat regulation. The comparison with bacterial run-and-tumble
@@ -494,9 +528,11 @@ one imaging condition; the surviving effect is estimated with video-cluster CIs 
 generality needs a second annotated dataset. (2) The continuum null is Gaussian and
 lag-1-matched; a continuum with heavier-tailed or longer-memory — but still Markovian —
 velocity structure could in principle produce more of the observed Δρ than our null does,
-though it would have to do so while remaining consistent with the flicker and CV
-constraints. (3) The immotile state is unmeasurable at these track lengths (64 % boundary
-episodes), so nothing about immotile dwell structure is claimed. (4) The tracker-fidelity
+though it would have to do so while evading the threshold sweep (where the observed effect
+is invariant and the null's artefact vanishes at the 51-frame window) and the flicker and
+CV constraints. (3) The immotile state is unmeasurable at these track lengths (64 %
+boundary episodes), so nothing about immotile dwell structure is claimed. (4) The
+tracker-fidelity
 dissociation (MOT metrics vs dynamical fidelity) rests on three pipelines and is
 hypothesis-generating. (5) Annotation is human and its own identity-error rate is not
 zero; inter-annotator agreement on VISEM-Tracking is not documented, and a synthetic-video
@@ -521,6 +557,7 @@ track-then-discretise pipelines, in any domain, are uninterpretable.
 | **Continuum null (decisive control)** | `experiments/continuum_null.py` | `outputs/tracks_continuum_null/`, `outputs/markov/continuum_null.json` |
 | **Resolution + censoring audits** | `experiments/dwell_resolution_audit.py` | `outputs/markov/dwell_resolution_audit.json` |
 | **Refractory survivor test (flicker + cluster bootstrap)** | `experiments/refractory_survivor.py` | `outputs/markov/refractory_survivor.json` |
+| **Threshold sweep + hysteresis control** | `experiments/threshold_hysteresis.py` | `outputs/markov/threshold_hysteresis.json` |
 | Ground-truth track materialisation + standard-toolkit statistics | `experiments/gt_reanchor.py` | `outputs/tracks_gt/`, `outputs/markov/gt_reanchor.json` |
 | Tracking-fidelity audit (GT vs 3 pipelines) | `experiments/tracker_fidelity.py` | `outputs/markov/tracker_fidelity.json` |
 | Semi-Markov ladder (property of the g₂ statistic) | `experiments/refractory_model.py` | `outputs/markov/refractory_model.json` |
