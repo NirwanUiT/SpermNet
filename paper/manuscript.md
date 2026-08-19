@@ -1,48 +1,49 @@
-# Single human spermatozoa switch motility states with memory: hand-annotated trajectories separate a refractory, history-dependent switching process from tracking artefact
+# The measurement pipeline manufactures non-Markovian dynamics: discretisation and tracking artefacts in single-cell behaviour, and the one refractory signature in human sperm that survives
 
 *Working manuscript draft — Work Package 4 (Event Detection and Tracking) of the doctoral
 project "Shape representation and event detection of sub-cellular structures in
 high-content/high-throughput microscopy" (UiT, BioAI group). Sperm motility is the primary
 use case for the event-detection methodology; the same detect–track–represent–detect-events
 pipeline targets sub-cellular structures such as mitochondria. Primary evidence: 1,138
-hand-annotated single-cell trajectories (VISEM-Tracking ground truth, 20 videos).
-Secondary: 57 further participants tracked automatically (pipeline-level replication) and a
+hand-annotated single-cell trajectories (VISEM-Tracking ground truth, 20 videos), a
+matched Markovian-continuum null passed through the identical classifier, and a
 four-pipeline tracking-fidelity audit on the annotated videos.*
 
 ---
 
 ## Abstract
 
-Computer-Aided Sperm Analysis (CASA) summarises a semen sample by the instantaneous
-fraction of cells in a small number of motility categories, implicitly treating each cell
-as a memoryless (Markov) switcher drawn from one homogeneous population. We test both
-assumptions on the largest hand-annotated single-cell resource available — 1,138
-human-verified spermatozoon trajectories (656,145 frame-states, 6,895 dwell episodes; 20
-VISEM-Tracking videos, 50 fps) — and, critically, on the *same videos* re-tracked by
-four automated detector–tracker pipelines, so that biology and tracking artefact can be
-separated for the first time. Three findings follow. (i) On ground truth, motility-state
-**dwell times are heavy-tailed and non-exponential** — log-normal for the progressive and
-non-progressive states (ΔAIC over exponential +1,195 and +1,343) — rejecting the Markov
-assumption; the *immotile* state, by contrast, is gamma-distributed with a light tail
-(CV ≈ 1.05), and the heavy immotile tail reported by automated pipelines is a tracking
-artefact of fragmentation. (ii) Switching carries **genuine single-cell memory**: on
-decorrelated 0.5 s blocks a second-order model beats a first-order one by g₂ = +0.030
-per token (window-robust, +0.020/+0.030/+0.042 at 13/25/51 frames), and a hierarchical
-empirical-Bayes null attributes **~71 % of it to within-cell memory** and ~29 % to stable
-cell-to-cell rate heterogeneity (ICC = 0.10). (iii) The memory has a specific temporal
-signature: within one cell, dwell durations are *less* dispersed than exponential
-(CV ≈ 0.77) and successive dwells **anti-correlate** far below a within-cell permutation
-null (Δρ = −0.24, p ≈ 10⁻²⁰) — single sperm are *refractory*, anti-bursty switchers, a
-fast history-dependence that a slow doubly-stochastic (latent-modulation) model we fit
-independently predicted as its missing ingredient. Methodologically, every automated
-pipeline **inflates the memory statistic ~1.9-fold** and manufactures the immotile heavy
-tail, while conventional multi-object-tracking accuracy fails to rank pipelines by this
-downstream dynamical fidelity — tracker evaluation should include dynamical observables,
-not only identity metrics. A reliable per-man switching-heterogeneity trait does **not**
-improve prediction of the DNA-fragmentation index over standard CASA composition
-(pre-registered null). The population-average snapshot is the wrong observable for sperm
-motility: the dynamics are non-Markovian, refractory, and heterogeneous — and quantifying
-them demands annotation-grade trajectories.
+A standard way to quantify the behaviour of tracked biological objects — from swimming
+cells to sub-cellular organelles — is to discretise a continuous phenotype into a small
+state vocabulary and model the transitions. Reports of "non-Markovian" dynamics from such
+pipelines are widespread: heavy-tailed state dwell times, memory beyond the current state,
+and stable object-to-object heterogeneity. Using the largest hand-annotated single-cell
+motility resource available (1,138 human-verified spermatozoon trajectories, 656,145
+frame-states, VISEM-Tracking) we show that, for the canonical CASA motility states, this
+entire phenomenology is manufactured by the measurement pipeline itself — with one sharply
+defined exception. We construct a **memoryless (Markovian) continuum null**: per-track
+Ornstein–Uhlenbeck velocity processes fit only to each trajectory's velocity marginal and
+lag-1 autocovariance, passed through the identical windowed state classifier and scoring
+code. This null — which contains no switching biology at all — reproduces or exceeds every
+headline non-Markovian statistic: log-normal dwell laws in every state (ΔAIC over
+exponential up to +4,490), a second-order memory gain of +0.052 per token (170 % of the
+observed +0.030), window-robustness of that gain, apparent cell-to-cell heterogeneity
+(ICC 0.13 vs 0.10 observed), sub-exponential within-cell dwell regularity, and it even
+deceives a hierarchical empirical-Bayes decomposition into attributing 54 % "genuine
+within-cell memory" to a memoryless process. Resolution and censoring audits further show
+the motile dwell laws have barely one decade of dynamic range above the classifier window,
+and the immotile dwell law is unidentifiable (64 % of immotile episodes touch a track
+boundary; 41 % are whole tracks). **One statistic survives every control**: successive
+dwell durations of the same cell anti-correlate far beyond the continuum null
+(Δρ = −0.23, video-cluster bootstrap CI [−0.30, −0.18]; null −0.06 [−0.14, +0.01];
+difference CI excludes zero), is robust to leave-one-video-out, to a per-cell estimator,
+and to merging up to 38 % of episodes as suspected classifier flicker (which *strengthens*
+it). Single human sperm are refractory switchers — an anti-bursty, resource-recovery-like
+timing signature that is genuine biology, and that automated tracking (which inflates all
+artefactual statistics a further ~1.9-fold) *erases* rather than inflates. Our results
+re-open the interpretation of non-Markovian claims from track-then-discretise pipelines
+across fields, and supply the two controls — a matched continuum null and
+annotation-anchored tracking audits — that separate measurement artefact from biology.
 
 ---
 
@@ -72,19 +73,23 @@ into the Markov-chain models commonly fitted to CASA state sequences: (1) *memor
 are draws from one transition process. Neither has been tested at scale on single-cell
 trajectories.
 
-We test both directly. Hand-annotated tracking yields thousands of verified state-switching
-events, enough to characterise the *distribution* and *temporal structure* of motility
-switching rather than only its mean. We ask four questions: what law governs how long a
-cell dwells in a state; whether switching carries memory beyond the current state; if so,
-whether that memory is a property of single cells or an artefact of pooling a heterogeneous
-population; and — a question the field has not asked — how much of the apparent dynamics is
-manufactured by the *tracking pipeline itself*. The last question turns out to be decisive:
-automated trackers fragment and re-join trajectories, and those identity errors masquerade
-as biological memory and heavy-tailed dwell laws. We therefore anchor every headline
-statistic on human-verified trajectories and use the automated pipelines as a controlled
-perturbation, which yields a methodological result of independent interest for any
-track-then-model pipeline. Finally we ask whether anything discarded by the population
-average carries clinical signal.
+We test both directly — and then we test the tests. Hand-annotated tracking yields
+thousands of verified state-switching events, enough to characterise the *distribution*
+and *temporal structure* of motility switching rather than only its mean. On these
+trajectories the standard analyses report exactly what the recent literature on tracked
+behaviour would predict: heavy-tailed dwell laws, second-order memory, and stable
+cell-to-cell heterogeneity. The central contribution of this paper is to show that these
+findings do not survive two controls that track-then-discretise studies do not usually
+run. The first is a *continuum null*: a memoryless (Markovian) continuous motion model,
+fit per track to nothing but the velocity marginal and its lag-1 autocovariance, passed
+through the identical windowed classifier — which turns out to manufacture the entire
+non-Markovian phenomenology, and more of it than the data show. The second is an
+*annotation-anchored tracking audit*, which shows automated tracking inflates the same
+statistics a further two-fold while erasing genuine within-cell temporal structure. One
+statistic survives both controls and every robustness test we could construct — a
+refractory anti-correlation of successive dwells — and we propose it as the correct
+minimal claim about single-sperm switching biology. Finally we ask whether anything
+discarded by the population average carries clinical signal.
 
 ---
 
@@ -134,27 +139,37 @@ The genuine-memory share is (g₂ᴿᴱᴬᴸ − g₂ᴱᴮ)/(g₂ᴿᴱᴬᴸ 
 complement. We corroborate with the ratio of within-track to pooled dwell CV
 (`memory_decomposition.py`).
 
-**Refractoriness test.** Within each cell with ≥ 5 interior dwell episodes we compute the
-lag-1 Spearman correlation of successive dwell durations and compare it with a
+**Refractoriness test.** Within each cell we compute the lag-1 Spearman correlation of
+successive state-controlled residual log-dwell durations and compare it with a
 within-cell permutation null that preserves each cell's dwell multiset (so censoring and
 heterogeneity cannot produce a spurious signal); the statistic is Δρ = ρ_obs − ρ_null.
-The same episodes give the within-cell dwell CV (`memory_decomposition.py`,
-`gt_reanchor.py`).
+All inference is by **video-level cluster bootstrap** (videos resampled with replacement),
+with leave-one-video-out ranges and a per-cell Fisher-z estimator as corroboration
+(`memory_decomposition.py`, `refractory_survivor.py`).
+
+**Continuum null (the decisive control).** For every ground-truth track we fit a 2-D
+Ornstein–Uhlenbeck (discrete AR(1)) velocity process — Markovian by construction — to
+that track's velocity marginal (per-component mean, variance) and pooled lag-1
+autocovariance, and nothing else; no memory statistic is ever fit. We simulate one
+synthetic track per real track at the identical length (censoring reproduced by
+construction; per-track parameters preserve quenched heterogeneity), then pass the
+synthetic positions through the *identical* windowed classifier and the identical scoring
+code for every statistic in this paper (`continuum_null.py`).
+
+**Resolution and censoring audits.** Per state we report the fraction of dwell episodes
+shorter than 1×/2×/3× the classifier window, re-fit the law competition restricted to
+dwells ≥ 3× window, and repeat the full competition at windows of 5, 9 and 13 frames
+(below the mean motile dwell). We report the fraction of episodes touching one or both
+track boundaries, re-fit all laws by censored maximum likelihood (interior episodes
+contribute density, boundary episodes survival), and redo the ground-truth-vs-automated
+dwell contrast with ground-truth tracks truncated to the automated track-length
+distribution (`dwell_resolution_audit.py`).
 
 **Tracking-fidelity audit.** The 20 annotated videos are re-tracked by three automated
 pipelines (BoT-SORT+ReID, BoT-SORT, ByteTrack over the same fine-tuned detector). For each
 pipeline we compute (a) conventional association quality against GT (identity switches per
 GT track, coverage) and (b) every downstream dynamical statistic above, scored by the
 identical code. Fidelity is the agreement of (b) with GT (`experiments/tracker_fidelity.py`).
-
-**Mechanistic budget.** To identify which physical ingredients are *sufficient* for the
-observed memory we simulate a ladder of semi-Markov generative models over the empirical
-embedded topology, adding one ingredient per rung — homogeneous exponential (null),
-quenched rate heterogeneity (calibrated to the observed ICC), sub-exponential gamma dwell
-shape (calibrated to the within-cell CV), refractory serial coupling (a Gaussian-copula
-AR(1) on successive dwells calibrated to Δρ while preserving the gamma marginal exactly),
-and finally the empirical second-order embedded topology. Each rung's block-level g₂ is a
-zero-free-parameter prediction (`experiments/refractory_model.py`).
 
 **Per-cell heterogeneity and clinical test (Fig. 3).** For each cell we compute a
 length-normalised switch rate (switches per second) on tracks ≥ 1 s; per participant we
@@ -170,166 +185,168 @@ controlling for static CASA composition and for age/BMI/abstinence
 
 ## 3. Results
 
-### 3.1 Dwell times are heavy-tailed for motile states — and the immotile heavy tail is a tracking artefact
+### 3.1 The standard toolkit reports the full non-Markovian phenomenology
 
 ![Figure 1](figures/fig1_dwell_law.png)
 
-**Figure 1. The dwell-time law.** (A) Empirical survival functions of state dwell times on
-log–log axes depart sharply from the exponential (memoryless/Markov) law, which
-under-predicts the motile-state tails by orders of magnitude. (B) The exponential is
-rejected in every state; on ground truth the best law is log-normal for the motile states
-but *gamma with a light tail* for the immotile state. *(Figure to be regenerated on
-ground-truth trajectories.)*
+**Figure 1. What a standard analysis concludes.** Empirical survival functions of state
+dwell times on the 1,138 hand-annotated trajectories depart sharply from the exponential
+(memoryless/Markov) law; a second-order Markov model beats a first-order one on held-out
+data; a hierarchical decomposition attributes most of the gain to within-cell memory.
+Sections 3.2–3.3 show that all of this is reproduced by a memoryless continuum passed
+through the identical classifier. *(Figure to be regenerated with the continuum-null
+overlay.)*
 
-On the 1,138 ground-truth trajectories, dwell times reject the exponential (Markov) law in
-every state: ΔAIC over exponential is +1,195 (progressive, n = 2,940 episodes), +1,343
-(non-progressive, n = 3,048) and +176 (immotile, n = 907). But the *form* of the law is
-state-dependent, and this matters. The two motile states are genuinely heavy-tailed and
-best fit by a log-normal (dwell CV 1.86 and 2.16 against 1 for a memoryless process; the
-empirical tail mass beyond 5× the mean exceeds the exponential prediction by 1.7× and
-1.3×). The immotile state is *not*: its best law is a gamma (ΔAIC +40 over log-normal),
-its CV is 1.05 and its tail carries **no excess mass** over the exponential prediction
-(tail excess 0.0×). Mean dwells are 0.85 s (progressive), 0.54 s (non-progressive) and
-9.9 s (immotile).
+Applying the field's standard analyses to the ground-truth trajectories reproduces every
+non-Markovian signature the tracked-behaviour literature would predict. Dwell times reject
+the exponential law in every state (ΔAIC over exponential +1,195 progressive, n = 2,940
+episodes; +1,343 non-progressive, n = 3,048; +176 immotile, n = 907), with log-normal the
+best of four laws for the motile states and pooled dwell CV of 1.86–2.16 against 1 for a
+memoryless process. On decorrelated 0.5 s blocks, a second-order Markov model improves
+held-out per-token log-likelihood by **g₂ = +0.0304**, robustly across classifier windows
+(+0.0202/+0.0304/+0.0416 at 13/25/51 frames); the durationless embedded chain shows a
+second-order gain of +0.096; an explicit hidden-Markov model with up to four latent modes
+is beaten by the raw second-order model (prior result, `hmm_vs_markov.json`). A
+hierarchical empirical-Bayes decomposition attributes 71 % of g₂ to genuine within-cell
+memory, with a between-cell ICC of 0.10; and within single cells, dwell durations appear
+sub-exponentially regular (within-cell CV ≈ 0.77). By the standards of the discrete-state
+literature this would constitute strong evidence for non-Markovian, history-dependent
+switching with quenched heterogeneity. The automated baseline pipeline on the same videos
+reports the same phenomenology with everything larger (g₂ = +0.0589; CV 3.2/3.2/2.4), and
+an independent 57-participant automated cohort replicates it (g₂ = +0.0565).
 
-The contrast with automated tracking is diagnostic. On the *same videos*, the automated
-baseline pipeline (19,685 tracks) reports a log-normal in every state including immotile,
-with inflated dispersion throughout (CV 3.2/3.2/2.4) and a mean immotile dwell of ~0.4 s —
-twenty-fold shorter than ground truth. The mechanism is fragmentation: an immotile cell
-that is repeatedly lost and re-acquired contributes many short spurious "immotile dwells"
-plus a scatter of track boundaries, which jointly manufacture a heavy tail on a light-tailed
-state. The oft-convenient conclusion "all dwell laws are log-normal" is therefore partly an
-artefact of the measurement pipeline; the defensible ground-truth statement is: *motile-state
-dwells are heavy-tailed and non-exponential; immotile dwells are regular (near-gamma,
-light-tailed) and long*. Two censoring caveats bound the immotile claim: mean immotile dwell
-(494 frames) is comparable to the median track length (445 frames), so its absolute scale is
-a lower bound; and the tail comparison uses interior and boundary episodes identically for
-all laws, so the *ranking* of laws — not the millisecond scale — is the claim. On automated
-data the rejection of the exponential survives censored maximum likelihood and classifier
-windows of 13/25/51 frames (ΔAIC +1.1×10³ to +2.1×10⁵, `dwell_censoring.py`,
-`dwell_physics_robust.py`); on ground truth we verified window-robustness for the memory
-statistic (§3.2).
+The remainder of the paper subjects this phenomenology to two controls — a memoryless
+continuum passed through the identical classifier (§3.2) and resolution/censoring audits
+(§3.3) — and reports the single statistic that survives (§3.4).
 
-### 3.2 Switching carries memory beyond the current state
+### 3.2 A memoryless continuum manufactures all of it
 
-On decorrelated 0.5 s blocks of the ground-truth state sequences, a second-order Markov
-model improves held-out per-token log-likelihood over a first-order model by
-**g₂ = +0.0304**, and the result is robust to the classifier window (+0.0202, +0.0304,
-+0.0416 at 13, 25 and 51 frames): the next state depends on where the cell came from. The
-memory lives at the behavioural scale, not the frame scale — at full 20 ms resolution the
-second-order gain is ≈ 0 (+0.0002), because the smooth sliding-window series makes the
-current state at 20 ms nearly sufficient; it is only after decorrelating to 0.5 s blocks
-that history beyond the current state becomes informative. The memory is even more visible
-when time is removed entirely: on the *embedded chain* (the durationless sequence of
-visited states), the second-order gain is +0.096 — knowing the previous state strongly
-predicts the next transition. An explicit hidden-Markov model with up to four latent modes
-is *beaten* by the raw second-order model at fewer parameters (prior result,
-`hmm_vs_markov.json`), indicating history-dependence on the observed state rather than a
-noisy read-out of a few discrete hidden modes.
+The states are not observed; they are computed from continuous kinematics by a 0.5 s
+sliding-window classifier. The correct null for "the switching is non-Markovian" is
+therefore not a shuffled state sequence but a **Markovian continuous motion model passed
+through the identical classifier**. For each ground-truth track we fit a 2-D
+Ornstein–Uhlenbeck velocity process to that track's velocity marginal and lag-1
+autocovariance only (median fitted velocity persistence a = 0.74; nothing dynamical beyond
+lag 1 is fit, and no memory statistic is ever seen by the fit), simulated one synthetic
+track per real track at the identical length, and scored the synthetic cohort with the
+identical code (`continuum_null.py`).
 
-Two subordinate replications: the automated baseline pipeline on the same videos gives
-g₂ = +0.0589 — the qualitative signature survives, but the magnitude is inflated 1.9-fold
-by tracking artefact (§3.5) — and the independent 57-participant automated cohort gives
-g₂ = +0.0565, replicating the *pipeline-level* signature on disjoint participants.
+The memoryless continuum reproduces — or exceeds — every statistic of §3.1:
 
-### 3.3 Most of the memory is inside single cells — and it is refractory
+| Statistic | Ground truth | Continuum null (memoryless) |
+|---|---|---|
+| Dwell law, best of 4 (all states) | log-normal (motile) | **log-normal, every state** |
+| ΔAIC exp vs best (P / NP / I) | +1,195 / +1,343 / +176 | +959 / +4,490 / +1,237 |
+| Pooled dwell CV (P / NP / I) | 1.86 / 2.16 / 1.05 | 1.59 / 3.49 / 1.39 |
+| Block g₂ (13 / 25 / 51 frames) | +0.020 / +0.030 / +0.042 | **+0.050 / +0.052 / +0.053** |
+| Frame-level g₂ | +0.0002 | +0.0019 |
+| Between-cell ICC (log-dwell) | 0.103 | 0.126 |
+| Within-cell dwell CV (median) | 0.77 | 0.80–0.93 |
+| EB "genuine within-cell memory" share | 71 % | **54 %** |
+| Serial Δρ (obs − permutation null) | **−0.23** | **−0.06** |
+
+Three consequences. First, the **dwell-law and memory claims collapse as biology**: a
+process with no switching dynamics at all — indeed no states at all — produces log-normal
+dwell laws with large ΔAIC in every state, and *more* second-order block memory than the
+real data (+0.052 vs +0.030, i.e. 170 %), with the same window-robustness. The windowed
+discretisation of a continuous, memoryless trajectory is itself a memory-manufacturing
+device: window overlap with state boundaries, threshold crossings of a smooth variable,
+and mixture-of-kinematics within windows generate precisely the history-dependence the
+order test detects. Second, the **decomposition machinery is equally deceived**: the
+hierarchical EB null attributes 54 % "genuine within-cell memory" to the memoryless
+continuum, so the 71 % split of §3.1 cannot be read as biology either; likewise the
+apparent sub-exponential within-cell regularity (CV < 1) is largely reproduced (0.80–0.93)
+by episode truncation alone. Third — and this is the pivot of the paper — exactly **one
+statistic resists**: the serial anti-correlation of successive dwells, where the null
+yields only a quarter of the observed effect. Section 3.4 stress-tests that survivor.
+
+This result also retro-explains our own generative analyses. A zero-free-parameter
+semi-Markov ladder (`refractory_model.py`) had shown that no timing ingredient
+(heterogeneity, gamma shape, refractory coupling) produces block-scale g₂, while imposing
+the empirical second-order embedded topology recovers 93 % of it; we had read that as
+"sequence momentum". The continuum null shows the empirical second-order embedded topology
+is itself largely a discretisation artefact — the ladder's durable lesson is about the
+*statistic* (g₂ is blind to timing structure and sensitive to sequence context), not about
+sperm.
+
+### 3.3 Resolution and censoring audits: the dwell laws had little room to be laws
+
+Two audits quantify how much dynamic range the dwell-law competition ever had
+(`dwell_resolution_audit.py`).
+
+**Resolution.** Mean motile dwells (0.85 s progressive, 0.54 s non-progressive) sit at
+1–2× the 0.5 s classifier window: 62 % and 74 % of motile episodes are shorter than one
+window, 86 % and 93 % shorter than three. Restricting the law competition to dwells
+≥ 3× window leaves the log-normal ranking intact (ΔAIC over exponential +287 and +145 on
+n = 422 and 209 episodes), and the full competition repeated at windows of 5, 9 and 13
+frames — below the mean dwell — preserves it as well (e.g. +759/+1,022 at 5 frames). The
+*form* is therefore not a smoothing artefact of one window choice; but with less than one
+decade of usable range above any window, and with §3.2 showing a Markovian continuum
+produces the same ranking at comparable ΔAIC, the law's rejection of the exponential
+carries no biological information.
+
+**Immotile censoring.** The immotile state is essentially unmeasurable at these track
+lengths: 64 % of immotile episodes touch a track boundary and 41 % are whole tracks
+(against 26 % and 11 % boundary-touching for the motile states), and the immotile episode
+distribution tracks the track-length distribution over most of its range (medians 270 vs
+445 frames; upper quartiles coincide). Censored maximum likelihood — interior episodes
+contributing density, boundary episodes survival — *reverses* the complete-case verdict:
+the censored best law for immotile is log-normal (ΔAIC +516 over exponential), not the
+gamma found when truncated episodes are treated as complete. And the apparent
+ground-truth-vs-automated contrast in the immotile law disappears once track length is
+controlled: truncating ground-truth tracks to the automated track-length distribution
+turns the immotile law log-normal with CV 2.06 — indistinguishable in form from the
+automated pipelines. We therefore retract two claims from earlier drafts of this work: the
+immotile dwell law is *unidentifiable* from these data (neither "gamma and light-tailed"
+on ground truth nor "heavy tail manufactured by tracking" survives the length-matched
+contrast), and no state's dwell-law *form* should be read as biology.
+
+### 3.4 The survivor: single sperm are refractory switchers
 
 ![Figure 2](figures/fig2_decomposition.png)
 
-**Figure 2. Decomposing the memory.** (A) Second-order gain g₂ for the observed
-ground-truth data and for three parametric-bootstrap nulls: a homogeneous memoryless
-population reproduces essentially none of the signal, a fair empirical-Bayes heterogeneous
-memoryless population reproduces about a third, and the remainder is genuine within-cell
-memory. (B) The within-cell temporal signature: successive dwell durations of one cell
-anti-correlate far below the within-cell permutation null, and within-cell dwell CV sits
-*below* the exponential value — single sperm are refractory, anti-bursty switchers.
-*(Figure to be regenerated on ground-truth trajectories.)*
+**Figure 2. The one statistic the null cannot make.** Serial correlation of successive
+state-controlled residual log-dwells within single cells: ground truth Δρ = −0.228
+(video-cluster 95 % CI [−0.296, −0.182]) versus −0.060 [−0.142, +0.008] for the matched
+memoryless continuum; the difference excludes zero, and aggressive flicker-merging
+strengthens the effect. *(Figure to be regenerated: current panel shows the superseded
+EB decomposition.)*
 
-**Decomposition.** A homogeneous memoryless population (HOM null) yields g₂ = +0.004,
-confirming the test does not manufacture memory. A heterogeneous memoryless population —
-cells that are individually first-order but differ in their transition kinetics — can
-reproduce part of the signal by aggregation (a Simpson/mover–stayer effect): the fair
-empirical-Bayes null gives g₂ = +0.0115, and the deliberately over-fit HET null (each track
-simulated from its own noisy matrix) gives +0.035. Against the fair null, the decomposition
-attributes **71 % of the observed g₂ (+0.0302) to genuine within-cell memory and 29 % to
-stable cell-to-cell heterogeneity**. Ground truth revises our earlier automated-pipeline
-estimate of this split (53–60 % / 40–47 %): tracking errors masquerade as *heterogeneity*
-(fragmented tracks look like distinct cells with distinct kinetics), so automated data
-overstates the mover–stayer share. Consistently, between-cell dispersion on ground truth is
-real but modest — ICC of log-dwell = 0.10, empirical-Bayes Dirichlet concentrations
-k = 3.0/2.5/5.3 (progressive/non-progressive/immotile) — whereas the automated pipeline
-gives ICC = 0.16 with a larger aggregation share (53 %). One honest retraction from our
-automated-era analysis: on ground truth the observed g₂ (+0.0302) no longer exceeds the
-over-fit HET upper bound (+0.035), so the "memory beyond *any* heterogeneous memoryless
-model" argument rests on the fair EB null, not on the upper bound.
+One statistic resists the continuum null, and it then survives every additional control we
+could construct (`refractory_survivor.py`).
 
-**The memory is refractory.** Two within-cell statistics, both immune to censoring and
-heterogeneity by construction, characterise it. First, within a single cell the dwell-time
-CV is **0.77** — *below* the exponential value of 1: individual cells are more regular than
-Poisson switchers (sub-exponential; a gamma fit gives shape ≈ 1.7), even though the pooled
-population is over-dispersed (CV 1.9–2.2). The population heavy tail is therefore a
-mixture-of-regular-switchers arithmetic, not within-cell burstiness. Second, successive
-dwell durations of the same cell are **anti-correlated**: lag-1 Spearman ρ = −0.125 against
-a within-cell permutation null of +0.117 (the positive null reflects episode-count
-selection), giving Δρ = **−0.242** (p = 2.5×10⁻²⁰). A long dwell is followed by a short
-one and vice versa — the cell behaves as if switching consumes a resource that must
-recover: a *refractory*, anti-bursty process. This signature is invisible in automated
-tracking on the same videos (Δρ = −0.03): identity switches splice unrelated cells'
-dwells and fragmentation truncates successive-dwell pairs, destroying the correlation
-structure — which is why our own earlier automated-data analysis, and any analysis built
-on automated tracking, concluded the heterogeneity was quenched with no within-cell
-temporal structure. Ground truth reverses that conclusion.
+Successive dwell durations of the same cell — state-controlled residual log-dwells,
+compared against a within-cell permutation null that preserves each cell's dwell multiset
+— are anti-correlated: **Δρ = −0.228** on ground truth. Because dwell pairs are nested in
+cells nested in 20 videos, we retire the naive pooled p-value and use video-level cluster
+inference: the cluster-bootstrap 95 % CI is **[−0.296, −0.182]**, the leave-one-video-out
+range is [−0.241, −0.214] (no single video carries the effect), and a per-cell estimator
+(lag-1 Spearman per cell, Fisher-z averaged, no pooling) gives −0.26, agreeing with the
+pooled value. The continuum null produces Δρ = −0.060 [−0.142, +0.008] — a small negative
+bias from truncation and windowing — and the bootstrapped **GT-minus-null difference is
+−0.168 [−0.263, −0.074]**, excluding zero.
 
-### 3.4 What generates the memory? Sequence momentum, with refractory timing as a separate channel
+The remaining artefactual explanation is classifier *flicker*: a brief misclassification
+inside a long dwell creates a long–short–long triplet, which is negatively autocorrelated
+by construction. Two facts rule it out. First, merging every 1–2-block episode flanked by
+the same state on both sides — removing 34 % (≤ 25-frame threshold) or 38 % (≤ 50-frame)
+of all episodes as potential flicker — makes the anti-correlation *stronger*, not weaker
+(Δρ = −0.232 and −0.248). Second, flicker inflates the within-cell dwell CV, and the
+observed within-cell CV is 0.77 — below the exponential value and at the bottom of the
+continuum null's range — so a flicker-dominated record is inconsistent with the observed
+regularity; the two statistics jointly over-constrain the artefact.
 
-The decomposition above *measures* the memory; here we identify what carries it, by two
-complementary generative analyses on the ground-truth trajectories. Throughout, real and
-simulated sequences are scored by identical self-contained code, all model timescales and
-topologies are *calibrated* from empirical marginals (never fitted to the memory
-statistic), and each simulated cell is cut to an empirical track length, so censoring is
-reproduced by construction. On the internal block-modal estimator the ground-truth targets
-are g₂ = +0.0252 and per-state dwell CV = (1.86, 2.16, 1.05) (the headline +0.0304 of §3.2
-uses a slightly different block loader; both are 0.5 s-block statistics).
-
-**A slow doubly-stochastic mechanism fails at the observed dispersion.** We first asked
-whether slow internal modulation — each cell carrying Ornstein–Uhlenbeck "rate gear" and
-"vigour" variables that drift its switching kinetics — can generate the memory
-(`generative_model.py`). The memoryless mixture reproduces none of it (g₂ = −0.002),
-confirming generatively that the signal is not an artefact of the calibrated marginals.
-Slow modulation *can* generate memory, but only by over-dispersing dwell times: the
-configuration matching the empirical dwell CV recovers just 9–34 % of the observed g₂,
-while reaching 68–72 % forces dwell CV up to ≈ 4.4 — double the data. No parameterization
-matches both. Real cells exhibit strong history-dependence at *modest* dwell dispersion,
-so a mechanism whose only memory source is slowly varying rates is excluded; the model
-predicts a distinct, faster ingredient in the transitions themselves.
-
-**A zero-free-parameter ladder identifies the ingredient.** We then built a ladder of
-semi-Markov models over the empirical embedded topology, each rung adding one calibrated
-ingredient, with the block-level g₂ of each rung a parameter-free *prediction*
-(`refractory_model.py`): homogeneous-exponential null, −15 % of the real g₂; + quenched
-rate heterogeneity matched to the observed ICC = 0.10, −13 %; + gamma dwell shape matched
-to the within-cell CV = 0.77, −22 %; + refractory serial coupling (Gaussian-copula AR(1),
-φ = −0.30, reproducing the observed Δρ = −0.24 while preserving the gamma marginal
-exactly), −20 %. **None of the timing ingredients produces block-scale memory.** The final
-rung replaces the first-order embedded chain by the *empirical second-order embedded
-topology* — which state the cell came from conditions which state it enters next — and
-this single ingredient recovers **93 % of the observed g₂** (+0.0234 vs +0.0252), while
-slightly overshooting the durationless embedded-chain gain (+0.144 vs +0.096), as expected
-when the empirical context effect is imposed uniformly.
-
-The memory therefore has an identified carrier and a clean anatomy. The block-scale
-second-order gain is carried almost entirely by **sequence momentum in the transition
-topology** — e.g. a cell that reached the non-progressive state from progressive is
-disproportionately likely to return to progressive rather than decay to immotile — and not
-by dwell-time structure of any kind: heterogeneity, sub-exponential regularity and
-refractory anti-correlation each leave g₂ at zero. Conversely, the refractory timing
-signature (Δρ = −0.24) and the sub-exponential regularity (CV = 0.77) are real,
-independently measured properties of single cells that g₂ is blind to. Single sperm thus
-carry **two dissociable memory channels**: a *sequence channel* (directional momentum in
-which states are visited) and a *timing channel* (regular, refractory switching clocks) —
-precisely the fast transition-level ingredient the slow-latent model predicted was
-missing, now confirmed and localised.
-
+The surviving biological claim is deliberately minimal: *individual human sperm switch
+motility states with a refractory, anti-bursty timing structure — a long dwell is followed
+by a short one and vice versa, well beyond anything a memoryless continuum, censoring,
+heterogeneity, or classifier flicker produces.* The natural mechanistic reading is a
+resource-recovery or adaptation process in the switching machinery (e.g. Ca²⁺ or ATP
+dynamics in the flagellar beat regulation), analogous to spike-frequency adaptation in
+neurons — and notably *inverted* relative to bacterial run-and-tumble switching, where
+behavioural variability manifests as positive serial dependence and burstiness. This
+signature is invisible in automated tracking of the same videos (Δρ ≈ −0.03): identity
+splices and fragmentation destroy within-cell serial structure — automated tracking
+inflates every artefactual statistic while erasing the genuine one.
 
 ### 3.5 Tracking artefacts masquerade as dynamics — and MOT accuracy does not predict dynamical fidelity
 
@@ -339,13 +356,16 @@ pipelines sharing the same fine-tuned detector (BoT-SORT+ReID, BoT-SORT, ByteTra
 scored every dynamical statistic with the identical code (`tracker_fidelity.py`).
 
 Every pipeline inflates the memory statistic, and by a similar factor: g₂ = 0.047–0.052
-against 0.025 on ground truth with the same estimator — a **1.8–2.1× inflation** —
-and every pipeline converts the light-tailed immotile dwell law into a spurious heavy
-tail (§3.1) while inflating dwell CV in all states. The mechanism is identity error:
-fragmentation and ID switches concatenate unrelated cells and truncate dwells, which
-*adds* apparent history-dependence and heterogeneity. A track-then-model analysis
-therefore overstates non-Markovianity roughly two-fold even when its qualitative
-conclusions survive.
+against 0.025 on ground truth with the same estimator — a **1.8–2.1× inflation** — while
+inflating dwell CV in all states and shortening the mean immotile dwell twenty-fold (0.4 s
+vs 9.9 s; a fragmentation effect, though §3.3 shows the immotile *law form* is not
+identifiable in either data tier). The mechanism is identity error: fragmentation and ID
+switches concatenate unrelated cells and truncate dwells, which *adds* apparent
+history-dependence and heterogeneity on top of the discretisation artefact of §3.2 — the
+two artefact layers compound. Meanwhile the one genuine signature is *destroyed*: the
+refractory Δρ, −0.23 on ground truth, is ≈ −0.03 under automated tracking (§3.4).
+A track-then-model analysis therefore overstates the artefactual dynamics roughly
+two-fold while erasing the real one.
 
 More surprising is the *dissociation* between conventional tracking quality and downstream
 fidelity. ByteTrack has the best association accuracy of the three (0.47 identity switches
@@ -396,37 +416,39 @@ null obtained on artefact-inflated features would, if anything, be more null on 
 
 ## 4. Discussion
 
-Sperm motility switching is not the memoryless, homogeneous process implicit in CASA and
-in standard Markov modelling — but the deviation is more structured, and smaller, than
-automated tracking suggests. On human-verified trajectories the picture is: motile-state
-dwells are heavy-tailed (log-normal), immotile dwells are long and regular; roughly 70 %
-of the second-order memory is genuinely within-cell and it decomposes into two dissociable
-channels — a *sequence channel* (directional momentum in the embedded transition topology,
-which alone reproduces 93 % of the memory statistic with no free parameters) and a *timing
-channel* (single cells switch with sub-Poisson regularity, CV ≈ 0.77, and refractory
-anti-correlation of successive dwells, Δρ = −0.24). The remaining ~30 % is a stable but
-modest cell-to-cell heterogeneity (ICC ≈ 0.10). The refractory timing is biologically
-suggestive — a switching "clock" that consumes and recovers a resource, e.g. intracellular
-Ca²⁺ or ATP dynamics in the flagellar beat machinery — and it was *predicted* before it was
-measured: a slow doubly-stochastic model, fit independently, could not reproduce the memory
-at the observed dwell dispersion and required a fast transition-level ingredient, which the
-ground-truth serial statistics then confirmed. We offer the two-channel anatomy — sequence
-momentum plus refractory clocks over a weakly heterogeneous rate mixture — as the minimal
-phenomenology any mechanistic model of sperm motility regulation must reproduce.
+We set out to characterise non-Markovian structure in sperm motility switching and ended
+up with a different, more consequential result: **the standard track-then-discretise
+pipeline manufactures nearly all of it**, in two compounding layers. The first layer is
+discretisation. A windowed threshold classifier applied to a memoryless continuous motion
+process generates heavy-tailed (log-normal) dwell laws in every state, a window-robust
+second-order memory *larger* than the one observed, apparent cell-to-cell heterogeneity,
+sub-exponential within-cell regularity — and it deceives the hierarchical null machinery
+built to decompose such effects, which attributes half of the manufactured memory to
+"genuine within-cell memory". The second layer is tracking: automated pipelines inflate
+the same statistics a further ~1.9-fold through identity error, and conventional MOT
+metrics do not rank pipelines by this downstream damage. Both layers were only visible
+because hand-annotated trajectories and a matched continuum null existed; neither is
+specific to sperm. Any study that discretises tracked continuous behaviour into states and
+reports non-exponential dwells, memory, or individuality — a large literature spanning
+animal-movement HMMs, single-particle tracking, and cell-behaviour phenotyping — is
+exposed to the same two artefact layers unless it runs the corresponding controls, which
+are cheap: simulate a Markovian continuum matched to each trajectory's marginal and lag-1
+structure, push it through the identical classifier, and compare.
 
-The equally important result is methodological. Every automated tracking pipeline we
-tested inflates the memory statistic ~1.9-fold, manufactures a heavy tail on the
-light-tailed immotile dwell law, overstates cell-to-cell heterogeneity, and *erases* the
-refractory signature — identity splices destroy within-cell serial structure while
-creating spurious population-level history-dependence. Our own earlier analyses on
-automated tracks drew exactly those wrong conclusions (quenched heterogeneity with no
-within-cell temporal structure; log-normal dwells in every state), and we correct them
-here. Because the biases are qualitative, not just quantitative — tracking error created a
-*false negative* for refractoriness and a *false positive* for immotile heavy tails — no
-amount of automated data substitutes for annotation when the object of study is dynamics.
-And because conventional MOT identity metrics ranked our pipelines *opposite* to their
-dynamical fidelity, tracker selection for track-then-model science should be validated on
-downstream dynamical observables against annotation.
+Against that null, one biological result stands, and it is sharper for having survived:
+**single human sperm switch motility states with a refractory, anti-bursty timing
+structure** (Δρ = −0.23, video-cluster CI [−0.30, −0.18]; continuum null −0.06;
+difference excludes zero; robust to leave-one-video-out, per-cell estimation, and
+aggressive flicker merging, which strengthens it). Successive dwells anti-correlate: the
+cell behaves as if switching consumes a resource that must recover — an adaptation-like
+mechanism analogous to spike-frequency adaptation in neurons, plausibly rooted in Ca²⁺ or
+ATP dynamics of flagellar beat regulation. The comparison with bacterial run-and-tumble
+switching is instructive and inverted: bacterial behavioural variability manifests as
+positive serial dependence and burstiness driven by slow signalling-network fluctuations,
+whereas sperm show *negative* serial dependence — a refractory clock rather than a
+wandering rate. Testing whether this timescale shifts under progesterone/CatSper
+modulation, viscosity, or temperature is the natural perturbation experiment, and a
+first-passage model with a recovery variable is the natural quantitative target.
 
 The clinical question we treat conservatively: per-man switching-heterogeneity traits are
 highly reliable (split-half ρ ≈ 0.95) but do not improve prediction of DFI over standard
@@ -446,38 +468,49 @@ state vocabulary is a *discretisation of a continuum*: in a pre-registered singl
 analysis the kinematic phenotype showed no discrete cluster structure (the model-selection
 criterion improved monotonically to the search cap), so the three motility categories are a
 coarse slice of a continuous manifold rather than its natural geometry — a caution for any
-scheme that assigns organelle morphology to a fixed number of shape classes. Second, the
-*events are not memoryless*: transitions carry sequence momentum and refractory timing,
-both invisible to the population-average snapshot and to homogeneous Markov models. Third
-— the lesson this paper adds — *tracking error masquerades as event dynamics*: identity
-splices manufacture memory and heavy tails while erasing genuine within-object temporal
-structure, so event-detection pipelines for organelles (where fission/fusion events are
-precisely identity events) must be validated on downstream dynamical observables against
-annotation, not on detection/association metrics alone.
+scheme that assigns organelle morphology to a fixed number of shape classes. Second — the
+lesson this paper sharpens — *the discretisation itself manufactures event dynamics*:
+thresholding a smooth morphological variable into shape classes will generate heavy-tailed
+class dwell times and apparent transition memory even if the underlying morphodynamics are
+Markovian, so any non-Markovian claim about organelle state transitions requires a
+matched continuum null. Third, *tracking error compounds it*: identity splices manufacture
+additional memory while erasing genuine within-object temporal structure — and for
+organelles, where fission/fusion events *are* identity events, event-detection pipelines
+must be validated on downstream dynamical observables against annotation, not on
+detection/association metrics alone.
 
-**Limitations.** (1) Ground truth is 20 videos / 1,138 cells from one dataset; the
-annotation-anchored statistics are precise (e.g. the refractory effect at p ≈ 10⁻²⁰) but
-their generality across labs and imaging conditions rests on the automated pipeline-level
-replication (57 further participants), which — as we show — preserves qualitative
-signatures while inflating magnitudes. (2) Absolute dwell *scales* remain lower-bounded by
-finite track length; the immotile mean dwell in particular is comparable to the median
-track length, so its law is a censored comparison of forms, not scales. (3) States derive
-from a 0.5 s sliding-window classifier; the memory statistic is robust across 13/25/51-frame
-windows, but part of the block-scale autocorrelation may be classifier-induced, which is why
-we emphasise the embedded-chain and dwell-level statistics, which do not share the window.
-(4) The tracker-fidelity dissociation (MOT metrics vs dynamical fidelity) rests on three
-pipelines and is hypothesis-generating. (5) The genuine-memory share is bracketed by fair
-and over-fit nulls, not a point estimate, and on ground truth the observed g₂ no longer
-exceeds the over-fit upper bound — the within-cell claim rests on the fair EB null together
-with the direct within-cell statistics (CV, Δρ), which are null-immune by construction.
+**A transparency note on the evolution of this work.** Earlier drafts, built on automated
+tracking, claimed log-normal dwell laws as biology, a genuine-memory/heterogeneity
+decomposition, quenched heterogeneity with no within-cell serial structure, and (after
+re-anchoring on hand annotations) a light-tailed immotile law contrasting with a
+tracking-manufactured heavy tail. Each of those claims fell to a control introduced later
+— the annotation re-anchoring, the continuum null, the censoring audit — and is retracted
+here, with the failing control reported in full. The refractory signature is the only
+dynamical claim that has survived every control applied to it; all dynamical analyses in
+this paper are exploratory (only the DFI test was pre-registered), and we label them so.
 
-**Conclusion.** On annotation-grade single-cell trajectories, human sperm motility
-switching is a non-Markovian process with an identified anatomy — sequence momentum plus
-refractory, sub-Poisson switching clocks within a weakly heterogeneous population — and
-the standard measurement stack fails it twice: the population-average snapshot discards
-the dynamics, and automated tracking distorts them. Both failures are correctable, and the
-same two corrections — model events with memory; validate trackers on dynamical fidelity —
-transfer directly to event detection in sub-cellular structures.
+**Limitations.** (1) Ground truth is 20 videos / 1,138 cells from one dataset, one lab and
+one imaging condition; the surviving effect is estimated with video-cluster CIs but its
+generality needs a second annotated dataset. (2) The continuum null is Gaussian and
+lag-1-matched; a continuum with heavier-tailed or longer-memory — but still Markovian —
+velocity structure could in principle produce more of the observed Δρ than our null does,
+though it would have to do so while remaining consistent with the flicker and CV
+constraints. (3) The immotile state is unmeasurable at these track lengths (64 % boundary
+episodes), so nothing about immotile dwell structure is claimed. (4) The tracker-fidelity
+dissociation (MOT metrics vs dynamical fidelity) rests on three pipelines and is
+hypothesis-generating. (5) Annotation is human and its own identity-error rate is not
+zero; inter-annotator agreement on VISEM-Tracking is not documented, and a synthetic-video
+calibration of annotation and tracking error is the right next control.
+
+**Conclusion.** On annotation-grade single-cell trajectories with a matched continuum
+null, the celebrated non-Markovian phenomenology of discretised motility states —
+heavy-tailed dwell laws, second-order memory, decomposable heterogeneity — is manufactured
+by the measurement pipeline, in two compounding layers (discretisation, then tracking).
+What survives is minimal and specific: a refractory, anti-bursty switching clock in
+individual human sperm. The constructive message is a pair of cheap, general controls —
+simulate a Markovian continuum through your own classifier; audit your tracker on
+downstream dynamical observables — without which non-Markovian claims from
+track-then-discretise pipelines, in any domain, are uninterpretable.
 
 ---
 
@@ -485,12 +518,15 @@ transfer directly to event detection in sub-cellular structures.
 
 | Result | Script | Output |
 |---|---|---|
-| Ground-truth track materialisation + all GT-anchored headline statistics | `experiments/gt_reanchor.py` | `outputs/tracks_gt/`, `outputs/markov/gt_reanchor.json` |
+| **Continuum null (decisive control)** | `experiments/continuum_null.py` | `outputs/tracks_continuum_null/`, `outputs/markov/continuum_null.json` |
+| **Resolution + censoring audits** | `experiments/dwell_resolution_audit.py` | `outputs/markov/dwell_resolution_audit.json` |
+| **Refractory survivor test (flicker + cluster bootstrap)** | `experiments/refractory_survivor.py` | `outputs/markov/refractory_survivor.json` |
+| Ground-truth track materialisation + standard-toolkit statistics | `experiments/gt_reanchor.py` | `outputs/tracks_gt/`, `outputs/markov/gt_reanchor.json` |
 | Tracking-fidelity audit (GT vs 3 pipelines) | `experiments/tracker_fidelity.py` | `outputs/markov/tracker_fidelity.json` |
-| Mechanistic ladder (heterogeneity/shape/refractory/2nd-order topology) | `experiments/refractory_model.py` | `outputs/markov/refractory_model.json` |
+| Semi-Markov ladder (property of the g₂ statistic) | `experiments/refractory_model.py` | `outputs/markov/refractory_model.json` |
 | Slow-latent generative mechanism on GT | `experiments/generative_model.py --fit-dir outputs/tracks_gt --fit-name gt` | `outputs/markov/generative_model_gt.json` |
 | Dwell-time law + window invariance (automated cohorts) | `experiments/dwell_physics.py`, `dwell_physics_robust.py` | `outputs/markov/dwell_physics*.json` |
-| Pipeline-level replication of memory (extra57) | `experiments/replicate_markov_extra.py` | `outputs/markov/replication_extra.json` |
+| Pipeline-level replication (extra57) | `experiments/replicate_markov_extra.py` | `outputs/markov/replication_extra.json` |
 | Within- vs between-cell decomposition | `experiments/memory_decomposition.py` | `outputs/markov/memory_decomposition.json` |
 | Censoring-aware dwell law + frailty (automated) | `experiments/dwell_censoring.py` | `outputs/markov/dwell_censoring.json` |
 | Mover–stayer nulls (HOM/HET/EB) | `experiments/mover_stayer_null.py`, `mover_stayer_eb.py` | `outputs/markov/mover_stayer_*.json` |
@@ -498,3 +534,27 @@ transfer directly to event detection in sub-cellular structures.
 | Stayer→DFI robustness | `experiments/stayer_dfi.py` | `outputs/markov/stayer_dfi.json` |
 | DFI prediction (pre-registered) | `experiments/dfi_predict.py` | `outputs/markov/dfi_prediction.json` |
 | Figures | `experiments/make_paper_figures.py` | `paper/figures/fig{1,2,3}_*.png` |
+
+---
+
+## References (core; to be completed)
+
+1. Korobkova E, Emonet T, Vilar JMG, Shimizu TS, Cluzel P. From molecular noise to
+   behavioural variability in a single bacterium. *Nature* 428, 574–578 (2004).
+2. Auger-Méthé M, Field C, Albertsen CM, Derocher AE, Lewis MA, Jonsen ID, Mills
+   Flemming J. State-space models' dirty little secrets: even simple linear Gaussian
+   models can have estimation problems. *Scientific Reports* 6, 26677 (2016).
+3. Pohle J, Langrock R, van Beest FM, Schmidt NM. Selecting the number of states in
+   hidden Markov models: pragmatic solutions illustrated using animal movement.
+   *JABES* 22, 270–293 (2017).
+4. Metzler R, Jeon J-H, Cherstvy AG, Barkai E. Anomalous diffusion models and their
+   properties: non-stationarity, non-ergodicity, and ageing at the centenary of single
+   particle tracking. *Phys. Chem. Chem. Phys.* 16, 24128–24164 (2014).
+5. Ulman V, et al. An objective comparison of cell-tracking algorithms. *Nature
+   Methods* 14, 1141–1152 (2017).
+6. Maška M, et al. The Cell Tracking Challenge: 10 years of objective benchmarking.
+   *Nature Methods* 20, 1010–1020 (2023).
+7. World Health Organization. *WHO laboratory manual for the examination and processing
+   of human semen*, 6th edn (WHO, 2021).
+8. Haugen TB, et al. VISEM-Tracking, a human spermatozoa tracking dataset.
+   *Scientific Data* 10, 260 (2023).
