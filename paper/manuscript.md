@@ -201,13 +201,13 @@ controlling for static CASA composition and for age/BMI/abstinence
 
 ![Figure 1](figures/fig1_dwell_law.png)
 
-**Figure 1. What a standard analysis concludes.** Empirical survival functions of state
-dwell times on the 1,138 hand-annotated trajectories depart sharply from the exponential
-(memoryless/Markov) law; a second-order Markov model beats a first-order one on held-out
-data; a hierarchical decomposition attributes most of the gain to within-cell memory.
-Sections 3.2–3.3 show that all of this is reproduced by a memoryless continuum passed
-through the identical classifier. *(Figure to be regenerated with the continuum-null
-overlay.)*
+**Figure 1. A memoryless continuum manufactures the phenomenology.** **(A)** Empirical
+survival functions of state dwell times on the 1,138 hand-annotated trajectories (solid)
+depart sharply from the exponential/Markov reference (dotted) in every state — and the
+matched memoryless continuum null, which contains no switching biology at all, reproduces
+the same heavy-tailed laws (dashed). **(B)** The second-order memory gain g₂: the null
+(red) exceeds the observed value (blue) at every classifier window, and reproduces its
+window-robustness.
 
 Applying the field's standard analyses to the ground-truth trajectories reproduces every
 non-Markovian signature the tracked-behaviour literature would predict. Dwell times reject
@@ -317,12 +317,15 @@ contrast), and no state's dwell-law *form* should be read as biology.
 
 ![Figure 2](figures/fig2_decomposition.png)
 
-**Figure 2. The one statistic the null cannot make.** Serial correlation of successive
-state-controlled residual log-dwells within single cells: ground truth Δρ = −0.228
-(video-cluster 95 % CI [−0.296, −0.182]) versus −0.060 [−0.142, +0.008] for the matched
-memoryless continuum; the difference excludes zero, and aggressive flicker-merging
-strengthens the effect. *(Figure to be regenerated: current panel shows the superseded
-EB decomposition.)*
+**Figure 2. The one statistic the null cannot make.** **(A)** Serial correlation of
+successive state-controlled residual log-dwells within single cells (video-cluster 95 %
+CIs): ground truth Δρ = −0.228 [−0.296, −0.182]; merging 34 % or 38 % of episodes as
+suspected classifier flicker strengthens the effect; the memoryless continuum yields
+−0.060 [−0.142, +0.008]; the GT-minus-null difference excludes zero. **(B)** Sixteen
+classifier designs: the ground-truth effect (blue) is invariant across threshold
+placement, classifier window, and hysteresis deadbands, while the null's artefact (red)
+swings from ≈ 0 (51-frame window) to ≈ −0.2 (hysteresis — a latch, which manufactures
+refractoriness on memoryless input).
 
 One statistic resists the continuum null, and it then survives every additional control we
 could construct (`refractory_survivor.py`).

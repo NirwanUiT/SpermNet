@@ -1,13 +1,13 @@
-"""Assemble the paper figures for the non-Markovian sperm-motility study.
+"""Assemble the paper figures for the pipeline-artefact / refractory-survivor study.
 
-Figure 1  dwell-time law is log-normal (not exponential)      -> fig1_dwell_law.png
-Figure 2  decomposing the memory: single-cell vs mover-stayer -> fig2_decomposition.png
-Figure 3  heterogeneity is a reliable trait but not clinically -> fig3_heterogeneity.png
+Figure 1  a memoryless continuum manufactures the phenomenology -> fig1_dwell_law.png
+Figure 2  the survivor: refractory switching vs every control   -> fig2_decomposition.png
+Figure 3  heterogeneity is a reliable trait but not clinically  -> fig3_heterogeneity.png
           incremental over CASA composition
 
-Figure 1 recomputes a modest dwell-time sample; Figures 2-3 are built from the
-summary JSONs already on disk (mover_stayer_eb/null, memory_decomposition,
-per_cell_kinetics, stayer_dfi).
+Figure 1 recomputes dwell samples from outputs/tracks_gt and
+outputs/tracks_continuum_null; Figures 2-3 are built from the summary JSONs
+(refractory_survivor, threshold_hysteresis, per_cell_kinetics, stayer_dfi).
 
 Usage: python -m experiments.make_paper_figures
 """
@@ -27,7 +27,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from markov_analysis import STATES  # noqa: E402
 from experiments.dwell_physics import dwell_episodes, EXTRA  # noqa: E402
+from experiments.gt_reanchor import GT_DIR  # noqa: E402
 
+NULL_DIR = ROOT / "outputs" / "tracks_continuum_null"
 MK = ROOT / "outputs" / "markov"
 FIG = ROOT / "paper" / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
@@ -42,51 +44,50 @@ def load(name):
 
 # ---------------------------------------------------------------- Figure 1
 def figure1():
-    dwell = dwell_episodes(EXTRA, max_tracks=500, seed=0)
-    rob = load("dwell_physics_robust")["window_invariance"]
+    dwell_gt = dwell_episodes(GT_DIR, max_tracks=0, seed=0)
+    dwell_nl = dwell_episodes(NULL_DIR, max_tracks=0, seed=0)
+    g2_gt = load("gt_reanchor")["gt"]["block_g2"]
+    g2_nl = load("continuum_null")["null"]["block_g2"]
 
     fig, ax = plt.subplots(1, 2, figsize=(11, 4.4))
 
-    # (A) empirical survival on log-log + fitted exponential vs log-normal
+    # (A) dwell survival: GT (solid) vs memoryless continuum null (dashed)
     for i, s in enumerate(STATES):
-        d = np.sort(dwell[i])
-        d = d[d > 0]
-        surv = 1.0 - np.arange(1, len(d) + 1) / len(d)
-        ax[0].step(d, surv, where="post", color=COL[s], lw=1.8, label=s)
-        # fitted exponential (Markov/memoryless) -- dashed
-        mu = d.mean()
-        ax[0].plot(d, np.exp(-d / mu), color=COL[s], ls=":", lw=1.0, alpha=0.8)
-        # fitted log-normal -- thin solid
-        sh, loc, sc = stats.lognorm.fit(d, floc=0)
-        ax[0].plot(d, 1 - stats.lognorm.cdf(d, sh, loc, sc),
-                   color=COL[s], ls="--", lw=1.0, alpha=0.9)
+        for dwell, ls, alpha in ((dwell_gt, "-", 1.0), (dwell_nl, "--", 0.75)):
+            d = np.sort(dwell[i]); d = d[d > 0]
+            surv = 1.0 - np.arange(1, len(d) + 1) / len(d)
+            ax[0].step(d, surv, where="post", color=COL[s], lw=1.6,
+                       ls=ls, alpha=alpha, label=s if ls == "-" else None)
+        # exponential (memoryless-switching) reference on GT
+        d = np.sort(dwell_gt[i]); d = d[d > 0]
+        ax[0].plot(d, np.exp(-d / d.mean()), color=COL[s], ls=":", lw=0.9, alpha=0.7)
     ax[0].set_xscale("log"); ax[0].set_yscale("log")
-    ax[0].set_xlim(d.min(), None); ax[0].set_ylim(1e-4, 1)
+    ax[0].set_ylim(1e-4, 1)
     ax[0].set_xlabel("dwell time (s)"); ax[0].set_ylabel("survival  P(T > t)")
-    ax[0].set_title("A  Dwell-time survival (57-participant cohort)", loc="left",
-                    fontsize=11, weight="bold")
-    ax[0].plot([], [], color="0.4", ls=":", label="exponential fit")
-    ax[0].plot([], [], color="0.4", ls="--", label="log-normal fit")
-    ax[0].legend(fontsize=8, frameon=False, loc="lower left")
+    ax[0].set_title("A  A memoryless continuum reproduces the dwell laws",
+                    loc="left", fontsize=11, weight="bold")
+    ax[0].plot([], [], color="0.4", ls="-", label="ground truth")
+    ax[0].plot([], [], color="0.4", ls="--", label="continuum null (no switching biology)")
+    ax[0].plot([], [], color="0.4", ls=":", label="exponential reference")
+    ax[0].legend(fontsize=7.5, frameon=False, loc="lower left")
 
-    # (B) exponential is rejected by a huge margin at every window size
+    # (B) second-order memory gain: null >= observed at every window
     windows = ["13", "25", "51"]
-    x = np.arange(len(windows))
-    w = 0.26
-    for j, s in enumerate(STATES):
-        vals = [rob[wd][s]["exp_dAIC"] for wd in windows]
-        ax[1].bar(x + (j - 1) * w, vals, w, color=COL[s], label=s)
-    ax[1].set_yscale("log")
+    x = np.arange(len(windows)); w = 0.36
+    ax[1].bar(x - w / 2, [g2_gt[wd]["g2"] for wd in windows], w,
+              color="#2166ac", label="ground truth")
+    ax[1].bar(x + w / 2, [g2_nl[wd]["g2"] for wd in windows], w,
+              color="#b2182b", alpha=0.85, label="memoryless continuum null")
     ax[1].set_xticks(x); ax[1].set_xticklabels([f"{wd} frames" for wd in windows])
-    ax[1].set_xlabel("classifier window")
-    ax[1].set_ylabel(r"$\Delta$AIC  (exponential $-$ log-normal)")
-    ax[1].set_title("B  Exponential rejected at every window", loc="left",
-                    fontsize=11, weight="bold")
-    ax[1].axhline(10, color="0.5", ls=":", lw=0.8)
-    ax[1].legend(fontsize=8, frameon=False)
-    ax[1].text(0.02, 0.02, "log-normal is the best law in all states, both cohorts,\n"
-               "and every window (higher bar = exponential more strongly rejected)",
-               transform=ax[1].transAxes, fontsize=7.5, color="0.35")
+    ax[1].set_xlabel("classifier window / block size")
+    ax[1].set_ylabel(r"2nd-order memory gain $g_2$ (nats / token)")
+    ax[1].set_title("B  The null manufactures MORE memory than observed",
+                    loc="left", fontsize=11, weight="bold")
+    ax[1].set_ylim(0, 0.063)
+    ax[1].legend(fontsize=8, frameon=False, loc="upper left")
+    ax[1].text(0.02, 0.80, "the window-robustness of the observed gain\n"
+               "is reproduced by the null as well", transform=ax[1].transAxes,
+               fontsize=7.5, color="0.35")
 
     fig.tight_layout()
     fig.savefig(FIG / "fig1_dwell_law.png", bbox_inches="tight")
@@ -96,63 +97,75 @@ def figure1():
 
 # ---------------------------------------------------------------- Figure 2
 def figure2():
-    eb = load("mover_stayer_eb")
-    dec = load("memory_decomposition")
-    cohorts = ["orig20", "extra57"]
-    labels = {"orig20": "VISEM-Tracking (20)", "extra57": "independent (57)"}
+    rs = load("refractory_survivor")
+    th = load("threshold_hysteresis")
 
-    fig, ax = plt.subplots(1, 3, figsize=(14, 4.4))
+    fig, ax = plt.subplots(1, 2, figsize=(12.5, 4.6),
+                           gridspec_kw={"width_ratios": [1, 1.6]})
 
-    # (A) held-out 2nd-over-1st gain: real vs the three nulls
-    keys = ["real", "eb_fair", "het_overfit", "hom"]
-    names = ["observed", "EB-fair\nheterogeneity", "over-fit\nheterogeneity",
-             "homogeneous\nmemoryless"]
-    cols = ["#2166ac", "#67a9cf", "#b2abd2", "#bbbbbb"]
-    x = np.arange(len(keys)); w = 0.38
-    for c, off in zip(cohorts, (-w / 2, w / 2)):
-        g = eb[c]["g2"]
-        ax[0].bar(x + off, [g[k] for k in keys], w, label=labels[c],
-                  color=[cols[i] for i in range(len(keys))],
-                  edgecolor="k" if c == "extra57" else "none", linewidth=0.6)
-    ax[0].axhline(0, color="k", lw=0.6)
-    ax[0].set_xticks(x); ax[0].set_xticklabels(names, fontsize=8.5)
-    ax[0].set_ylabel("2nd-order gain (log-lik / token)")
-    ax[0].set_title("A  Only real data shows full memory", loc="left",
+    # (A) forest plot: the survivor vs its controls
+    rows = [
+        ("ground truth", rs["gt"]["delta_rho"], rs["gt"]["ci95"], "#2166ac"),
+        ("flicker-merged (34 % of episodes)", rs["gt_flicker_merged_25f"]["delta_rho"],
+         rs["gt_flicker_merged_25f"]["ci95"], "#2166ac"),
+        ("flicker-merged (38 % of episodes)", rs["gt_flicker_merged_50f"]["delta_rho"],
+         rs["gt_flicker_merged_50f"]["ci95"], "#2166ac"),
+        ("memoryless continuum null", rs["continuum_null"]["delta_rho"],
+         rs["continuum_null"]["ci95"], "#b2182b"),
+    ]
+    ys = np.arange(len(rows))[::-1]
+    for y, (name, pt, ci, col) in zip(ys, rows):
+        ax[0].plot(ci, [y, y], color=col, lw=2.2, solid_capstyle="butt")
+        ax[0].plot(pt, y, "o", color=col, ms=7)
+        ax[0].text(-0.005, y + 0.22, name, ha="right", fontsize=8.5, color="0.2")
+    ax[0].axvline(0, color="k", lw=0.7, ls=":")
+    ax[0].set_yticks([])
+    ax[0].set_xlim(-0.38, 0.06)
+    ax[0].set_xlabel(r"refractoriness  $\Delta\rho$  (video-cluster 95 % CI)")
+    ax[0].set_title("A  The survivor and its controls", loc="left",
                     fontsize=11, weight="bold")
-    ax[0].text(0.02, 0.95, "solid edge = 57-cohort", transform=ax[0].transAxes,
-               fontsize=7.5, color="0.35", va="top")
+    d = rs["gt_minus_null"]
+    ax[0].text(0.02, 0.03, f"GT − null = {d['point']:+.2f} "
+               f"[{d['ci95'][0]:+.2f}, {d['ci95'][1]:+.2f}]",
+               transform=ax[0].transAxes, fontsize=8, color="0.35")
 
-    # (B) fair split of the memory into two sources
-    for k, c in enumerate(cohorts):
-        agg = eb[c]["aggregation_share_eb"]
-        gen = eb[c]["genuine_memory_share_eb"]
-        ax[1].bar(k, gen * 100, color="#2166ac", label="single-cell memory" if k == 0 else None)
-        ax[1].bar(k, agg * 100, bottom=gen * 100, color="#67a9cf",
-                  label="mover-stayer heterogeneity" if k == 0 else None)
-        ax[1].text(k, gen * 50, f"{gen:.0%}", ha="center", color="w", fontsize=10, weight="bold")
-        ax[1].text(k, gen * 100 + agg * 50, f"{agg:.0%}", ha="center", color="w",
-                   fontsize=10, weight="bold")
-    ax[1].set_xticks(range(len(cohorts)))
-    ax[1].set_xticklabels([labels[c] for c in cohorts], fontsize=9)
-    ax[1].set_ylabel("share of the non-Markovian signal (%)")
-    ax[1].set_ylim(0, 100)
-    ax[1].set_title("B  Two comparable sources of memory", loc="left",
+    # (B) classifier sweep: GT invariant, null artefact swings with design
+    cfgs = []
+    for k, v in th["threshold_sweep"].items():
+        cfgs.append((k, v))
+    for k, v in th["window_sweep"].items():
+        cfgs.append((k, v))
+    for k, v in th["hysteresis"].items():
+        cfgs.append((k.replace("margin_", "hyst "), v))
+    x = np.arange(len(cfgs))
+    for i, (name, v) in enumerate(cfgs):
+        lo, hi = v["gt"]["ci95"]
+        ax[1].plot([i, i], [lo, hi], color="#2166ac", lw=1.8, alpha=0.9)
+        ax[1].plot(i, v["gt"]["delta_rho"], "o", color="#2166ac", ms=5,
+                   label="ground truth" if i == 0 else None)
+        if v.get("null_ci95"):
+            nlo, nhi = v["null_ci95"]
+            ax[1].plot([i + 0.22, i + 0.22], [nlo, nhi], color="#b2182b",
+                       lw=1.4, alpha=0.7)
+        ax[1].plot(i + 0.22, v["null_delta_rho"], "s", mfc="none",
+                   mec="#b2182b", ms=5,
+                   label="continuum null" if i == 0 else None)
+    ax[1].axvline(10.6, color="0.8", lw=0.8)
+    ax[1].axvline(12.6, color="0.8", lw=0.8)
+    ax[1].text(5.0, 0.06, "threshold placement (11)", ha="center", fontsize=8, color="0.35")
+    ax[1].text(11.6, 0.06, "window", ha="center", fontsize=8, color="0.35")
+    ax[1].text(14.1, 0.06, "hysteresis", ha="center", fontsize=8, color="0.35")
+    ax[1].axhline(0, color="k", lw=0.7, ls=":")
+    ax[1].set_xticks(x)
+    ax[1].set_xticklabels([n for n, _ in cfgs], rotation=60, ha="right", fontsize=7)
+    ax[1].set_ylabel(r"$\Delta\rho$")
+    ax[1].set_title("B  GT invariant across 16 classifier designs; "
+                    "the null's artefact is design-dependent", loc="left",
                     fontsize=11, weight="bold")
-    ax[1].legend(fontsize=8, frameon=False, loc="upper center")
-
-    # (C) single cells near-memoryless (CV~1); population dispersed (CV~2)
-    x = np.arange(len(STATES)); w = 0.38
-    c = "extra57"
-    pooled = [dec[c]["pooled_cv"][s] for s in STATES]
-    within = [dec[c]["within_track_cv"][s]["median_cv"] for s in STATES]
-    ax[2].bar(x - w / 2, within, w, color="#2166ac", label="within single cell (median)")
-    ax[2].bar(x + w / 2, pooled, w, color="#67a9cf", label="pooled population")
-    ax[2].axhline(1.0, color="k", ls=":", lw=1, label="memoryless (CV=1)")
-    ax[2].set_xticks(x); ax[2].set_xticklabels([s[:4] for s in STATES])
-    ax[2].set_ylabel("dwell-time CV")
-    ax[2].set_title("C  Cells ~memoryless, population dispersed", loc="left",
-                    fontsize=11, weight="bold")
-    ax[2].legend(fontsize=8, frameon=False)
+    ax[1].legend(fontsize=8, frameon=False, loc="lower left")
+    ax[1].text(0.99, 0.02, "hysteresis classifiers are latches: they manufacture\n"
+               "refractoriness on memoryless input", transform=ax[1].transAxes,
+               fontsize=7.5, color="0.35", ha="right")
 
     fig.tight_layout()
     fig.savefig(FIG / "fig2_decomposition.png", bbox_inches="tight")
