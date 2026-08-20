@@ -97,39 +97,13 @@ def figure1():
 
 # ---------------------------------------------------------------- Figure 2
 def figure2():
-    rs = load("refractory_survivor")
     th = load("threshold_hysteresis")
+    pp = load("point_process_stats")
 
-    fig, ax = plt.subplots(1, 2, figsize=(12.5, 4.6),
-                           gridspec_kw={"width_ratios": [1, 1.6]})
+    fig, ax = plt.subplots(1, 3, figsize=(15.5, 4.8),
+                           gridspec_kw={"width_ratios": [1.5, 0.9, 1.1]})
 
-    # (A) forest plot: the survivor vs its controls
-    rows = [
-        ("ground truth", rs["gt"]["delta_rho"], rs["gt"]["ci95"], "#2166ac"),
-        ("flicker-merged (34 % of episodes)", rs["gt_flicker_merged_25f"]["delta_rho"],
-         rs["gt_flicker_merged_25f"]["ci95"], "#2166ac"),
-        ("flicker-merged (38 % of episodes)", rs["gt_flicker_merged_50f"]["delta_rho"],
-         rs["gt_flicker_merged_50f"]["ci95"], "#2166ac"),
-        ("memoryless continuum null", rs["continuum_null"]["delta_rho"],
-         rs["continuum_null"]["ci95"], "#b2182b"),
-    ]
-    ys = np.arange(len(rows))[::-1]
-    for y, (name, pt, ci, col) in zip(ys, rows):
-        ax[0].plot(ci, [y, y], color=col, lw=2.2, solid_capstyle="butt")
-        ax[0].plot(pt, y, "o", color=col, ms=7)
-        ax[0].text(-0.005, y + 0.22, name, ha="right", fontsize=8.5, color="0.2")
-    ax[0].axvline(0, color="k", lw=0.7, ls=":")
-    ax[0].set_yticks([])
-    ax[0].set_xlim(-0.38, 0.06)
-    ax[0].set_xlabel(r"refractoriness  $\Delta\rho$  (video-cluster 95 % CI)")
-    ax[0].set_title("A  The survivor and its controls", loc="left",
-                    fontsize=11, weight="bold")
-    d = rs["gt_minus_null"]
-    ax[0].text(0.02, 0.03, f"GT − null = {d['point']:+.2f} "
-               f"[{d['ci95'][0]:+.2f}, {d['ci95'][1]:+.2f}]",
-               transform=ax[0].transAxes, fontsize=8, color="0.35")
-
-    # (B) classifier sweep: GT invariant, null artefact swings with design
+    # (A) classifier sweep: GT invariant, null artefact swings with design
     cfgs = []
     for k, v in th["threshold_sweep"].items():
         cfgs.append((k, v))
@@ -140,32 +114,80 @@ def figure2():
     x = np.arange(len(cfgs))
     for i, (name, v) in enumerate(cfgs):
         lo, hi = v["gt"]["ci95"]
-        ax[1].plot([i, i], [lo, hi], color="#2166ac", lw=1.8, alpha=0.9)
-        ax[1].plot(i, v["gt"]["delta_rho"], "o", color="#2166ac", ms=5,
+        ax[0].plot([i, i], [lo, hi], color="#2166ac", lw=1.8, alpha=0.9)
+        ax[0].plot(i, v["gt"]["delta_rho"], "o", color="#2166ac", ms=5,
                    label="ground truth" if i == 0 else None)
         if v.get("null_ci95"):
             nlo, nhi = v["null_ci95"]
-            ax[1].plot([i + 0.22, i + 0.22], [nlo, nhi], color="#b2182b",
+            ax[0].plot([i + 0.22, i + 0.22], [nlo, nhi], color="#b2182b",
                        lw=1.4, alpha=0.7)
-        ax[1].plot(i + 0.22, v["null_delta_rho"], "s", mfc="none",
+        ax[0].plot(i + 0.22, v["null_delta_rho"], "s", mfc="none",
                    mec="#b2182b", ms=5,
                    label="continuum null" if i == 0 else None)
-    ax[1].axvline(10.6, color="0.8", lw=0.8)
-    ax[1].axvline(12.6, color="0.8", lw=0.8)
-    ax[1].text(5.0, 0.06, "threshold placement (11)", ha="center", fontsize=8, color="0.35")
-    ax[1].text(11.6, 0.06, "window", ha="center", fontsize=8, color="0.35")
-    ax[1].text(14.1, 0.06, "hysteresis", ha="center", fontsize=8, color="0.35")
+    ax[0].axvline(10.6, color="0.8", lw=0.8)
+    ax[0].axvline(12.6, color="0.8", lw=0.8)
+    ax[0].text(5.0, 0.06, "threshold placement (11)", ha="center", fontsize=8, color="0.35")
+    ax[0].text(11.6, 0.06, "window", ha="center", fontsize=8, color="0.35")
+    ax[0].text(14.1, 0.06, "hysteresis", ha="center", fontsize=8, color="0.35")
+    ax[0].axhline(0, color="k", lw=0.7, ls=":")
+    ax[0].set_xticks(x)
+    ax[0].set_xticklabels([n for n, _ in cfgs], rotation=60, ha="right", fontsize=7)
+    ax[0].set_ylabel(r"$\Delta\rho$")
+    ax[0].set_title("A  Five controls passed: invariant across 16 classifier designs",
+                    loc="left", fontsize=10.5, weight="bold")
+    ax[0].legend(fontsize=8, frameon=False, loc="lower left")
+
+    # (B) diagnostic: SCC(k) alternates in sign -> static traits, not dynamics
+    lags = [1, 2, 3, 4, 5]
+    for name, key, col, off in (("ground truth", "gt", "#2166ac", -0.07),
+                                ("continuum null", "continuum_null", "#b2182b", 0.07)):
+        d = pp[key]["scc"]
+        pts = [d[f"lag{k}"]["delta"] for k in lags]
+        for k, p in zip(lags, pts):
+            lo, hi = d[f"lag{k}"]["delta_ci95"]
+            ax[1].plot([k + off, k + off], [lo, hi], color=col, lw=1.8, alpha=0.85)
+        ax[1].plot(np.array(lags) + off, pts, "o-", color=col, ms=5, lw=1.0,
+                   alpha=0.9, label=name)
     ax[1].axhline(0, color="k", lw=0.7, ls=":")
-    ax[1].set_xticks(x)
-    ax[1].set_xticklabels([n for n, _ in cfgs], rotation=60, ha="right", fontsize=7)
-    ax[1].set_ylabel(r"$\Delta\rho$")
-    ax[1].set_title("B  GT invariant across 16 classifier designs; "
-                    "the null's artefact is design-dependent", loc="left",
-                    fontsize=11, weight="bold")
-    ax[1].legend(fontsize=8, frameon=False, loc="lower left")
-    ax[1].text(0.99, 0.02, "hysteresis classifiers are latches: they manufacture\n"
-               "refractoriness on memoryless input", transform=ax[1].transAxes,
-               fontsize=7.5, color="0.35", ha="right")
+    ax[1].set_xticks(lags)
+    ax[1].set_xlabel("lag (episodes)")
+    ax[1].set_ylabel(r"serial correlation $\Delta\rho(k)$")
+    ax[1].set_title("B  The diagnostic: sign alternation\n= static per-cell traits",
+                    loc="left", fontsize=10.5, weight="bold")
+    ax[1].legend(fontsize=8, frameon=False, loc="lower right")
+    ax[1].text(0.03, 0.965, "odd lags: cross-state pairs\neven lags: same-state pairs\n(shared cell trait)",
+               transform=ax[1].transAxes, fontsize=7.5, color="0.35", va="top")
+
+    # (C) the kill: trait-controlled estimator + injection power test
+    tc1 = pp["gt"]["scc_trait_controlled"]["lag1"]
+    ntc1 = pp["continuum_null"]["scc_trait_controlled"]["lag1"]
+    raw1 = pp["gt"]["scc"]["lag1"]
+    pw = pp["power_test"]
+    rows = [
+        ("raw estimator (contaminated null)", raw1["delta"], raw1["delta_ci95"], "0.45"),
+        ("trait-controlled, ground truth", tc1["delta"], tc1["delta_ci95"], "#2166ac"),
+        (r"injected refractory $\varphi=-0.3$", pw["phi_-0.3"]["lag1"],
+         pw["phi_-0.3"]["lag1_ci95"], "#e08214"),
+        (r"injected zero dynamics $\varphi=0$", pw["phi_0.0"]["lag1"],
+         pw["phi_0.0"]["lag1_ci95"], "#e08214"),
+        ("continuum null (true OU persistence)", ntc1["delta"], ntc1["delta_ci95"],
+         "#b2182b"),
+    ]
+    ys = np.arange(len(rows))[::-1]
+    for y, (name, pt, ci, col) in zip(ys, rows):
+        ax[2].plot(ci, [y, y], color=col, lw=2.2, solid_capstyle="butt")
+        ax[2].plot(pt, y, "o", color=col, ms=7)
+        ax[2].text(pt, y + 0.24, name, ha="center", fontsize=8, color="0.2")
+    ax[2].axvline(0, color="k", lw=0.7, ls=":")
+    ax[2].set_yticks([])
+    ax[2].set_ylim(-0.6, len(rows) - 0.3)
+    ax[2].set_xlim(-0.36, 0.24)
+    ax[2].set_xlabel(r"lag-1 $\Delta\rho$  (video-cluster 95 % CI)")
+    ax[2].set_title("C  The kill: trait control + injection test\n= powered null on ground truth",
+                    loc="left", fontsize=10.5, weight="bold")
+    ax[2].text(0.02, 0.03, "GT sits on the zero-dynamics reference;\n"
+               "injected refractoriness is fully recovered",
+               transform=ax[2].transAxes, fontsize=7.5, color="0.35")
 
     fig.tight_layout()
     fig.savefig(FIG / "fig2_decomposition.png", bbox_inches="tight")
