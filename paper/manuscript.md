@@ -222,7 +222,9 @@ participants. The pre-registered clinical primary is the partial Spearman correl
 switch-rate CV with DFI, controlling for mean switch rate and track count, computed per
 cohort. Robustness of the secondary stayer-fraction signal is tested by additionally
 controlling for static CASA composition and for age/BMI/abstinence
-(`per_cell_kinetics.py`, `stayer_dfi.py`).
+(`per_cell_kinetics.py`, `stayer_dfi.py`). The sensitivity of the primary is quantified
+by a simulation-based power analysis using the identical partial-Spearman estimator on
+confounded synthetic data at the exact cohort sizes (`dfi_power.py`).
 
 ---
 
@@ -526,7 +528,12 @@ The per-participant heterogeneity summaries are highly reliable traits (split-ha
 0.95–0.97 in extra57; 0.56–0.79 in the smaller 20-video cohort, both under automated
 tracking). Clinically, the pre-registered
 primary — switch-rate CV versus DFI, controlling for mean rate and track count — is null in
-both cohorts (ρ = −0.36, p = 0.18; ρ = −0.12, p = 0.38). A secondary stayer-fraction signal
+both cohorts (ρ = −0.36, p = 0.18; ρ = −0.12, p = 0.38). A simulation-based power
+analysis with the identical estimator bounds what these nulls exclude: at 80 % power the
+minimum detectable partial correlation is ρ ≈ 0.72 in the 16-participant cohort and
+ρ ≈ 0.38 in the 57-participant cohort (power at the observed point estimates: 0.25 and
+0.14), so the nulls rule out a *large* dynamics–DFI axis but not a moderate one.
+A secondary stayer-fraction signal
 appeared cross-cohort-consistent (ρ = −0.55 and −0.45) but vanished once static composition
 was controlled (ρ = −0.21, p = 0.44; ρ = −0.03, p = 0.82), and further with age/BMI/
 abstinence. State-resolved, stable-progressive fraction tracks lower DFI (ρ ≈ −0.44) and
@@ -598,7 +605,8 @@ classifier.
 The clinical question we treat conservatively: per-man switching-heterogeneity traits are
 highly reliable (split-half ρ ≈ 0.95) but do not improve prediction of DFI over standard
 composition — the one apparently promising association proved to be composition in
-disguise, and we report the pre-registered null as a null. DFI is in any case a surrogate;
+disguise, and we report the pre-registered null as a null, noting that the cohorts are
+powered only for large effects (§3.6). DFI is in any case a surrogate;
 the decisive test — whether switching dynamics predict fertilisation or live birth —
 requires outcome-linked cohorts we do not have.
 
@@ -653,7 +661,10 @@ nothing about immotile dwell structure is claimed. (5) The tracker-fidelity
 dissociation (MOT metrics vs dynamical fidelity) rests on three pipelines and is
 hypothesis-generating. (6) Annotation is human and its own identity-error rate is not
 zero; inter-annotator agreement on VISEM-Tracking is not documented, and a synthetic-video
-calibration of annotation and tracking error is the right next control.
+calibration of annotation and tracking error is the right next control. (7) The clinical
+cohorts are powered only for large effects (minimum detectable partial ρ ≈ 0.72 and 0.38
+at 80 % power); the DFI nulls exclude a large dynamics–DFI association, not a moderate
+one.
 
 **Conclusion.** On annotation-grade single-cell trajectories with a matched continuum
 null, the celebrated non-Markovian phenomenology of discretised motility states —
@@ -690,6 +701,7 @@ uninterpretable.
 | Per-cell heterogeneity + reliability | `experiments/per_cell_kinetics.py` | `outputs/markov/per_cell_kinetics.{json,csv}` |
 | Stayer→DFI robustness | `experiments/stayer_dfi.py` | `outputs/markov/stayer_dfi.json` |
 | DFI prediction (pre-registered) | `experiments/dfi_predict.py` | `outputs/markov/dfi_prediction.json` |
+| DFI power analysis (sensitivity of the clinical nulls) | `experiments/dfi_power.py` | `outputs/markov/dfi_power.json` |
 | Figures | `experiments/make_paper_figures.py` | `paper/figures/fig{1,2,3}_*.png` |
 
 ---
