@@ -537,6 +537,57 @@ require a cell's state traits to anti-correlate (they barely do: cross-cell Spea
 between progressive and non-progressive trait levels is −0.09, p = 0.15); it needs only
 trait *variance*.
 
+The mechanism admits a closed form, which we state as the general result it is.
+
+**Proposition (parity bias of within-cell permutation nulls under static traits).**
+*Let each object c produce an alternating two-state episode sequence with log-durations
+y_i = μ_c(s_i) + ε_i, where the per-object per-state levels μ_c(s) are static random
+traits and the ε_i are i.i.d. with variance σ²_w, independent across episodes: no
+dynamics. Write σ²_b for the trait variance within a state, ICC = σ²_b/(σ²_b + σ²_w),
+and let the two states' traits be uncorrelated across objects. Then, for long
+sequences, the pooled lag-k correlation of state-centred residuals is
+ρ_k = ICC for k even and ρ_k = 0 for k odd, while the within-object permutation null —
+which destroys episode order and therefore pairs same-state episodes with probability
+½ — converges to ρ_perm = ICC/2 at every lag. The reported statistic therefore
+alternates in sign with lag parity:*
+
+$$\Delta\rho_k \;=\; \rho_k - \rho_{\text{perm}} \;=\; (-1)^k \,\frac{\mathrm{ICC}}{2}.$$
+
+*(Correlations are Pearson; the empirical Spearman version behaves identically up to
+rank-scale attenuation. At finite episode counts n the permuted same-state pairing
+probability is (n/2 − 1)/(n − 1) rather than ½, so finite-length amplitudes deviate
+from the asymptote by order 1/n; simulation at our episode counts confirms the parity
+structure with amplitudes within ~25 % of the closed form.)*
+
+*Proof.* State-centred residuals are r_i = δ_c(s_i) + ε_i with δ_c(s) = μ_c(s) − E[μ_c(s)],
+E[r] = 0. In an alternating sequence, episodes i and i+k share a state iff k is even.
+For k even, Cov(r_i, r_{i+k}) = Var(δ_c(s)) = σ²_b (same object, same state; ε
+independent); for k odd, Cov = Cov(δ_c(A), δ_c(B)) = 0 by assumption. Var(r) =
+σ²_b + σ²_w, giving ρ_even = ICC, ρ_odd = 0. Under within-object permutation, the pair
+(i, i+k) is a uniformly random ordered pair of distinct episodes of object c; in a long
+alternating sequence half the episodes are in each state, so the permuted pair is
+same-state with probability → ½, whence Cov_perm = ½σ²_b and ρ_perm = ICC/2 at every
+lag. Subtracting gives Δρ_even = +ICC/2, Δρ_odd = −ICC/2. ∎
+
+Three corollaries matter in practice. (1) With cross-state trait correlation ρ_AB the
+same computation gives Δρ_k = (−1)^k · ICC·(1 − ρ_AB)/2: the spurious "refractory"
+Δρ₁ is strictly negative for *any* ρ_AB < 1 — anti-correlated traits are not needed;
+trait variance suffices, and only perfectly correlated traits (ρ_AB = 1, i.e. no
+state-specific structure to contaminate) annihilate the bias. (2) The
+diagnostic is free: the parity signature Δρ_even ≈ −Δρ_odd distinguishes trait
+contamination from genuine adaptation, which predicts Δρ₁ < 0 *decaying* with lag, not
+alternating. (3) The bias survives any robustness check that preserves trait variance —
+cluster inference, leave-one-out, per-cell estimation, flicker merging, threshold
+sweeps — which is exactly the blindness documented below. The proposition is
+quantitative where its idealisations hold: the continuum null carries matched trait
+variance (ICC = 0.126), zero dynamics, and near-uncorrelated state traits, predicting
+Δρ₁ ≈ −ICC/2 = −0.063 against an observed −0.062 (Fig. 2B) — agreement to be read as
+order-of-magnitude-plus-sign given the finite-sample caveat above. The ground truth's
+larger amplitude (−0.228) exceeds its variance-based prediction, as expected where the
+idealisations fail — three states with unequal episode counts, heavy-tailed log-dwells
+whose rank-scale (Spearman) trait dispersion exceeds the variance-based ICC — but the
+*parity structure*, which is what the proposition explains, is exactly as predicted.
+
 **The kill.** The decisive estimator centres residuals on each cell's *own* per-state
 mean log-dwell, removing static traits by construction; the permutation null inherits
 the centring, so the contrast is unbiased. The trait-controlled subset comprises
