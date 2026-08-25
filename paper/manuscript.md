@@ -103,15 +103,15 @@ cell-to-cell heterogeneity [8–13, 17]. The central contribution of this paper 
 protocol — three controls, one per layer at which the pipeline can manufacture event
 dynamics, none of which track-then-discretise studies usually run — together with the
 demonstration of how much of the standard phenomenology fails it.
-The first is a *continuum null*: a memoryless (Markovian) continuous motion model,
+The first (P1, representation) is a *continuum null*: a memoryless (Markovian) continuous motion model,
 fit per track to nothing but the velocity marginal and its lag-1 autocovariance, passed
 through the identical windowed classifier — which turns out to manufacture the entire
-non-Markovian phenomenology, and more of it than the data show. The second is an
+non-Markovian phenomenology, and more of it than the data show. The second (P2, tracking) is an
 *annotation-anchored tracking audit*, which shows automated tracking inflates the same
 statistics a further two-fold while erasing within-cell temporal structure. One
 statistic survives both controls and four further robustness tests — an apparent
 refractory anti-correlation of successive dwells — and became, for a time, this paper's
-sole biological claim. A final control kills it: the statistic's own permutation null is
+sole biological claim. The final control (P3, estimation) kills it: the statistic's own permutation null is
 contaminated by static per-cell heterogeneity, and a trait-controlled estimator, proven
 powered by an injection test, finds no dynamic signal at all. We report the forensic
 sequence in the order it happened, because the order is itself the finding: five
@@ -281,11 +281,12 @@ switching with quenched heterogeneity. The automated baseline pipeline on the sa
 reports the same phenomenology with everything larger (g₂ = +0.0589; CV 3.2/3.2/2.4), and
 an independent 57-participant automated cohort replicates it (g₂ = +0.0565).
 
-The remainder of the paper subjects this phenomenology to two controls — a memoryless
-continuum passed through the identical classifier (§3.2) and resolution/censoring audits
-(§3.3) — and dissects the one statistic that appears to survive (§3.4).
+The remainder of the paper runs the protocol on this phenomenology: the continuum null
+P1 (§3.2), backed by resolution and censoring audits (§3.3); the estimator-level control
+P3, which dissects the one statistic that appears to survive (§3.4); the tracking audit
+P2 (§3.5); and finally the pre-registered clinical test of what remains (§3.6).
 
-### 3.2 A memoryless continuum manufactures all of it
+### 3.2 P1: a memoryless continuum manufactures all of it
 
 The states are not observed; they are computed from continuous kinematics by a 0.5 s
 sliding-window classifier. The correct null for "the switching is non-Markovian" is
@@ -368,7 +369,7 @@ immotile dwell law is *unidentifiable* from these data (neither "gamma and light
 on ground truth nor "heavy tail manufactured by tracking" survives the length-matched
 contrast), and no state's dwell-law *form* should be read as biology.
 
-### 3.4 The apparent survivor: a refractory signature passes five controls — and falls to the sixth
+### 3.4 The apparent survivor: a refractory signature passes five controls — and falls to the sixth (P3)
 
 ![Figure 2](figures/fig2_decomposition.png)
 
@@ -498,7 +499,7 @@ itself* — a permutation null that is not exchangeable under between-cell heter
 caught it. Under automated tracking the raw statistic is ≈ −0.03: identity splices
 destroy even the within-cell trait structure that drives the artefact.
 
-### 3.5 Tracking artefacts masquerade as dynamics — and MOT accuracy does not predict dynamical fidelity
+### 3.5 P2: tracking artefacts masquerade as dynamics — and MOT accuracy does not predict dynamical fidelity
 
 The results above required hand-annotated trajectories; here we quantify what automated
 tracking would have reported instead. We re-tracked the 20 annotated videos with three
