@@ -34,10 +34,12 @@ only to each trajectory's velocity marginal and lag-1 autocovariance, passed thr
 identical windowed state classifier and scoring code, containing no switching biology at
 all — reproduces or exceeds every headline non-Markovian statistic: log-normal dwell laws in every state (ΔAIC over
 exponential up to +4,490), a second-order memory gain of +0.052 per token (170 % of the
-observed +0.030), window-robustness of that gain, apparent cell-to-cell heterogeneity
-(ICC 0.13 vs 0.10 observed), sub-exponential within-cell dwell regularity, and it even
-deceives a hierarchical empirical-Bayes decomposition into attributing 54 % "genuine
-within-cell memory" to a memoryless process. Resolution and censoring audits further show
+observed +0.030), window-robustness of that gain, sub-exponential within-cell dwell
+regularity, and it even deceives a hierarchical empirical-Bayes decomposition into
+attributing 54 % "genuine within-cell memory" to a memoryless process. (Cell-to-cell
+heterogeneity — ICC 0.10 observed, 0.13 in the null — is deliberately *not* on this
+list: the null inherits it from its per-track fits as a matched input, and it is the one
+feature of the data that proves real.) Resolution and censoring audits further show
 the motile dwell laws have barely one decade of dynamic range above the classifier window,
 and the immotile dwell law is unidentifiable (64 % of immotile episodes touch a track
 boundary; 41 % are whole tracks). **One statistic initially survives every control**:
@@ -311,6 +313,11 @@ The memoryless continuum reproduces — or exceeds — every statistic of §3.1:
 | Within-cell dwell CV (median) | 0.77 | 0.80–0.93 |
 | EB "genuine within-cell memory" share | 71 % | **54 %** |
 | Serial Δρ (obs − permutation null; dissected in §3.4) | **−0.23** | **−0.06** |
+
+One row of this table is not an artefact claim: the null's between-cell ICC is
+inherited from its per-track parameter fits — quenched heterogeneity is a *matched
+input* to the null, not an output of the discretisation — anticipating §3.4's
+conclusion that static per-cell traits are the one real structure in these data.
 
 Three consequences. First, the **dwell-law and memory claims collapse as biology**: a
 process with no switching dynamics at all — indeed no states at all — produces log-normal
@@ -629,7 +636,7 @@ pipeline, together with the statistics used to interrogate it, manufactures all 
 in three compounding layers. The first layer is discretisation. A windowed threshold
 classifier applied to a memoryless continuous motion process generates heavy-tailed
 (log-normal) dwell laws in every state, a window-robust second-order memory *larger*
-than the one observed, apparent cell-to-cell heterogeneity, sub-exponential within-cell
+than the one observed, sub-exponential within-cell
 regularity — and it deceives the hierarchical null machinery built to decompose such
 effects, which attributes half of the manufactured memory to "genuine within-cell
 memory". The second layer is tracking: automated pipelines inflate the same statistics a
