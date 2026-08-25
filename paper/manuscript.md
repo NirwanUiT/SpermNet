@@ -101,7 +101,10 @@ thousands of verified state-switching events, enough to characterise the *distri
 and *temporal structure* of motility switching rather than only its mean. On these
 trajectories the standard analyses report exactly what the recent literature on tracked
 behaviour would predict: heavy-tailed dwell laws, second-order memory, and stable
-cell-to-cell heterogeneity [8–13, 17]. The central contribution of this paper is a validation
+cell-to-cell heterogeneity [8–13, 17] — and what coarse-graining theory would predict for
+any windowed discretisation of an autocorrelated continuum: functions of Markov processes
+are generically non-Markovian [38–40], which is why molecular kinetics validates its state
+definitions before interpreting them [41, 42]. The central contribution of this paper is a validation
 protocol — three controls, one per layer at which the pipeline can manufacture event
 dynamics, none of which track-then-discretise studies usually run — together with the
 demonstration of how much of the standard phenomenology fails it.
@@ -385,6 +388,26 @@ nothing under homogeneity). And it is itself a live demonstration of the extensi
 trap flagged above: the homogeneous null's 27,568 progressive episodes accumulate a
 total ΔAIC of +235 from a per-episode effect of 0.009 — a "decisive" total from a
 negligible per-episode deviation.
+
+**Why this is expected on first principles.** The block state is a function of a
+25-frame window of the continuous trajectory — a *delay-embedding observable*
+Sₜ = f(Xₜ₋₂₄, …, Xₜ) [43]: the classifier explicitly reads 0.5 s of history at every
+assignment. A function of a Markov process is itself Markovian only if the induced
+partition is lumpable in the Kemeny–Snell sense [40] — a non-generic algebraic condition
+that a kinematic threshold partition has no reason to satisfy. Equivalently, in
+Mori–Zwanzig terms [38, 39], projecting Markovian dynamics onto a coarse observable
+converts the discarded coordinates — here the within-window kinematics and the continuous
+distance-to-threshold, with velocity relaxation time τ ≈ 3 frames against a window of
+W = 25 — into an explicit memory kernel. Non-Markovianity of the *observed* state
+sequence is therefore the generic expectation for a windowed threshold classifier on any
+autocorrelated continuum, with the artefact's magnitude governed by W/τ and by threshold
+placement relative to the kinematic marginal — and the aggregation mechanism adds a
+third axis, trait dispersion, that no single-trajectory theory captures [27]. This is
+precisely why the Markov-state-model community validates state definitions with
+Chapman–Kolmogorov tests and implied-timescale convergence before interpreting kinetics
+[41, 42]; the protocol of §4 is the trajectory-level analogue for detect–track–discretise
+pipelines, extended to the two layers — tracking and estimation — that molecular
+kinetics does not face.
 
 This result also retro-explains our own generative analyses. A zero-free-parameter
 semi-Markov ladder (`refractory_model.py`) had shown that no timing ingredient
@@ -949,3 +972,19 @@ against the originals at submission formatting.*
 37. Fischer CA, Besora-Casals L, Rolland SG, Haeussler S, Singh K, Duchen MR, Conradt
     B, Marr C. MitoSegNet: easy-to-use deep learning segmentation for analyzing
     mitochondrial morphology. *iScience* 23, 101601 (2020).
+
+**Theory: projection, lumpability, and Markov state model validation**
+
+38. Mori H. Transport, collective motion, and Brownian motion. *Progress of
+    Theoretical Physics* 33, 423–455 (1965).
+39. Zwanzig R. Memory effects in irreversible thermodynamics. *Physical Review* 124,
+    983–992 (1961).
+40. Kemeny JG, Snell JL. *Finite Markov Chains* (Van Nostrand, 1960).
+41. Prinz J-H, Wu H, Sarich M, Keller B, Senne M, Held M, Chodera JD, Schütte C, Noé
+    F. Markov models of molecular kinetics: generation and validation. *Journal of
+    Chemical Physics* 134, 174105 (2011).
+42. Chodera JD, Noé F. Markov state models of biomolecular conformational dynamics.
+    *Current Opinion in Structural Biology* 25, 135–144 (2014).
+43. Takens F. Detecting strange attractors in turbulence. In *Dynamical Systems and
+    Turbulence, Warwick 1980*, Lecture Notes in Mathematics 898, 366–381 (Springer,
+    1981).
