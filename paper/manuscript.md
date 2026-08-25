@@ -84,7 +84,7 @@ mis-describes the events. Sperm motility is thus the primary use case for a meth
 whose target domain is event detection in tracked biological structures.
 
 Semen motility is clinically scored by CASA as the proportion of spermatozoa that are
-progressively motile, non-progressively motile, or immotile at one instant. This reduces
+progressively motile, non-progressively motile, or immotile at one instant [3–5]. This reduces
 a population of independently swimming cells, each following its own time-varying
 trajectory, to three numbers — a discretisation of a continuous kinematic phenotype into
 three canonical states, exactly the kind of state vocabulary the representation problem
@@ -99,7 +99,7 @@ thousands of verified state-switching events, enough to characterise the *distri
 and *temporal structure* of motility switching rather than only its mean. On these
 trajectories the standard analyses report exactly what the recent literature on tracked
 behaviour would predict: heavy-tailed dwell laws, second-order memory, and stable
-cell-to-cell heterogeneity. The central contribution of this paper is a validation
+cell-to-cell heterogeneity [8–13, 17]. The central contribution of this paper is a validation
 protocol — three controls, one per layer at which the pipeline can manufacture event
 dynamics, none of which track-then-discretise studies usually run — together with the
 demonstration of how much of the standard phenomenology fails it.
@@ -129,34 +129,35 @@ per layer at which a detect–track–discretise pipeline can manufacture event 
 **P1 (representation)** — a matched memoryless continuum null passed through the
 identical classifier and scoring code ("Continuum null"); **P2 (tracking)** — an
 annotation-anchored audit in which automated pipelines are scored on the downstream
-dynamical observables themselves, not only on MOT identity metrics ("Tracking-fidelity
-audit"); **P3 (estimation)** — validation of every serial statistic's null distribution
+dynamical observables themselves, not only on MOT identity metrics [28–30]
+("Tracking-fidelity audit"); **P3 (estimation)** — validation of every serial statistic's null distribution
 by injecting known dynamics into the real data's trait structure ("Point-process
 statistics"). The remaining methods are the machinery needed to run these controls
 honestly at scale.
 
 **Data tiers.** All headline dynamical statistics are computed on *ground-truth* (GT)
-trajectories: the 20 VISEM-Tracking videos (50 fps) whose per-frame bounding boxes carry
+trajectories: the 20 VISEM-Tracking [2] videos (50 fps) whose per-frame bounding boxes carry
 human-verified persistent identities (`labels_ftid`), materialised into 1,138 single-cell
 tracks with 656,145 frame-states (`experiments/gt_reanchor.py`). Two further tiers are
 analysed *identically* but serve distinct, subordinate roles and are never pooled with GT:
 (a) the *same 20 videos* re-tracked by automated pipelines — our fine-tuned detector with
-BoT-SORT+ReID (the baseline), BoT-SORT without ReID, and ByteTrack — used exclusively for
+BoT-SORT+ReID [32] (the baseline), BoT-SORT without ReID, and ByteTrack [31] — used exclusively for
 the tracking-fidelity audit (§3.5); (b) *extra57* = 57 further VISEM participants with no
-ground truth, tracked with the baseline pipeline (fine-tuned YOLOv8-l + BoT-SORT), used
+ground truth, tracked with the baseline pipeline (fine-tuned YOLOv8-l [33] + BoT-SORT), used
 only for pipeline-level replication and for per-participant clinical traits. Clinical
-variables (including DFI) come from the VISEM clinical tables (n = 85); 77 participants
+variables (including DFI [7]) come from the VISEM [1] clinical tables (n = 85); 77 participants
 have both tracks and clinical data. Cross-participant statistics are computed within
 cohort, never pooled (tracking pipeline is a batch effect).
 
 **States.** For each track we assign a per-frame motility state
 {Progressive, Non-progressive, Immotile} from kinematic parameters (VCL, STR, …) computed
-over a 0.5 s (25-frame) sliding window, following standard CASA thresholds. A *dwell* is a
+over a 0.5 s (25-frame) sliding window, following standard CASA thresholds [3–5]. A *dwell* is a
 maximal run of one state along a track; a *switch* is a change of state.
 
 **Dwell-time law (Fig. 1).** Pooling dwell episodes per state and cohort, we fit
 exponential, gamma, Weibull and log-normal laws by maximum likelihood (location fixed at
-0) and compare by AIC. Robustness is assessed by recomputing states at window sizes 13, 25
+0) and compare by AIC; heavy-tail model competitions of this kind are notoriously
+sensitive to fitting practice [18, 19]. Robustness is assessed by recomputing states at window sizes 13, 25
 and 51 frames (`experiments/dwell_physics.py`, `dwell_physics_robust.py`).
 
 **Order test (Fig. 2A).** To quantify memory we compare held-out per-token log-likelihood
@@ -167,7 +168,8 @@ test is run on **decorrelated, non-overlapping 0.5 s blocks** (one state per blo
 `replicate_markov_extra.py`).
 
 **Decomposition of the memory (Fig. 2).** We separate within-cell memory from population
-heterogeneity with three parametric-bootstrap nulls that all preserve track lengths and
+heterogeneity — the classic mover–stayer confound [27] — with three parametric-bootstrap
+nulls that all preserve track lengths and
 re-run the identical order test (`mover_stayer_null.py`, `mover_stayer_eb.py`):
 - **HOM** — every track simulated from a single pooled first-order matrix (no heterogeneity);
 - **HET (over-fit)** — every track simulated from its *own* fitted first-order matrix
@@ -188,7 +190,7 @@ with leave-one-video-out ranges and a per-cell Fisher-z estimator as corroborati
 (`memory_decomposition.py`, `refractory_survivor.py`).
 
 **Continuum null (the decisive control).** For every ground-truth track we fit a 2-D
-Ornstein–Uhlenbeck (discrete AR(1)) velocity process — Markovian by construction — to
+Ornstein–Uhlenbeck [20] (discrete AR(1)) velocity process — Markovian by construction — to
 that track's velocity marginal (per-component mean, variance) and pooled lag-1
 autocovariance, and nothing else; no memory statistic is ever fit. We simulate one
 synthetic track per real track at the identical length (censoring reproduced by
@@ -214,7 +216,7 @@ to the continuum null, with video-cluster bootstrap CIs throughout
 (`threshold_hysteresis.py`).
 
 **Point-process statistics, trait control, and injection power test (the final
-control).** Treating each cell's switching record as a point process, we compute (i) the
+control).** Treating each cell's switching record as a point process [21–23], we compute (i) the
 serial correlation of residual log-dwells at lags 1–5 (pooled Spearman minus within-cell
 permutation null, video-cluster bootstrap CIs); (ii) a **trait-controlled** variant in
 which residuals are centred on each cell's *own* per-state mean log-dwell (cells with
@@ -430,7 +432,7 @@ switching clock, classifier-invariant exactly where the artefact was design-depe
 and strengthened by every attempt to remove it.
 
 **The diagnostic.** Treating each cell's switching record as a point process — the
-spike-train statistics a neuroscientist would demand of an adaptation claim — breaks the
+spike-train statistics a neuroscientist would demand of an adaptation claim [22, 23] — breaks the
 picture. The serial correlation of residual dwells at lags 1–5 does not decay from a
 negative lag-1 value, as adaptation predicts; it **alternates in sign**: −0.228, +0.268,
 −0.189, +0.248, −0.196 on ground truth (every cluster CI excluding zero), and the
@@ -491,8 +493,8 @@ the quenched-trait structure the continuum null already reproduces. The serial
 anti-correlation joins the dwell laws, the memory gain, and the decomposition on the
 artefact side of the ledger, with one difference that makes it the most instructive of
 the four: it was manufactured not by the classifier or the tracker but by the *statistic
-itself* — a permutation null that is not exchangeable under between-cell heterogeneity —
-and it withstood five orthogonal robustness controls before a structural diagnostic
+itself* — a permutation null that is not exchangeable under between-cell heterogeneity
+[24–26] — and it withstood five orthogonal robustness controls before a structural diagnostic
 caught it. Under automated tracking the raw statistic is ≈ −0.03: identity splices
 destroy even the within-cell trait structure that drives the artefact.
 
@@ -596,7 +598,7 @@ from a small canonical vocabulary, model the sequence of state-changes — is th
 pipeline required to detect morphological events in sub-cellular organelles such as
 mitochondria, where a pleomorphic, continuously deforming shape must likewise be reduced
 to a few canonical states whose transitions (fission, fusion, elongation) are the events
-of interest. That domain is the target of the doctoral project this work belongs to, and
+of interest [34–37]. That domain is the target of the doctoral project this work belongs to, and
 each control transfers with, if anything, greater force. First, the canonical
 state vocabulary is a *discretisation of a continuum*: in a pre-registered single-cell
 analysis the kinematic phenotype showed no discrete cluster structure (the model-selection
@@ -641,7 +643,8 @@ All three layers were only visible because hand-annotated trajectories, a matche
 continuum null, and injection tests existed; none is specific to sperm. Any study that
 discretises tracked continuous behaviour into states and
 reports non-exponential dwells, memory, or individuality — a large literature spanning
-animal-movement HMMs, single-particle tracking, and cell-behaviour phenotyping — is
+animal-movement HMMs [14–16], single-particle tracking [13, 17], and cell-behaviour
+phenotyping [9–12] — is
 exposed to the same artefact layers unless it runs the corresponding controls, all of
 which are cheap (§4).
 
@@ -749,24 +752,124 @@ identity errors are the events.
 
 ---
 
-## References (core; to be completed)
+## References
 
-1. Korobkova E, Emonet T, Vilar JMG, Shimizu TS, Cluzel P. From molecular noise to
-   behavioural variability in a single bacterium. *Nature* 428, 574–578 (2004).
-2. Auger-Méthé M, Field C, Albertsen CM, Derocher AE, Lewis MA, Jonsen ID, Mills
-   Flemming J. State-space models' dirty little secrets: even simple linear Gaussian
-   models can have estimation problems. *Scientific Reports* 6, 26677 (2016).
-3. Pohle J, Langrock R, van Beest FM, Schmidt NM. Selecting the number of states in
-   hidden Markov models: pragmatic solutions illustrated using animal movement.
-   *JABES* 22, 270–293 (2017).
-4. Metzler R, Jeon J-H, Cherstvy AG, Barkai E. Anomalous diffusion models and their
-   properties: non-stationarity, non-ergodicity, and ageing at the centenary of single
-   particle tracking. *Phys. Chem. Chem. Phys.* 16, 24128–24164 (2014).
-5. Ulman V, et al. An objective comparison of cell-tracking algorithms. *Nature
-   Methods* 14, 1141–1152 (2017).
-6. Maška M, et al. The Cell Tracking Challenge: 10 years of objective benchmarking.
-   *Nature Methods* 20, 1010–1020 (2023).
-7. World Health Organization. *WHO laboratory manual for the examination and processing
+*Numbered citations appear throughout the text. Bibliographic details to be verified
+against the originals at submission formatting.*
+
+**Dataset and clinical domain**
+
+1. Haugen TB, Hicks SA, Andersen JM, Witczak O, Hammer HL, Borgli RJ, Halvorsen P,
+   Riegler MA. VISEM: a multimodal video dataset of human spermatozoa. In *Proc. 10th
+   ACM Multimedia Systems Conference (MMSys)* 261–266 (2019).
+2. Thambawita V, Hicks SA, Storås AM, Nguyen T, Andersen JM, Witczak O, Haugen TB,
+   Hammer HL, Halvorsen P, Riegler MA. VISEM-Tracking, a human spermatozoa tracking
+   dataset. *Scientific Data* 10, 260 (2023).
+3. World Health Organization. *WHO laboratory manual for the examination and processing
    of human semen*, 6th edn (WHO, 2021).
-8. Haugen TB, et al. VISEM-Tracking, a human spermatozoa tracking dataset.
-   *Scientific Data* 10, 260 (2023).
+4. Amann RP, Waberski D. Computer-assisted sperm analysis (CASA): capabilities and
+   potential developments. *Theriogenology* 81, 5–17 (2014).
+5. Mortimer ST, van der Horst G, Mortimer D. The future of computer-aided sperm
+   analysis. *Asian Journal of Andrology* 17, 545–553 (2015).
+6. Urbano LF, Masson P, VerMilyea M, Kam M. Automatic tracking and motility analysis of
+   human sperm in time-lapse images. *IEEE Transactions on Medical Imaging* 36, 792–801
+   (2017).
+7. Evenson DP. The Sperm Chromatin Structure Assay (SCSA) and other sperm DNA
+   fragmentation tests for evaluation of sperm nuclear DNA integrity as related to
+   fertility. *Animal Reproduction Science* 169, 56–75 (2016).
+
+**Discretised behaviour and state vocabularies**
+
+8. Korobkova E, Emonet T, Vilar JMG, Shimizu TS, Cluzel P. From molecular noise to
+   behavioural variability in a single bacterium. *Nature* 428, 574–578 (2004).
+9. Stephens GJ, Johnson-Kerner B, Bialek W, Ryu WS. Dimensionality and dynamics in the
+   behavior of *C. elegans*. *PLoS Computational Biology* 4, e1000028 (2008).
+10. Wiltschko AB, Johnson MJ, Iurilli G, Peterson RE, Katon JM, Pashkovski SL, Abraira
+    VE, Adams RP, Datta SR. Mapping sub-second structure in mouse behavior. *Neuron*
+    88, 1121–1135 (2015).
+11. Berman GJ. Measuring behavior across scales. *BMC Biology* 16, 23 (2018).
+12. Datta SR, Anderson DJ, Branson K, Perona P, Leifer A. Computational neuroethology:
+    a call to action. *Neuron* 104, 11–24 (2019).
+13. Persson F, Lindén M, Unoson C, Elf J. Extracting intracellular diffusive states and
+    transition rates from single-molecule tracking data. *Nature Methods* 10, 265–269
+    (2013).
+
+**Hidden-Markov and state-space model pitfalls**
+
+14. Langrock R, King R, Matthiopoulos J, Thomas L, Fortin D, Morales JM. Flexible and
+    practical modeling of animal telemetry data: hidden Markov models and extensions.
+    *Ecology* 93, 2336–2342 (2012).
+15. Pohle J, Langrock R, van Beest FM, Schmidt NM. Selecting the number of states in
+    hidden Markov models: pragmatic solutions illustrated using animal movement.
+    *Journal of Agricultural, Biological and Environmental Statistics* 22, 270–293
+    (2017).
+16. Auger-Méthé M, Field C, Albertsen CM, Derocher AE, Lewis MA, Jonsen ID, Mills
+    Flemming J. State-space models' dirty little secrets: even simple linear Gaussian
+    models can have estimation problems. *Scientific Reports* 6, 26677 (2016).
+
+**Heavy-tail inference and anomalous diffusion**
+
+17. Metzler R, Jeon J-H, Cherstvy AG, Barkai E. Anomalous diffusion models and their
+    properties: non-stationarity, non-ergodicity, and ageing at the centenary of single
+    particle tracking. *Physical Chemistry Chemical Physics* 16, 24128–24164 (2014).
+18. Edwards AM, Phillips RA, Watkins NW, Freeman MP, Murphy EJ, Afanasyev V, Buldyrev
+    SV, da Luz MGE, Raposo EP, Stanley HE, Viswanathan GM. Revisiting Lévy flight
+    search patterns of wandering albatrosses, bumblebees and deer. *Nature* 449,
+    1044–1048 (2007).
+19. Clauset A, Shalizi CR, Newman MEJ. Power-law distributions in empirical data.
+    *SIAM Review* 51, 661–703 (2009).
+
+**Point-process and serial statistics**
+
+20. Uhlenbeck GE, Ornstein LS. On the theory of the Brownian motion. *Physical Review*
+    36, 823–841 (1930).
+21. Cox DR, Lewis PAW. *The Statistical Analysis of Series of Events* (Methuen, 1966).
+22. Nawrot MP, Boucsein C, Rodriguez Molina V, Riehle A, Aertsen A, Rotter S.
+    Measurement of variability dynamics in cortical spike trains. *Journal of
+    Neuroscience Methods* 169, 374–390 (2008).
+23. Farkhooi F, Strube-Bloss MF, Nawrot MP. Serial correlation in neural spike trains:
+    experimental evidence, stochastic modeling, and single-neuron variability.
+    *Physical Review E* 79, 021905 (2009).
+
+**Inference pitfalls: exchangeability, pseudoreplication, heterogeneity**
+
+24. Winkler AM, Ridgway GR, Webster MA, Smith SM, Nichols TE. Permutation inference for
+    the general linear model. *NeuroImage* 92, 381–397 (2014).
+25. Lazic SE. The problem of pseudoreplication in neuroscientific studies: is it
+    affecting your analysis? *BMC Neuroscience* 11, 5 (2010).
+26. Aarts E, Verhage M, Veenvliet JV, Dolan CV, van der Sluis S. A solution to
+    dependency: using multilevel analysis to accommodate nested data. *Nature
+    Neuroscience* 17, 491–496 (2014).
+27. Blumen I, Kogan M, McCarthy PJ. *The Industrial Mobility of Labor as a Probability
+    Process* (Cornell University Press, 1955).
+
+**Tracking machinery and benchmarks**
+
+28. Ulman V, et al. An objective comparison of cell-tracking algorithms. *Nature
+    Methods* 14, 1141–1152 (2017).
+29. Maška M, et al. The Cell Tracking Challenge: 10 years of objective benchmarking.
+    *Nature Methods* 20, 1010–1020 (2023).
+30. Luiten J, Ošep A, Dendorfer P, Torr P, Geiger A, Leal-Taixé L, Leibe B. HOTA: a
+    higher order metric for evaluating multi-object tracking. *International Journal of
+    Computer Vision* 129, 548–578 (2021).
+31. Zhang Y, Sun P, Jiang Y, Yu D, Weng F, Yuan Z, Luo P, Liu W, Wang X. ByteTrack:
+    multi-object tracking by associating every detection box. In *Proc. European
+    Conference on Computer Vision (ECCV)* (2022).
+32. Aharon N, Orfaig R, Bobrovsky B-Z. BoT-SORT: robust associations multi-pedestrian
+    tracking. Preprint at arXiv:2206.14651 (2022).
+33. Jocher G, Chaurasia A, Qiu J. Ultralytics YOLOv8 (2023).
+    https://github.com/ultralytics/ultralytics
+
+**Target domain: mitochondrial morphology and event detection**
+
+34. Eisner V, Picard M, Hajnóczky G. Mitochondrial dynamics in adaptive and maladaptive
+    cellular stress responses. *Nature Cell Biology* 20, 755–765 (2018).
+35. Lefebvre AEYT, Ma D, Kessenbrock K, Lawson DA, Digman MA. Automated segmentation
+    and tracking of mitochondria in live-cell time-lapse images. *Nature Methods* 18,
+    1091–1102 (2021).
+36. Valente AJ, Maddalena LA, Robb EL, Moradi F, Stuart JA. A simple ImageJ macro tool
+    for analyzing mitochondrial network morphology in mammalian cell culture. *Acta
+    Histochemica* 119, 315–326 (2017).
+37. Fischer CA, Besora-Casals L, Rolland SG, Haeussler S, Singh K, Duchen MR, Conradt
+    B, Marr C. MitoSegNet: easy-to-use deep learning segmentation for analyzing
+    mitochondrial morphology. *iScience* 23, 101601 (2020).
