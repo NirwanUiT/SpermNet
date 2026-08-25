@@ -229,7 +229,10 @@ windows); and (iv) an **injection power test**: every cell's episode count, stat
 sequence, and per-cell-per-state mean log-dwells are preserved exactly while residuals
 are replaced by an AR(1) process with known serial dependence φ; the trait-controlled
 estimator is then applied to data with injected refractoriness (φ = −0.3) and injected
-zero dynamics (φ = 0) (`point_process_stats.py`).
+zero dynamics (φ = 0) (`point_process_stats.py`). Because 20 video clusters is few
+enough for the pairs-cluster bootstrap to be anticonservative, every headline serial
+statistic is additionally re-tested with a **wild cluster bootstrap-t** (Rademacher
+weights on video-level statistics, 9,999 draws) (`wild_cluster.py`).
 
 **Tracking-fidelity audit.** The 20 annotated videos are re-tracked by three automated
 pipelines (BoT-SORT+ReID, BoT-SORT, ByteTrack over the same fine-tuned detector). For each
@@ -458,7 +461,9 @@ cells nested in 20 videos, we retire the naive pooled p-value and use video-leve
 inference: the cluster-bootstrap 95 % CI is **[−0.296, −0.182]**, the leave-one-video-out
 range is [−0.241, −0.214] (no single video carries the effect), and a per-cell estimator
 (lag-1 Spearman per cell, Fisher-z averaged, no pooling) gives −0.26, agreeing with the
-pooled value. The continuum null produces Δρ = −0.060 [−0.142, +0.008], and the
+pooled value; a wild cluster bootstrap-t, built for few clusters, agrees as well
+(p = 0.0001 — the statistic is a bias, identical in every video, not a sampling
+fluctuation). The continuum null produces Δρ = −0.060 [−0.142, +0.008], and the
 bootstrapped **GT-minus-null difference is −0.168 [−0.263, −0.074]**, excluding zero.
 
 The remaining artefactual explanation we could name was classifier *flicker*: a brief
@@ -511,8 +516,12 @@ trait *variance*.
 
 **The kill.** The decisive estimator centres residuals on each cell's *own* per-state
 mean log-dwell, removing static traits by construction; the permutation null inherits
-the centring, so the contrast is unbiased. Under trait control the ground-truth serial
-dependence is **+0.025 [−0.026, +0.082]** at lag 1 and ≈ 0 at every lag (Fig. 2C).
+the centring, so the contrast is unbiased. The trait-controlled subset comprises
+**300 cells across 19 videos** (cells with ≥ 2 episodes of every visited state, of 346
+entering the raw estimator). Under trait control the ground-truth serial
+dependence is **+0.025 [−0.026, +0.082]** at lag 1 and ≈ 0 at every lag (Fig. 2C);
+the wild cluster bootstrap-t agrees (video-level mean +0.039, wild CI
+[−0.020, +0.099], p = 0.116).
 Three checks establish that this is a *powered* null, not an underpowered one. First,
 the injection test: an AR(1) refractory process at φ = −0.3, injected into the real data
 while preserving every cell's episode count, state sequence, and per-state trait levels
@@ -521,7 +530,7 @@ injected zero dynamics read +0.057 [+0.030, +0.105]. The ground-truth value sits
 zero-dynamics reference and far outside the injected-refractory one. Second, a positive
 control: the same estimator applied to the continuum null detects the genuine positive
 dwell persistence that the Ornstein–Uhlenbeck velocity process really contains (+0.128
-[+0.100, +0.147]) — the estimator finds true dynamics where they exist. Third, the
+[+0.100, +0.147]; wild cluster p = 0.0001) — the estimator finds true dynamics where they exist. Third, the
 counting statistics agree: per-track Fano factors of switch counts are 1.00, 1.16, 1.27
 and 1.65 at windows of 0.5–4 s — Poisson to over-dispersed, with no trace of the
 sub-Poisson regularity a refractory clock would impose.
@@ -801,6 +810,7 @@ identity errors are the events.
 | **Serial-dwell statistic (flicker + cluster bootstrap)** | `experiments/refractory_survivor.py` | `outputs/markov/refractory_survivor.json` |
 | **Threshold sweep + hysteresis control** | `experiments/threshold_hysteresis.py` | `outputs/markov/threshold_hysteresis.json` |
 | **Point-process stats, trait control, injection power test (final control)** | `experiments/point_process_stats.py` | `outputs/markov/point_process_stats.json` |
+| **Wild cluster bootstrap-t (few-cluster inference) + cell counts** | `experiments/wild_cluster.py` | `outputs/markov/wild_cluster.json` |
 | Ground-truth track materialisation + standard-toolkit statistics | `experiments/gt_reanchor.py` | `outputs/tracks_gt/`, `outputs/markov/gt_reanchor.json` |
 | Tracking-fidelity audit (GT vs 3 pipelines) | `experiments/tracker_fidelity.py` | `outputs/markov/tracker_fidelity.json` |
 | Semi-Markov ladder (property of the g₂ statistic) | `experiments/refractory_model.py` | `outputs/markov/refractory_model.json` |
