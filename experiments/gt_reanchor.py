@@ -204,9 +204,13 @@ def analyse_dir(track_dir: Path, name: str) -> dict:
     print("  EB mover-stayer decomposition ...", flush=True)
     out["eb"] = mover_stayer_eb.analyse(track_dir, max_tracks=0, seed=0)
     g = out["eb"]["g2"]
-    print(f"    g2: REAL {g['real']:+.4f} | EB {g['eb_fair']:+.4f} | "
-          f"HOM {g['hom']:+.4f}  -> genuine-memory share "
-          f"{out['eb']['genuine_memory_share_eb']:.0%}")
+
+    def _f(x):
+        return f"{x:+.4f}" if x is not None else "n/a"
+    share = out["eb"].get("genuine_memory_share_eb")
+    print(f"    g2: REAL {_f(g['real'])} | EB {_f(g['eb_fair'])} | "
+          f"HOM {_f(g['hom'])}  -> genuine-memory share "
+          f"{f'{share:.0%}' if share is not None else 'n/a'}")
 
     print("  within-cell vs pooled decomposition ...", flush=True)
     out["memory_decomposition"] = memory_decomposition.analyse(

@@ -32,8 +32,8 @@ measurement machinery itself — the classifier, the tracker, and, most insidiou
 statistics. The continuum null — per-track Ornstein–Uhlenbeck velocity processes fit
 only to each trajectory's velocity marginal and lag-1 autocovariance, passed through the
 identical windowed state classifier and scoring code, containing no switching biology at
-all — reproduces or exceeds every headline non-Markovian statistic: log-normal dwell laws in every state (ΔAIC over
-exponential up to +4,490), a second-order memory gain of +0.052 per token (170 % of the
+all — reproduces or exceeds every headline non-Markovian statistic: log-normal dwell laws in every state (rejecting the
+exponential decisively in all of them), a second-order memory gain of +0.052 per token (170 % of the
 observed +0.030), window-robustness of that gain, sub-exponential within-cell dwell
 regularity, and it even deceives a hierarchical empirical-Bayes decomposition into
 attributing 54 % "genuine within-cell memory" to a memoryless process. (Cell-to-cell
@@ -305,7 +305,9 @@ The memoryless continuum reproduces — or exceeds — every statistic of §3.1:
 | Statistic | Ground truth | Continuum null (memoryless) |
 |---|---|---|
 | Dwell law, best of 4 (all states) | log-normal (motile) | **log-normal, every state** |
-| ΔAIC exp vs best (P / NP / I) | +1,195 / +1,343 / +176 | +959 / +4,490 / +1,237 |
+| Dwell episodes n (P / NP / I) | 2,940 / 3,048 / 907 | 4,009 / 4,332 / 1,074 |
+| ΔAIC exp vs best, total (P / NP / I) | +1,195 / +1,343 / +176 | +959 / +4,490 / +1,237 |
+| ΔAIC exp vs best, per episode | 0.41 / 0.44 / 0.19 | 0.24 / 1.04 / 1.15 |
 | Pooled dwell CV (P / NP / I) | 1.86 / 2.16 / 1.05 | 1.59 / 3.49 / 1.39 |
 | Block g₂ (13 / 25 / 51 frames) | +0.020 / +0.030 / +0.042 | **+0.050 / +0.052 / +0.053** |
 | Frame-level g₂ | +0.0002 | +0.0019 |
@@ -319,14 +321,34 @@ inherited from its per-track parameter fits — quenched heterogeneity is a *mat
 input* to the null, not an output of the discretisation — anticipating §3.4's
 conclusion that static per-cell traits are the one real structure in these data.
 
+Two caveats on reading the table, both mandated by a calibration audit of the null
+(`null_calibration.py`). First, ΔAIC is extensive: the null produces 1.36–1.42× more
+dwell episodes than the ground truth in every state (it switches 1.39× too often:
+0.90 s⁻¹ vs 0.65 s⁻¹, video-clustered bootstrap), so total ΔAIC compares cohorts of
+different size. Per episode, the apparent null "overshoot" **reverses** for the
+progressive state (0.24 vs 0.41) and persists for non-progressive and immotile; the
+qualitative conclusion — the null rejects the exponential decisively in every state —
+is unchanged, but no quantitative excess should be read from the totals. Second, the
+null is imperfectly calibrated on the surface the classifier actually thresholds: the
+ground truth's sliding-window VCL series retains autocorrelation the AR(1) null has
+already lost (+0.18 vs +0.05 at lag 50), and the null re-crosses the classification
+thresholds in rapid bursts (median crossing interval 0.22–0.30 s vs 0.50–0.94 s in the
+ground truth; interval CV 2.0 vs 1.4–1.6). A memoryless null that is *under*-persistent
+on the classifier input over-manufactures switching, which inflates its episode counts
+and its total ΔAIC; the direction of the mismatch means the null, if anything,
+overstates how much artefactual structure discretisation produces from *these* data —
+while leaving §3.2's qualitative demonstration intact, since every manufactured
+statistic appears already at the ground truth's own switch rate in the window-length
+sweep of §3.4. (For completeness: the ground truth's raw centroid-velocity spectrum
+shows no flagellar-beat peak — spectral mass peaks at 2 Hz — so beat-frequency
+structure is not the source of the residual mis-calibration at 50 fps centroid
+resolution.)
+
 Three consequences. First, the **dwell-law and memory claims collapse as biology**: a
 process with no switching dynamics at all — indeed no states at all — produces log-normal
 dwell laws with large ΔAIC in every state, and *more* second-order block memory than the
-real data (+0.052 vs +0.030, i.e. 170 %), with the same window-robustness. The windowed
-discretisation of a continuous, memoryless trajectory is itself a memory-manufacturing
-device: window overlap with state boundaries, threshold crossings of a smooth variable,
-and mixture-of-kinematics within windows generate precisely the history-dependence the
-order test detects. Second, the **decomposition machinery is equally deceived**: the
+real data (+0.052 vs +0.030, i.e. 170 %), with the same window-robustness. Second, the
+**decomposition machinery is equally deceived**: the
 hierarchical EB null attributes 54 % "genuine within-cell memory" to the memoryless
 continuum, so the 71 % split of §3.1 cannot be read as biology either; likewise the
 apparent sub-exponential within-cell regularity (CV < 1) is largely reproduced (0.80–0.93)
@@ -335,12 +357,39 @@ statistic resists**: the serial anti-correlation of successive dwells, where the
 yields only a quarter of the observed effect. Section 3.4 stress-tests that apparent
 survivor with five further controls — and then dismantles it with a sixth.
 
+A second null dissects the *mechanism* — and splits it in two. The per-track null
+carries quenched cell-to-cell heterogeneity as a matched input; to isolate its
+contribution we ran a **homogeneous** continuum null: one pooled OU parameter set for
+every track, same lengths, same classifier (`homogeneous_null.py`; adjudication rules
+pre-registered before execution, `prereg_recalibration.md`). The result is clean. The
+homogeneous null's block g₂ is zero at every window (+0.0002 / −0.0000 / −0.0022; 0 %
+of the per-track null's +0.052), its ICC is 0.005, and the EB decomposition finds
+nothing to decompose. Yet it still produces non-exponential dwell laws (log-normal and
+gamma beat the exponential; per-episode ΔAIC 0.009–0.021, some 40× weaker than the
+ground truth's 0.41–0.44) and a *positive* dwell–dwell serial correlation (+0.123,
+matching the per-track null's threshold-crossing signature). Two distinct manufacturing
+mechanisms follow. **(i) Thresholding a smooth autocorrelated variable** manufactures
+non-exponential dwells and positive serial dependence even for a single homogeneous
+memoryless walker — window overlap, threshold re-crossings, and mixture-of-kinematics
+within windows. **(ii) Aggregation over quenched heterogeneity** manufactures the
+second-order block memory: pooling tracks with different fitted parameters creates a
+mover–stayer mixture whose pooled statistics are history-dependent even though every
+individual trajectory is Markovian — the classical aggregation result, here arising
+inside a measurement pipeline rather than a population model [27]. This sharpens the
+EB indictment: the hierarchical decomposition is deceived *precisely by* the quenched
+heterogeneity it exists to control for (54 % "genuine memory" under heterogeneity,
+nothing under homogeneity). And it is itself a live demonstration of the extensivity
+trap flagged above: the homogeneous null's 27,568 progressive episodes accumulate a
+total ΔAIC of +235 from a per-episode effect of 0.009 — a "decisive" total from a
+negligible per-episode deviation.
+
 This result also retro-explains our own generative analyses. A zero-free-parameter
 semi-Markov ladder (`refractory_model.py`) had shown that no timing ingredient
 (heterogeneity, gamma shape, refractory coupling) produces block-scale g₂, while imposing
 the empirical second-order embedded topology recovers 93 % of it; we had read that as
 "sequence momentum". The continuum null shows the empirical second-order embedded topology
-is itself largely a discretisation artefact — the ladder's durable lesson is about the
+is itself largely an aggregation artefact of pooling heterogeneous cells — the ladder's
+durable lesson is about the
 *statistic* (g₂ is blind to timing structure and sensitive to sequence context), not about
 sperm.
 
@@ -587,7 +636,10 @@ the cost of running it:
 1. **P1 — representation (continuum null).** Fit a Markovian continuous process to each
    trajectory's marginal and lag-1 structure only; simulate one synthetic track per real
    track at identical length; pass the synthetic cohort through the *identical*
-   classifier and scoring code; compare every dynamical statistic. Cost: one simulation
+   classifier and scoring code; compare every dynamical statistic. Run it twice — with
+   per-object parameters and with one pooled parameter set — to separate what the
+   thresholding manufactures from what aggregation over object heterogeneity
+   manufactures. Cost: one simulation
    plus re-use of existing code. In our data this single control eliminated the dwell
    laws, the memory gain, the heterogeneity decomposition, and the within-cell
    regularity (§3.2).
@@ -613,11 +665,15 @@ analysis the kinematic phenotype showed no discrete cluster structure (the model
 criterion improved monotonically to the search cap), so the three motility categories are a
 coarse slice of a continuous manifold rather than its natural geometry — a caution for any
 scheme that assigns organelle morphology to a fixed number of shape classes. Second — the
-lesson this paper sharpens — *the discretisation itself manufactures event dynamics*:
-thresholding a smooth morphological variable into shape classes will generate heavy-tailed
-class dwell times and apparent transition memory even if the underlying morphodynamics are
-Markovian, so any non-Markovian claim about organelle state transitions requires P1, a
-matched continuum null. Third, *tracking error compounds it*: identity splices manufacture
+lesson this paper sharpens — *the discretisation itself manufactures event dynamics, by
+two separable mechanisms*: thresholding a smooth morphological variable into shape classes
+generates heavy-tailed class dwell times and serial dependence even for a homogeneous
+Markovian process, and pooling over objects with different quenched parameters adds
+mover–stayer transition memory on top — and since no two organelles share kinetic
+parameters, the aggregation mechanism is guaranteed to operate in that domain. Any
+non-Markovian claim about organelle state transitions therefore requires P1, a
+matched continuum null (in both per-object and pooled form, to separate the two
+mechanisms). Third, *tracking error compounds it*: identity splices manufacture
 additional memory while erasing genuine within-object temporal structure — and for
 organelles, where fission/fusion events *are* identity events, P2 is not optional:
 event-detection pipelines must be validated on downstream dynamical observables against
@@ -739,6 +795,8 @@ identity errors are the events.
 | Result | Script | Output |
 |---|---|---|
 | **Continuum null (decisive control)** | `experiments/continuum_null.py` | `outputs/tracks_continuum_null/`, `outputs/markov/continuum_null.json` |
+| **Homogeneous continuum null (mechanism attribution)** | `experiments/homogeneous_null.py` | `outputs/tracks_continuum_null_hom/`, `outputs/markov/homogeneous_null.json` |
+| **Null calibration panel (ACF/PSD, windowed VCL, threshold crossings, switch rate)** | `experiments/null_calibration.py` | `outputs/markov/null_calibration.json` |
 | **Resolution + censoring audits** | `experiments/dwell_resolution_audit.py` | `outputs/markov/dwell_resolution_audit.json` |
 | **Serial-dwell statistic (flicker + cluster bootstrap)** | `experiments/refractory_survivor.py` | `outputs/markov/refractory_survivor.json` |
 | **Threshold sweep + hysteresis control** | `experiments/threshold_hysteresis.py` | `outputs/markov/threshold_hysteresis.json` |
