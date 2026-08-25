@@ -1,11 +1,13 @@
-# The measurement pipeline manufactures non-Markovian dynamics: discretisation, tracking, and estimation artefacts in single-cell behaviour
+# The measurement pipeline manufactures non-Markovian event dynamics: a three-layer validation protocol for detect–track–discretise pipelines in single-cell microscopy
 
-*Working manuscript draft — Work Package 4 (Event Detection and Tracking) of the doctoral
-project "Shape representation and event detection of sub-cellular structures in
-high-content/high-throughput microscopy" (UiT, BioAI group). Sperm motility is the primary
-use case for the event-detection methodology; the same detect–track–represent–detect-events
-pipeline targets sub-cellular structures such as mitochondria. Primary evidence: 1,138
-hand-annotated single-cell trajectories (VISEM-Tracking ground truth, 20 videos), a
+*Working manuscript draft — the methodological core of Work Package 4 (Event Detection
+and Tracking) of the doctoral project "Shape representation and event detection of
+sub-cellular structures in high-content/high-throughput microscopy" (UiT, BioAI group).
+The deliverable is a validation protocol for event detection in
+detect–track–represent–detect-events pipelines; sperm motility is the demonstration
+corpus (the richest annotated single-object tracking resource available), and
+sub-cellular structures such as mitochondria are the target domain. Primary evidence:
+1,138 hand-annotated single-cell trajectories (VISEM-Tracking ground truth, 20 videos), a
 matched Markovian-continuum null passed through the identical classifier, and a
 four-pipeline tracking-fidelity audit on the annotated videos.*
 
@@ -13,20 +15,24 @@ four-pipeline tracking-fidelity audit on the annotated videos.*
 
 ## Abstract
 
-A standard way to quantify the behaviour of tracked biological objects — from swimming
-cells to sub-cellular organelles — is to discretise a continuous phenotype into a small
-state vocabulary and model the transitions. Reports of "non-Markovian" dynamics from such
-pipelines are widespread: heavy-tailed state dwell times, memory beyond the current state,
-and stable object-to-object heterogeneity. Using the largest hand-annotated single-cell
-motility resource available (1,138 human-verified spermatozoon trajectories, 656,145
-frame-states, VISEM-Tracking) we show that, for the canonical CASA motility states, this
-entire phenomenology is manufactured by the measurement machinery itself — the
-classifier, the tracker, and, most insidiously, the statistics. We construct a
-**memoryless (Markovian) continuum null**: per-track
-Ornstein–Uhlenbeck velocity processes fit only to each trajectory's velocity marginal and
-lag-1 autocovariance, passed through the identical windowed state classifier and scoring
-code. This null — which contains no switching biology at all — reproduces or exceeds every
-headline non-Markovian statistic: log-normal dwell laws in every state (ΔAIC over
+Event detection in high-content microscopy typically proceeds by detecting objects,
+tracking them, discretising a continuous phenotype into a small state vocabulary, and
+reading the state *transitions* as the events. Reports of "non-Markovian" event dynamics
+from such pipelines are widespread — heavy-tailed state dwell times, memory beyond the
+current state, stable object-to-object heterogeneity — and they shape both biological
+conclusions and downstream models. Here we ask when detected event dynamics are real,
+and answer with a **three-layer validation protocol** — a matched continuum null passed
+through the identical classifier (representation layer), an annotation-anchored tracking
+audit scored on downstream dynamical observables (tracking layer), and estimator
+validation by injection of known dynamics (estimation layer) — exercised exhaustively on
+the largest hand-annotated single-cell motility resource available (1,138 human-verified
+spermatozoon trajectories, 656,145 frame-states, VISEM-Tracking). For the canonical CASA
+motility states, the entire non-Markovian phenomenology is manufactured by the
+measurement machinery itself — the classifier, the tracker, and, most insidiously, the
+statistics. The continuum null — per-track Ornstein–Uhlenbeck velocity processes fit
+only to each trajectory's velocity marginal and lag-1 autocovariance, passed through the
+identical windowed state classifier and scoring code, containing no switching biology at
+all — reproduces or exceeds every headline non-Markovian statistic: log-normal dwell laws in every state (ΔAIC over
 exponential up to +4,490), a second-order memory gain of +0.052 per token (170 % of the
 observed +0.030), window-robustness of that gain, apparent cell-to-cell heterogeneity
 (ICC 0.13 vs 0.10 observed), sub-exponential within-cell dwell regularity, and it even
@@ -55,10 +61,10 @@ five independent, publication-grade robustness controls before the sixth caught 
 Automated tracking inflates the artefactual statistics a further ~1.9-fold. Nothing
 measurable at these track lengths supports non-Markovian switching biology in human
 sperm. Our results re-open the interpretation of non-Markovian claims from
-track-then-discretise pipelines across fields, and supply the three controls — a matched
-continuum null, annotation-anchored tracking audits, and trait-controlled serial
-estimators validated by injection power tests — that separate measurement artefact from
-biology.
+track-then-discretise pipelines across fields. The protocol is pipeline-agnostic and
+transfers directly to event detection in sub-cellular structures — mitochondrial fission
+and fusion are identity events read through the same detect–track–discretise machinery —
+where none of its three controls are currently standard.
 
 ---
 
@@ -93,9 +99,11 @@ thousands of verified state-switching events, enough to characterise the *distri
 and *temporal structure* of motility switching rather than only its mean. On these
 trajectories the standard analyses report exactly what the recent literature on tracked
 behaviour would predict: heavy-tailed dwell laws, second-order memory, and stable
-cell-to-cell heterogeneity. The central contribution of this paper is to show that these
-findings do not survive two controls that track-then-discretise studies do not usually
-run. The first is a *continuum null*: a memoryless (Markovian) continuous motion model,
+cell-to-cell heterogeneity. The central contribution of this paper is a validation
+protocol — three controls, one per layer at which the pipeline can manufacture event
+dynamics, none of which track-then-discretise studies usually run — together with the
+demonstration of how much of the standard phenomenology fails it.
+The first is a *continuum null*: a memoryless (Markovian) continuous motion model,
 fit per track to nothing but the velocity marginal and its lag-1 autocovariance, passed
 through the identical windowed classifier — which turns out to manufacture the entire
 non-Markovian phenomenology, and more of it than the data show. The second is an
@@ -115,6 +123,17 @@ discarded by the population average carries clinical signal.
 ---
 
 ## 2. Data and methods
+
+**The validation protocol.** The methods below instantiate three general controls, one
+per layer at which a detect–track–discretise pipeline can manufacture event dynamics:
+**P1 (representation)** — a matched memoryless continuum null passed through the
+identical classifier and scoring code ("Continuum null"); **P2 (tracking)** — an
+annotation-anchored audit in which automated pipelines are scored on the downstream
+dynamical observables themselves, not only on MOT identity metrics ("Tracking-fidelity
+audit"); **P3 (estimation)** — validation of every serial statistic's null distribution
+by injecting known dynamics into the real data's trait structure ("Point-process
+statistics"). The remaining methods are the machinery needed to run these controls
+honestly at scale.
 
 **Data tiers.** All headline dynamical statistics are computed on *ground-truth* (GT)
 trajectories: the 20 VISEM-Tracking videos (50 fps) whose per-frame bounding boxes carry
@@ -549,7 +568,57 @@ null obtained on artefact-inflated features would, if anything, be more null on 
 
 ---
 
-## 4. Discussion
+## 4. The protocol, and its transfer to sub-cellular event detection
+
+The results above compress into a three-control protocol that any
+detect–track–discretise event study can run, with the layer each control validates and
+the cost of running it:
+
+1. **P1 — representation (continuum null).** Fit a Markovian continuous process to each
+   trajectory's marginal and lag-1 structure only; simulate one synthetic track per real
+   track at identical length; pass the synthetic cohort through the *identical*
+   classifier and scoring code; compare every dynamical statistic. Cost: one simulation
+   plus re-use of existing code. In our data this single control eliminated the dwell
+   laws, the memory gain, the heterogeneity decomposition, and the within-cell
+   regularity (§3.2).
+2. **P2 — tracking (annotation-anchored audit).** Re-track annotated videos with the
+   candidate pipelines and score the downstream dynamical observables against ground
+   truth — not only MOT identity metrics, which we find do not rank pipelines by
+   dynamical fidelity (§3.5). Cost: annotation for a subset of the data.
+3. **P3 — estimation (injection validation).** For any serial or memory statistic,
+   verify the null distribution by injecting known dynamics (and known zero dynamics)
+   into the real data while preserving its object-level trait structure; require the
+   estimator to recover both. Cost: one simulation. In our data this control caught a
+   statistic that had survived five orthogonal robustness checks (§3.4).
+
+The pipeline validated here — detect objects, track them, assign each a per-frame state
+from a small canonical vocabulary, model the sequence of state-changes — is the same
+pipeline required to detect morphological events in sub-cellular organelles such as
+mitochondria, where a pleomorphic, continuously deforming shape must likewise be reduced
+to a few canonical states whose transitions (fission, fusion, elongation) are the events
+of interest. That domain is the target of the doctoral project this work belongs to, and
+each control transfers with, if anything, greater force. First, the canonical
+state vocabulary is a *discretisation of a continuum*: in a pre-registered single-cell
+analysis the kinematic phenotype showed no discrete cluster structure (the model-selection
+criterion improved monotonically to the search cap), so the three motility categories are a
+coarse slice of a continuous manifold rather than its natural geometry — a caution for any
+scheme that assigns organelle morphology to a fixed number of shape classes. Second — the
+lesson this paper sharpens — *the discretisation itself manufactures event dynamics*:
+thresholding a smooth morphological variable into shape classes will generate heavy-tailed
+class dwell times and apparent transition memory even if the underlying morphodynamics are
+Markovian, so any non-Markovian claim about organelle state transitions requires P1, a
+matched continuum null. Third, *tracking error compounds it*: identity splices manufacture
+additional memory while erasing genuine within-object temporal structure — and for
+organelles, where fission/fusion events *are* identity events, P2 is not optional:
+event-detection pipelines must be validated on downstream dynamical observables against
+annotation, not on detection/association metrics alone. Fourth, *the estimator can
+manufacture what the pipeline does not*: permutation nulls that are not exchangeable
+under object-to-object heterogeneity will fabricate serial dependence in any domain where
+objects carry stable traits — organelles included — so P3 must precede any serial claim.
+
+---
+
+## 5. Discussion
 
 We set out to characterise non-Markovian structure in sperm motility switching and ended
 up with a different, more consequential result: **the standard track-then-discretise
@@ -573,11 +642,8 @@ continuum null, and injection tests existed; none is specific to sperm. Any stud
 discretises tracked continuous behaviour into states and
 reports non-exponential dwells, memory, or individuality — a large literature spanning
 animal-movement HMMs, single-particle tracking, and cell-behaviour phenotyping — is
-exposed to the same artefact layers unless it runs the corresponding controls, which
-are cheap: simulate a Markovian continuum matched to each trajectory's marginal and lag-1
-structure, push it through the identical classifier, and compare — and, for any serial
-statistic, verify its null by injecting known dynamics into the real data's trait
-structure.
+exposed to the same artefact layers unless it runs the corresponding controls, all of
+which are cheap (§4).
 
 Against those controls, no biological result stands, and we emphasise what almost
 happened instead. Until the final control, this Discussion argued that single human
@@ -609,32 +675,6 @@ disguise, and we report the pre-registered null as a null, noting that the cohor
 powered only for large effects (§3.6). DFI is in any case a surrogate;
 the decisive test — whether switching dynamics predict fertilisation or live birth —
 requires outcome-linked cohorts we do not have.
-
-**Relation to event detection in sub-cellular structures.** The pipeline used here — detect
-objects, track them, assign each a per-frame state from a small canonical vocabulary, then
-model the sequence of state-changes — is the same pipeline required to detect morphological
-events in sub-cellular organelles such as mitochondria, where a pleomorphic, continuously
-deforming shape must likewise be reduced to a few canonical states whose transitions
-(fission, fusion, elongation) are the events of interest. The lessons drawn here transfer
-directly to that domain, the central object of this doctoral project. First, the canonical
-state vocabulary is a *discretisation of a continuum*: in a pre-registered single-cell
-analysis the kinematic phenotype showed no discrete cluster structure (the model-selection
-criterion improved monotonically to the search cap), so the three motility categories are a
-coarse slice of a continuous manifold rather than its natural geometry — a caution for any
-scheme that assigns organelle morphology to a fixed number of shape classes. Second — the
-lesson this paper sharpens — *the discretisation itself manufactures event dynamics*:
-thresholding a smooth morphological variable into shape classes will generate heavy-tailed
-class dwell times and apparent transition memory even if the underlying morphodynamics are
-Markovian, so any non-Markovian claim about organelle state transitions requires a
-matched continuum null. Third, *tracking error compounds it*: identity splices manufacture
-additional memory while erasing genuine within-object temporal structure — and for
-organelles, where fission/fusion events *are* identity events, event-detection pipelines
-must be validated on downstream dynamical observables against annotation, not on
-detection/association metrics alone. Fourth, *the estimator can manufacture what the
-pipeline does not*: permutation nulls that are not exchangeable under object-to-object
-heterogeneity will fabricate serial dependence in any domain where objects carry stable
-traits — organelles included — and should be validated by injecting known dynamics into
-the real data's trait structure before any serial claim is made.
 
 **A transparency note on the evolution of this work.** Earlier drafts, built on automated
 tracking, claimed log-normal dwell laws as biology, a genuine-memory/heterogeneity
@@ -671,12 +711,15 @@ null, the celebrated non-Markovian phenomenology of discretised motility states 
 heavy-tailed dwell laws, second-order memory, decomposable heterogeneity, and serial
 dwell anti-correlation — is manufactured end to end, in three compounding layers:
 discretisation, tracking, and estimation. Nothing dynamical survives; what is real is
-static per-cell heterogeneity. The constructive message is a set of cheap, general
-controls — simulate a Markovian continuum through your own classifier; audit your
-tracker on downstream dynamical observables; validate any serial statistic's null by
-injecting known dynamics into the real data's trait structure — without which
-non-Markovian claims from track-then-discretise pipelines, in any domain, are
-uninterpretable.
+static per-cell heterogeneity. The constructive result is the protocol of §4 — simulate
+a Markovian continuum through your own classifier; audit your tracker on downstream
+dynamical observables; validate any serial statistic's null by injecting known dynamics
+into the real data's trait structure — without which non-Markovian claims from
+track-then-discretise pipelines, in any domain, are uninterpretable. The protocol, not
+the organism, is the transferable result: forged on the richest annotated tracking
+corpus available, it is built to be applied where this doctoral project aims it next —
+event detection in sub-cellular structures, where the states are shapes and the
+identity errors are the events.
 
 ---
 
