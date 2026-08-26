@@ -15,58 +15,30 @@ four-pipeline tracking-fidelity audit on the annotated videos.*
 
 ## Abstract
 
-Event detection in high-content microscopy typically proceeds by detecting objects,
-tracking them, discretising a continuous phenotype into a small state vocabulary, and
-reading the state *transitions* as the events. Reports of "non-Markovian" event dynamics
-from such pipelines are widespread — heavy-tailed state dwell times, memory beyond the
-current state, stable object-to-object heterogeneity — and they shape both biological
-conclusions and downstream models. Here we ask when detected event dynamics are real,
-and answer with a **three-layer validation protocol** — a matched continuum null passed
-through the identical classifier (representation layer), an annotation-anchored tracking
-audit scored on downstream dynamical observables (tracking layer), and estimator
-validation by injection of known dynamics (estimation layer) — exercised exhaustively on
-the largest hand-annotated single-cell motility resource available (1,138 human-verified
-spermatozoon trajectories, 656,145 frame-states, VISEM-Tracking). For the canonical CASA
-motility states, the entire non-Markovian phenomenology is manufactured by the
-measurement machinery itself — the classifier, the tracker, and, most insidiously, the
-statistics. The continuum null — per-track Ornstein–Uhlenbeck velocity processes fit
-only to each trajectory's velocity marginal and lag-1 autocovariance, passed through the
-identical windowed state classifier and scoring code, containing no switching biology at
-all — reproduces or exceeds every headline non-Markovian statistic: log-normal dwell laws in every state (rejecting the
-exponential decisively in all of them), a second-order memory gain of +0.052 per token (170 % of the
-observed +0.030), window-robustness of that gain, sub-exponential within-cell dwell
-regularity, and it even deceives a hierarchical empirical-Bayes decomposition into
-attributing 54 % "genuine within-cell memory" to a memoryless process. (Cell-to-cell
-heterogeneity — ICC 0.10 observed, 0.13 in the null — is deliberately *not* on this
-list: the null inherits it from its per-track fits as a matched input, and it is the one
-feature of the data that proves real.) Resolution and censoring audits further show
-the motile dwell laws have barely one decade of dynamic range above the classifier window,
-and the immotile dwell law is unidentifiable (64 % of immotile episodes touch a track
-boundary; 41 % are whole tracks). **One statistic initially survives every control**:
-successive dwell durations of the same cell anti-correlate far beyond the continuum null
-(Δρ = −0.23, video-cluster bootstrap CI [−0.30, −0.18]; null −0.06; difference CI
-excludes zero), robustly to leave-one-video-out, to a per-cell estimator, to merging up
-to 38 % of episodes as suspected classifier flicker, and invariantly across sixteen
-classifier configurations — thresholds, windows, and hysteresis. It is not biology
-either. The serial correlation *alternates in sign with lag* (−0.23, +0.27, −0.19,
-+0.25, −0.20) — the parity signature of static per-cell traits, not of dynamics:
-successive episodes are by construction different states, while the statistic's
-within-cell permutation null mixes in same-state episode pairs that share each cell's
-own dwell level, inflating the null and manufacturing a negative Δρ from zero dynamics.
-A trait-controlled estimator (per-cell-per-state centring) returns Δρ = +0.03
-[−0.03, +0.08]; an injection test proves this null is powered (refractory dynamics
-injected at φ = −0.3 into the real episode structure are recovered at −0.19
-[−0.22, −0.13], and the same estimator detects the genuine velocity persistence of the
-continuum null); and per-track Fano factors of switch counts are Poisson-or-above
-(1.0–1.7), not sub-Poisson. The estimator, not the cell, was refractory — and it fooled
-five independent, publication-grade robustness controls before the sixth caught it.
-Automated tracking inflates the artefactual statistics a further ~1.9-fold. Nothing
-measurable at these track lengths supports non-Markovian switching biology in human
-sperm. Our results re-open the interpretation of non-Markovian claims from
-track-then-discretise pipelines across fields. The protocol is pipeline-agnostic and
-transfers directly to event detection in sub-cellular structures — mitochondrial fission
-and fusion are identity events read through the same detect–track–discretise machinery —
-where none of its three controls are currently standard.
+Event detection in high-content microscopy proceeds by detecting objects, tracking
+them, discretising a continuous phenotype into a small state vocabulary, and reading
+the state transitions as the events. Reports of non-Markovian event dynamics from such
+pipelines — heavy-tailed dwell times, memory beyond the current state, stable
+object-to-object heterogeneity — are widespread. We ask when detected event dynamics
+are real, and answer with a three-layer validation protocol: a matched continuum null passed through the identical classifier
+(representation layer); an annotation-anchored tracking audit scored on downstream
+dynamical observables (tracking layer); and estimator validation by injection of known
+dynamics (estimation layer). Exercised on the largest hand-annotated single-cell
+motility resource available — 1,138 human-verified spermatozoon trajectories
+(VISEM-Tracking) — the protocol shows the entire non-Markovian phenomenology of the
+motility states is manufactured by the measurement machinery. A memoryless
+Ornstein–Uhlenbeck null, fit only to each track's velocity marginal and lag-1
+autocovariance, reproduces or exceeds every headline statistic; an artefact phase
+diagram isolates the two mechanisms — thresholding an autocorrelated continuum, and
+aggregation over per-object heterogeneity — and the operating conditions that maximise
+them. Automated tracking inflates the artefacts a further two-fold. The last statistic
+standing, a refractory-like anti-correlation of successive dwells that survived five
+publication-grade controls, is an estimator artefact: its permutation null is not
+exchangeable under per-cell heterogeneity (we derive the bias in closed form), and a
+trait-controlled, injection-validated estimator finds nothing. Nothing dynamical
+survives. The protocol, not the organism, is the transferable result — and it transfers
+directly to event detection in sub-cellular structures, where none of its three
+controls are currently standard.
 
 ---
 
@@ -147,7 +119,7 @@ tracks with 656,145 frame-states (`experiments/gt_reanchor.py`). Two further tie
 analysed *identically* but serve distinct, subordinate roles and are never pooled with GT:
 (a) the *same 20 videos* re-tracked by automated pipelines — our fine-tuned detector with
 BoT-SORT+ReID [32] (the baseline), BoT-SORT without ReID, and ByteTrack [31] — used exclusively for
-the tracking-fidelity audit (§3.5); (b) *extra57* = 57 further VISEM participants with no
+the tracking-fidelity audit (§3.6); (b) *extra57* = 57 further VISEM participants with no
 ground truth, tracked with the baseline pipeline (fine-tuned YOLOv8-l [33] + BoT-SORT), used
 only for pipeline-level replication and for per-participant clinical traits. Clinical
 variables (including DFI [7]) come from the VISEM [1] clinical tables (n = 85); 77 participants
@@ -295,8 +267,10 @@ an independent 57-participant automated cohort replicates it (g₂ = +0.0565).
 
 The remainder of the paper runs the protocol on this phenomenology: the continuum null
 P1 (§3.2), backed by resolution and censoring audits (§3.3); the estimator-level control
-P3, which dissects the one statistic that appears to survive (§3.4); the tracking audit
-P2 (§3.5); and finally the pre-registered clinical test of what remains (§3.6).
+P3, which dissects the one statistic that appears to survive (§3.4); a by-product of
+that dissection — a standard debouncing control that manufactures the effect it guards
+against (§3.5); the tracking audit P2 (§3.6); and a summary of the pre-registered
+clinical test of what remains (§3.7; full analysis in the Supplement).
 
 ### 3.2 P1: a memoryless continuum manufactures all of it
 
@@ -579,11 +553,9 @@ ground-truth effect is invariant (Δρ = −0.20 to −0.26, every cluster CI ex
 while the continuum null never exceeds −0.08; at a 51-frame classifier window the null's
 residual artefact vanishes entirely (+0.002 [−0.056, +0.052]) while ground truth holds
 at −0.196 [−0.250, −0.154] — with the artefact eliminated, the full gap appeared
-biological (Fig. 2A). The sweep also produced a finding of independent value: a
-hysteresis (Schmitt-trigger) classifier — the standard prescription against threshold
-flicker — *itself manufactures* Δρ ≈ −0.17 to −0.20 on memoryless input, because a
-deadband classifier is a latch and therefore carries memory by construction; its use in
-any pipeline would manufacture spurious refractoriness. At this point the refractory
+biological (Fig. 2A). The sweep also surfaced a finding of independent value — the
+standard anti-flicker prescription, hysteresis, *manufactures* the refractory signature
+on memoryless input — which we report separately in §3.5. At this point the refractory
 claim looked like textbook single-cell biology: an anti-bursty, resource-recovery-like
 switching clock, classifier-invariant exactly where the artefact was design-dependent,
 and strengthened by every attempt to remove it.
@@ -710,7 +682,36 @@ itself* — a permutation null that is not exchangeable under between-cell heter
 caught it. Under automated tracking the raw statistic is ≈ −0.03: identity splices
 destroy even the within-cell trait structure that drives the artefact.
 
-### 3.5 P2: tracking artefacts masquerade as dynamics — and MOT accuracy does not predict dynamical fidelity
+### 3.5 The cure that causes the disease: hysteresis classifiers are latches and manufacture refractoriness
+
+The classifier-design sweep of §3.4 contained a control whose failure is a result in
+its own right. The standard engineering prescription against threshold flicker — in
+CASA software, in behavioural state assignment, in any debounced detector — is
+**hysteresis**: a Schmitt-trigger classifier that enters a state at one threshold and
+exits it at another, separated by a deadband. Applied to the *memoryless* continuum
+null, hysteresis classifiers with 10–30 % deadbands manufacture a serial dwell
+anti-correlation of Δρ ≈ −0.17 to −0.20 — the full magnitude of the "refractory"
+signature that motivated §3.4 — where the plain threshold classifier at the same window
+produces at most −0.08. The mechanism is structural, not statistical: a deadband
+classifier is a **latch**. Its output depends jointly on the current input and its own
+previous state, so it carries one bit of memory *by construction*, and the state
+sequence it emits is non-Markovian even when the input is white. The latch couples
+successive dwell durations directly: after entry, exit demands a larger excursion, so
+an early exit (short dwell) leaves the trajectory near the opposite threshold and
+lengthens the following dwell — anti-correlation from pure geometry.
+
+The practical warning generalises beyond this paper. Debouncing is precisely what a
+careful experimentalist adds when they notice state flicker — and it converts a
+manufactured *dwell-law* artefact into a manufactured *serial-dependence* artefact,
+which is worse, because serial dependence reads as biology (refractoriness,
+adaptation). Two rules follow. First, if smoothing is needed, filter the continuous
+kinematic variable symmetrically *before* a single-threshold classifier rather than
+adding a deadband after it; a filter has no output-dependent state. Second, whatever
+classifier is used — hysteretic or not — the P1 continuum null must be passed through
+*that same classifier*: a hysteresis pipeline validated against a plain-threshold null
+would attribute the latch's memory to the cells.
+
+### 3.6 P2: tracking artefacts masquerade as dynamics — and MOT accuracy does not predict dynamical fidelity
 
 The results above required hand-annotated trajectories; here we quantify what automated
 tracking would have reported instead. We re-tracked the 20 annotated videos with three
@@ -744,41 +745,28 @@ should include downstream dynamical observables (dwell laws, memory statistics) 
 against annotation, not only MOT identity metrics**, because the two rank pipelines
 differently.
 
-### 3.6 The heterogeneity is a reliable per-man trait but not clinically incremental over CASA
+### 3.7 The heterogeneity is a reliable per-man trait but not clinically incremental over CASA (summary)
 
-![Figure 3](figures/fig3_heterogeneity.png)
+What survives the protocol is static per-cell heterogeneity, so we asked — in the
+paper's only pre-registered analyses — whether its per-participant summary carries
+clinical signal beyond standard CASA composition. It does not. Per-man
+switching-heterogeneity features are highly reliable traits (split-half Spearman up to
+0.95–0.97), but the pre-registered primary — switch-rate CV versus DFI, controlling for
+mean rate and track count — is null in both cohorts (ρ = −0.36, p = 0.18; ρ = −0.12,
+p = 0.38), and a seemingly consistent secondary association (stayer fraction vs DFI)
+proved to be static CASA composition in disguise. A pre-registered prediction test
+agrees: dynamics features add nothing to a CASA-composition model for out-of-sample DFI
+(Δ Spearman = −0.002, permutation p = 0.567).
 
-**Figure 3. The mover–stayer axis is real but does not beat CASA for DFI.** (A) Per-man
-heterogeneity features (CV and Gini of the single-cell switch rate, stayer fraction) are
-highly reliable by split-half correlation, up to ρ ≈ 0.97 in the larger cohort. (B) The
-apparent association between a man's stayer fraction and his DNA-fragmentation index
-collapses to null once static CASA composition is controlled, in both cohorts. (C) Reason:
-"stayers" are a mix of stable-progressive cells (associated with *lower* DFI) and
-stable-immotile cells (associated with *higher* DFI); their net correlation merely
-re-encodes the progressive/immotile percentages CASA already reports.
-
-The per-participant heterogeneity summaries are highly reliable traits (split-half Spearman
-0.95–0.97 in extra57; 0.56–0.79 in the smaller 20-video cohort, both under automated
-tracking). Clinically, the pre-registered
-primary — switch-rate CV versus DFI, controlling for mean rate and track count — is null in
-both cohorts (ρ = −0.36, p = 0.18; ρ = −0.12, p = 0.38). A simulation-based power
-analysis with the identical estimator bounds what these nulls exclude: at 80 % power the
-minimum detectable partial correlation is ρ ≈ 0.72 in the 16-participant cohort and
-ρ ≈ 0.38 in the 57-participant cohort (power at the observed point estimates: 0.25 and
-0.14), so the nulls rule out a *large* dynamics–DFI axis but not a moderate one.
-A secondary stayer-fraction signal
-appeared cross-cohort-consistent (ρ = −0.55 and −0.45) but vanished once static composition
-was controlled (ρ = −0.21, p = 0.44; ρ = −0.03, p = 0.82), and further with age/BMI/
-abstinence. State-resolved, stable-progressive fraction tracks lower DFI (ρ ≈ −0.44) and
-stable-immotile fraction tracks higher DFI (ρ ≈ +0.42), i.e. the signal is the known
-motility-composition–DFI relationship in disguise. Consistently, a pre-registered
-prediction test found that memory/dynamics features add nothing to a CASA-composition model
-for out-of-sample DFI (Ridge Spearman: CASA 0.501, memory 0.427, CASA+memory 0.499;
-Δ = −0.002, permutation p = 0.567). Scope note: per-man traits are necessarily computed on
-automated tracking (only 20 videos are annotated), so they are *pipeline-level* traits;
-given §3.5, absolute dynamics values are inflated, but the reliability and null-association
-analyses compare participants under one fixed pipeline and are unaffected in design — and a
-null obtained on artefact-inflated features would, if anything, be more null on clean ones.
+Two qualifications bound these nulls. First, power: by simulation with the identical
+estimator, the minimum detectable partial correlation at 80 % power is ρ ≈ 0.72 and
+≈ 0.38 in the two cohorts, so the nulls exclude a *large* dynamics–DFI axis, not a
+moderate one. Second, scope: per-man traits are necessarily computed under automated
+tracking, but the reliability and null-association designs compare participants under
+one fixed pipeline — and a null obtained on artefact-inflated features would, if
+anything, be more null on clean ones. The full analysis — reliability tables, the
+secondary signal's collapse under composition control, its state-resolved dissection,
+and the power analysis (Fig. 3) — is in the Supplement.
 
 ---
 
@@ -801,7 +789,7 @@ the cost of running it:
 2. **P2 — tracking (annotation-anchored audit).** Re-track annotated videos with the
    candidate pipelines and score the downstream dynamical observables against ground
    truth — not only MOT identity metrics, which we find do not rank pipelines by
-   dynamical fidelity (§3.5). Cost: annotation for a subset of the data.
+   dynamical fidelity (§3.6). Cost: annotation for a subset of the data.
 3. **P3 — estimation (injection validation).** For any serial or memory statistic,
    verify the null distribution by injecting known dynamics (and known zero dynamics)
    into the real data while preserving its object-level trait structure; require the
@@ -885,7 +873,7 @@ episode structure — costs one simulation. We suggest both should be as routine
 serial-dependence claims on discretised tracks as shuffle controls are for spike trains.
 What remains real in these data is modest and static: cells differ stably in how long
 they dwell in each state (a quenched trait structure the continuum null carries too),
-and men differ reliably in the population composition of that heterogeneity (§3.6) — but
+and men differ reliably in the population composition of that heterogeneity (§3.7) — but
 nothing in the *dynamics* of single-sperm switching, at these track lengths and time
 resolutions, is distinguishable from a memoryless continuum seen through a windowed
 classifier.
@@ -894,7 +882,7 @@ The clinical question we treat conservatively: per-man switching-heterogeneity t
 highly reliable (split-half ρ ≈ 0.95) but do not improve prediction of DFI over standard
 composition — the one apparently promising association proved to be composition in
 disguise, and we report the pre-registered null as a null, noting that the cohorts are
-powered only for large effects (§3.6). DFI is in any case a surrogate;
+powered only for large effects (§3.7). DFI is in any case a surrogate;
 the decisive test — whether switching dynamics predict fertilisation or live birth —
 requires outcome-linked cohorts we do not have.
 
@@ -973,6 +961,44 @@ identity errors are the events.
 | DFI prediction (pre-registered) | `experiments/dfi_predict.py` | `outputs/markov/dfi_prediction.json` |
 | DFI power analysis (sensitivity of the clinical nulls) | `experiments/dfi_power.py` | `outputs/markov/dfi_power.json` |
 | Figures | `experiments/make_paper_figures.py` | `paper/figures/fig{1,2,3}_*.png` |
+
+---
+
+## Supplement: the clinical analysis in full (pre-registered)
+
+![Figure 3](figures/fig3_heterogeneity.png)
+
+**Figure 3. The mover–stayer axis is real but does not beat CASA for DFI.** (A) Per-man
+heterogeneity features (CV and Gini of the single-cell switch rate, stayer fraction) are
+highly reliable by split-half correlation, up to ρ ≈ 0.97 in the larger cohort. (B) The
+apparent association between a man's stayer fraction and his DNA-fragmentation index
+collapses to null once static CASA composition is controlled, in both cohorts. (C) Reason:
+"stayers" are a mix of stable-progressive cells (associated with *lower* DFI) and
+stable-immotile cells (associated with *higher* DFI); their net correlation merely
+re-encodes the progressive/immotile percentages CASA already reports.
+
+The per-participant heterogeneity summaries are highly reliable traits (split-half Spearman
+0.95–0.97 in extra57; 0.56–0.79 in the smaller 20-video cohort, both under automated
+tracking). Clinically, the pre-registered
+primary — switch-rate CV versus DFI, controlling for mean rate and track count — is null in
+both cohorts (ρ = −0.36, p = 0.18; ρ = −0.12, p = 0.38). A simulation-based power
+analysis with the identical estimator bounds what these nulls exclude: at 80 % power the
+minimum detectable partial correlation is ρ ≈ 0.72 in the 16-participant cohort and
+ρ ≈ 0.38 in the 57-participant cohort (power at the observed point estimates: 0.25 and
+0.14), so the nulls rule out a *large* dynamics–DFI axis but not a moderate one.
+A secondary stayer-fraction signal
+appeared cross-cohort-consistent (ρ = −0.55 and −0.45) but vanished once static composition
+was controlled (ρ = −0.21, p = 0.44; ρ = −0.03, p = 0.82), and further with age/BMI/
+abstinence. State-resolved, stable-progressive fraction tracks lower DFI (ρ ≈ −0.44) and
+stable-immotile fraction tracks higher DFI (ρ ≈ +0.42), i.e. the signal is the known
+motility-composition–DFI relationship in disguise. Consistently, a pre-registered
+prediction test found that memory/dynamics features add nothing to a CASA-composition model
+for out-of-sample DFI (Ridge Spearman: CASA 0.501, memory 0.427, CASA+memory 0.499;
+Δ = −0.002, permutation p = 0.567). Scope note: per-man traits are necessarily computed on
+automated tracking (only 20 videos are annotated), so they are *pipeline-level* traits;
+given §3.6, absolute dynamics values are inflated, but the reliability and null-association
+analyses compare participants under one fixed pipeline and are unaffected in design — and a
+null obtained on artefact-inflated features would, if anything, be more null on clean ones.
 
 ---
 
