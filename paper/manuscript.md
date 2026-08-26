@@ -201,7 +201,11 @@ autocovariance, and nothing else; no memory statistic is ever fit. We simulate o
 synthetic track per real track at the identical length (censoring reproduced by
 construction; per-track parameters preserve quenched heterogeneity), then pass the
 synthetic positions through the *identical* windowed classifier and the identical scoring
-code for every statistic in this paper (`continuum_null.py`).
+code for every statistic in this paper (`continuum_null.py`). The power of the P1
+comparison itself is established by injecting a genuine two-mode switching process into
+the real tracks (marginal variance and lag-1 preserved exactly) and running P1 verbatim
+on each injected cohort, sweeping mode separation and mode-dwell regularity
+(`p1_power_test.py`; design pre-registered in `prereg_recalibration.md`).
 
 **Resolution and censoring audits.** Per state we report the fraction of dwell episodes
 shorter than 1×/2×/3× the classifier window, re-fit the law competition restricted to
@@ -445,6 +449,37 @@ escaped by moving the thresholds, is worst for slow classifiers on fast kinemati
 (large W/τ) applied to heterogeneous populations — the standard operating point of
 CASA-style pipelines — and is suppressed only by shrinking W towards τ, at the direct
 price of estimation noise (§3.3).
+
+**What P1 can and cannot detect: an injection power test.** P1 demonstrates
+manufacture; it is a different question whether the P1 *comparison* — cohort statistics
+against the matched null — would notice genuine switching if it were present. Following
+the pre-registered design (`prereg_recalibration.md`), we injected a genuine two-mode
+switching process into every ground-truth track (amplitude-modulated AR(1): mode dwells
+gamma-distributed with mean 2 s and CV 1.0/0.5/0.25, mode amplitude ratio R = 1–3
+rescaled to preserve the velocity marginal's variance and lag-1 exactly) and ran P1
+verbatim on each injected cohort — fit OU per track, simulate its matched null, score
+both (`p1_power_test.py`; 26 configurations, two seeds each). The negative control is
+clean (R = 1, i.e. no modes: Δg₂ = +0.002/+0.000). Detection has a floor in mode-speed
+separation measured against the 20 µm/s inter-threshold gap: no detection at ≤ 0.07 of
+the gap, marginal at 0.10 (5/6 configurations), consistent at 0.15 (6/6, mean
+Δg₂ = −0.013), strong at 0.22 (−0.018); the dwell readout is more sensitive, with the
+non-progressive per-episode ΔAIC deficit clearing seed noise (± 0.03–0.04) already at
+0.10 of the gap (−0.10, reaching −0.45 at 0.22). Two lessons. First, the *direction*:
+genuine switching produces a **deficit** of both artefact statistics relative to the
+matched null — real mode dynamics is largely captured by the first-order block model,
+and its genuine switching truncates the manufactured heavy dwell tails — so in a P1
+comparison, genuine dynamics and perfect memorylessness sit on the *same side* (below
+the null), not opposite sides. Second, the honest consequence: the ground truth's own
+deficits (g₂ +0.030 vs +0.052; non-progressive per-episode ΔAIC 0.44 vs 1.04) are of
+the sign and magnitude that either residual null mis-calibration (independently
+demonstrated above: the null over-switches 1.39×) *or* genuine switching near the
+detection floor would produce — P1 alone cannot separate these, and we do not ask it
+to. The certification that no detectable switching dynamics are present rests on the
+estimator-level control P3 (§3.4), whose trait-controlled statistic detects
+persistence-type dynamics where they genuinely exist (the continuum null's own +0.128,
+p = 0.0001) and finds none in the ground truth. This is the division of labour the
+three-layer protocol formalises: P1 establishes what the pipeline manufactures, P3
+establishes what the data do not contain.
 
 This result also retro-explains our own generative analyses. A zero-free-parameter
 semi-Markov ladder (`refractory_model.py`) had shown that no timing ingredient
@@ -917,6 +952,7 @@ identity errors are the events.
 | **Continuum null (decisive control)** | `experiments/continuum_null.py` | `outputs/tracks_continuum_null/`, `outputs/markov/continuum_null.json` |
 | **Homogeneous continuum null (mechanism attribution)** | `experiments/homogeneous_null.py` | `outputs/tracks_continuum_null_hom/`, `outputs/markov/homogeneous_null.json` |
 | **Artefact phase diagram (W/τ × threshold × dispersion)** | `experiments/artefact_phase_diagram.py` | `outputs/markov/artefact_phase_diagram.json` |
+| **P1 injection power test (detection floor for genuine switching)** | `experiments/p1_power_test.py` | `outputs/markov/p1_power_test.json` |
 | **Null calibration panel (ACF/PSD, windowed VCL, threshold crossings, switch rate)** | `experiments/null_calibration.py` | `outputs/markov/null_calibration.json` |
 | **Resolution + censoring audits** | `experiments/dwell_resolution_audit.py` | `outputs/markov/dwell_resolution_audit.json` |
 | **Serial-dwell statistic (flicker + cluster bootstrap)** | `experiments/refractory_survivor.py` | `outputs/markov/refractory_survivor.json` |
