@@ -1,0 +1,359 @@
+{
+  "provenance_note": "outputs/tracks/{vid}_tracks.csv verified byte-identical to the _botsort_reid variant (mtime 2026-04-27): the GT export was overwritten by a tracker run before any analyses. outputs/tracks_gt/ is the true hand annotation, rebuilt from labels_ftid.",
+  "gt": {
+    "name": "orig20-GT (hand annotations)",
+    "n_tracks": 1138,
+    "n_frame_states": 656145,
+    "dwell_laws": {
+      "Progressive": {
+        "n": 2940,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 1195.2059824443586,
+        "dAIC": {
+          "exponential": 1195.2059824443586,
+          "gamma": 735.2715584117177,
+          "weibull": 469.4456393177661,
+          "lognormal": 0.0
+        }
+      },
+      "Non-progressive": {
+        "n": 3048,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 1342.5320476655897,
+        "dAIC": {
+          "exponential": 1342.5320476655897,
+          "gamma": 1076.08518627378,
+          "weibull": 762.192187037561,
+          "lognormal": 0.0
+        }
+      },
+      "Immotile": {
+        "n": 907,
+        "best": "gamma",
+        "dAIC_exp_vs_best": 176.00112262101084,
+        "dAIC": {
+          "exponential": 176.00112262101084,
+          "gamma": 0.0,
+          "weibull": 20.373687150365186,
+          "lognormal": 135.58060415490672
+        }
+      }
+    },
+    "geometric": [
+      {
+        "state": "Progressive",
+        "n_episodes": 2940,
+        "mean_dwell_frames": 42.71666666666667,
+        "mean_dwell_s": 0.8543333333333334,
+        "cv": 1.856515072962718,
+        "emp_tail_gt3mean": 0.08299319727891157,
+        "geo_tail_gt3mean": 0.04821333331753752,
+        "tail_excess_x": 1.7213743910281127,
+        "ks_vs_geometric": 0.19457667976249438
+      },
+      {
+        "state": "Non-progressive",
+        "n_episodes": 3048,
+        "mean_dwell_frames": 26.953083989501312,
+        "mean_dwell_s": 0.5390616797900263,
+        "cv": 2.1640981621632487,
+        "emp_tail_gt3mean": 0.06430446194225722,
+        "geo_tail_gt3mean": 0.0485781091614807,
+        "tail_excess_x": 1.323733324582475,
+        "ks_vs_geometric": 0.2085668373008338
+      },
+      {
+        "state": "Immotile",
+        "n_episodes": 907,
+        "mean_dwell_frames": 494.38257993384786,
+        "mean_dwell_s": 9.887651598676957,
+        "cv": 1.0540723671994932,
+        "emp_tail_gt3mean": 0.0,
+        "geo_tail_gt3mean": 0.0496508859128205,
+        "tail_excess_x": 0.0,
+        "ks_vs_geometric": 0.2063408074480507
+      }
+    ],
+    "order_frame": {
+      "ll": {
+        "0": -0.8396221215474814,
+        "1": -0.04461185308399755,
+        "2": -0.04437852011894534,
+        "3": -0.044236236676469406
+      },
+      "g2": 0.00023333296505221451,
+      "g3": 0.0001422834424759309
+    },
+    "block_g2": {
+      "13": {
+        "block": 13,
+        "g2": 0.02016776354678429,
+        "n_tracks": 995,
+        "n_block_states": 49826
+      },
+      "25": {
+        "block": 25,
+        "g2": 0.030447930627276854,
+        "n_tracks": 936,
+        "n_block_states": 25458
+      },
+      "51": {
+        "block": 51,
+        "g2": 0.041649721068513224,
+        "n_tracks": 842,
+        "n_block_states": 12100
+      }
+    },
+    "eb": {
+      "n_tracks": 936,
+      "n_block_states": 25458,
+      "eb_concentration_k": {
+        "Progressive": 2.953270419412212,
+        "Non-progressive": 2.5072511292107036,
+        "Immotile": 5.295410800480046
+      },
+      "g2": {
+        "real": 0.030166829504202297,
+        "eb_fair": 0.011505866494231048,
+        "het_overfit": 0.03497753528822828,
+        "hom": 0.003988981659870883
+      },
+      "dwell_cv": {
+        "real": 1.6120465239244057,
+        "eb_fair": 1.3616538421567501,
+        "het_overfit": 1.7718053761339887,
+        "hom": 1.3163343931065714
+      },
+      "aggregation_share_eb": 0.28714678452789166,
+      "aggregation_share_het_upper": 1.1837701025933536,
+      "genuine_memory_share_eb": 0.7128532154721083
+    },
+    "memory_decomposition": {
+      "pooled_cv": {
+        "Progressive": 1.856515072962718,
+        "Non-progressive": 2.1640981621632487,
+        "Immotile": 1.0540723671994934
+      },
+      "within_track_cv": {
+        "Progressive": {
+          "n_tracks": 159,
+          "median_cv": 0.7812488185246264,
+          "iqr": [
+            0.6059557983270527,
+            1.0059694266348957
+          ]
+        },
+        "Non-progressive": {
+          "n_tracks": 187,
+          "median_cv": 0.7598784462602743,
+          "iqr": [
+            0.587496256558022,
+            0.9666849530515886
+          ]
+        },
+        "Immotile": {
+          "n_tracks": 24,
+          "median_cv": 0.7670695351973813,
+          "iqr": [
+            0.6265539710218999,
+            0.870111941538202
+          ]
+        }
+      },
+      "icc_logdwell": {
+        "icc": 0.10293921843022795,
+        "n_tracks": 467,
+        "n_episodes": 6148,
+        "interpretation": "fraction of state-controlled log-dwell variance that is between-cell"
+      },
+      "serial_state_controlled": {
+        "lag1_spearman": -0.12482151045441589,
+        "p": 2.474847005888304e-20,
+        "shuffle_null": 0.11721138076360858,
+        "n_pairs": 5439
+      }
+    },
+    "elapsed_s": 117.9
+  },
+  "baseline": {
+    "name": "orig20-baseline (botsort_reid)",
+    "n_tracks": 19685,
+    "n_frame_states": 2353834,
+    "dwell_laws": {
+      "Progressive": {
+        "n": 15525,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 13201.354531854093,
+        "dAIC": {
+          "exponential": 13201.354531854093,
+          "gamma": 8862.199132814534,
+          "weibull": 6005.061215120644,
+          "lognormal": 0.0
+        }
+      },
+      "Non-progressive": {
+        "n": 17051,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 14568.155625933226,
+        "dAIC": {
+          "exponential": 14568.155625933226,
+          "gamma": 8106.274250949706,
+          "weibull": 4557.817538523594,
+          "lognormal": 0.0
+        }
+      },
+      "Immotile": {
+        "n": 2174,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 1080.4875257612352,
+        "dAIC": {
+          "exponential": 1080.4875257612352,
+          "gamma": 764.7654062638644,
+          "weibull": 530.0886008841098,
+          "lognormal": 0.0
+        }
+      }
+    },
+    "geometric": [
+      {
+        "state": "Progressive",
+        "n_episodes": 67090,
+        "mean_dwell_frames": 7.75719183186764,
+        "mean_dwell_s": 0.15514383663735282,
+        "cv": 3.1932384743492586,
+        "emp_tail_gt3mean": 0.0631539722760471,
+        "geo_tail_gt3mean": 0.04182341480921175,
+        "tail_excess_x": 1.5100147265387145,
+        "ks_vs_geometric": 0.48553065519873906
+      },
+      {
+        "state": "Non-progressive",
+        "n_episodes": 74154,
+        "mean_dwell_frames": 21.640343069827654,
+        "mean_dwell_s": 0.4328068613965531,
+        "cv": 3.2220067216889494,
+        "emp_tail_gt3mean": 0.05818971329935,
+        "geo_tail_gt3mean": 0.048414704568588825,
+        "tail_excess_x": 1.2019016498781476,
+        "ks_vs_geometric": 0.33898589969148885
+      },
+      {
+        "state": "Immotile",
+        "n_episodes": 10390,
+        "mean_dwell_frames": 22.010202117420597,
+        "mean_dwell_s": 0.44020404234841193,
+        "cv": 2.3789670112758396,
+        "emp_tail_gt3mean": 0.07430221366698748,
+        "geo_tail_gt3mean": 0.04647390632547602,
+        "tail_excess_x": 1.5987942383542777,
+        "ks_vs_geometric": 0.2941730462986153
+      }
+    ],
+    "order_frame": {
+      "ll": {
+        "0": -0.8215941480725342,
+        "1": -0.22246796242511657,
+        "2": -0.17760216467103043,
+        "3": -0.17285828615330137
+      },
+      "g2": 0.04486579775408614,
+      "g3": 0.004743878517729061
+    },
+    "block_g2": {
+      "13": {
+        "block": 13,
+        "g2": 0.0609654964846808,
+        "n_tracks": 7529,
+        "n_block_states": 161037
+      },
+      "25": {
+        "block": 25,
+        "g2": 0.0588600257861594,
+        "n_tracks": 5189,
+        "n_block_states": 77933
+      },
+      "51": {
+        "block": 51,
+        "g2": 0.0442233938847747,
+        "n_tracks": 3532,
+        "n_block_states": 34459
+      }
+    },
+    "eb": {
+      "n_tracks": 5189,
+      "n_block_states": 77933,
+      "eb_concentration_k": {
+        "Progressive": 0.980466242365984,
+        "Non-progressive": 5.099706088729008,
+        "Immotile": 3.7532897406025407
+      },
+      "g2": {
+        "real": 0.05903759592693486,
+        "eb_fair": 0.03200599043271174,
+        "het_overfit": 0.04242150278692869,
+        "hom": 0.001553869379935624
+      },
+      "dwell_cv": {
+        "real": 1.473945245967194,
+        "eb_fair": 1.3124684299344216,
+        "het_overfit": 1.500918823827363,
+        "hom": 0.9882999790622273
+      },
+      "aggregation_share_eb": 0.5297520338713283,
+      "aggregation_share_het_upper": 0.7109426591120411,
+      "genuine_memory_share_eb": 0.47024796612867165
+    },
+    "memory_decomposition": {
+      "pooled_cv": {
+        "Progressive": 2.8286266223093595,
+        "Non-progressive": 3.0136457333108435,
+        "Immotile": 2.0590381536491664
+      },
+      "within_track_cv": {
+        "Progressive": {
+          "n_tracks": 574,
+          "median_cv": 0.8226282927483046,
+          "iqr": [
+            0.4499656584543338,
+            1.1737877907772674
+          ]
+        },
+        "Non-progressive": {
+          "n_tracks": 730,
+          "median_cv": 1.1556975096659698,
+          "iqr": [
+            0.8437701142493291,
+            1.641409953044182
+          ]
+        },
+        "Immotile": {
+          "n_tracks": 162,
+          "median_cv": 1.04733432076375,
+          "iqr": [
+            0.8308890236327886,
+            1.3248535252745337
+          ]
+        }
+      },
+      "icc_logdwell": {
+        "icc": 0.15620820307218317,
+        "n_tracks": 1520,
+        "n_episodes": 29936,
+        "interpretation": "fraction of state-controlled log-dwell variance that is between-cell"
+      },
+      "serial_state_controlled": {
+        "lag1_spearman": 0.07741747844378519,
+        "p": 1.9803060543683988e-38,
+        "shuffle_null": 0.10674115438454954,
+        "n_pairs": 27956
+      }
+    },
+    "elapsed_s": 277.9
+  },
+  "inflation": {
+    "block25_g2_gt": 0.030447930627276854,
+    "block25_g2_baseline": 0.0588600257861594,
+    "g2_inflation_x": 1.9331371483561348,
+    "note": "baseline/gt ratio of the headline decorrelated-block g2"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "reps": 4000,
+  "alpha": 0.05,
+  "ctrl_load": 0.3,
+  "note": "power of the pre-registered primary (partial Spearman, 2 rank controls) by simulation with the identical estimator; rho is the latent Pearson of the residual bivariate normal",
+  "orig20": {
+    "n": 16,
+    "curve": [
+      {
+        "rho_true": 0.0,
+        "power": 0.06525,
+        "mean_partial_spearman": 0.004990080295092822
+      },
+      {
+        "rho_true": 0.1,
+        "power": 0.0865,
+        "mean_partial_spearman": 0.09173642723381083
+      },
+      {
+        "rho_true": 0.2,
+        "power": 0.12925,
+        "mean_partial_spearman": 0.17803629300269866
+      },
+      {
+        "rho_true": 0.3,
+        "power": 0.20175,
+        "mean_partial_spearman": 0.26158396330843214
+      },
+      {
+        "rho_true": 0.4,
+        "power": 0.30725,
+        "mean_partial_spearman": 0.35260533779716313
+      },
+      {
+        "rho_true": 0.5,
+        "power": 0.445,
+        "mean_partial_spearman": 0.44041436882933965
+      },
+      {
+        "rho_true": 0.6,
+        "power": 0.60525,
+        "mean_partial_spearman": 0.5300782500662952
+      },
+      {
+        "rho_true": 0.7,
+        "power": 0.7745,
+        "mean_partial_spearman": 0.621611451259744
+      },
+      {
+        "rho_true": 0.8,
+        "power": 0.9145,
+        "mean_partial_spearman": 0.7218667509241424
+      }
+    ],
+    "mde_80pct_power": 0.7182142857142857,
+    "power_at_observed_point_estimate": {
+      "rho": 0.356,
+      "power": 0.25275
+    }
+  },
+  "extra57": {
+    "n": 57,
+    "curve": [
+      {
+        "rho_true": 0.0,
+        "power": 0.05725,
+        "mean_partial_spearman": 0.008383734119782214
+      },
+      {
+        "rho_true": 0.1,
+        "power": 0.111,
+        "mean_partial_spearman": 0.09614779130414862
+      },
+      {
+        "rho_true": 0.2,
+        "power": 0.301,
+        "mean_partial_spearman": 0.18790169742576876
+      },
+      {
+        "rho_true": 0.3,
+        "power": 0.59175,
+        "mean_partial_spearman": 0.28443247666580246
+      },
+      {
+        "rho_true": 0.4,
+        "power": 0.83975,
+        "mean_partial_spearman": 0.3782006254861292
+      },
+      {
+        "rho_true": 0.5,
+        "power": 0.95875,
+        "mean_partial_spearman": 0.4671018764583874
+      },
+      {
+        "rho_true": 0.6,
+        "power": 0.99675,
+        "mean_partial_spearman": 0.5613432498548395
+      },
+      {
+        "rho_true": 0.7,
+        "power": 0.99975,
+        "mean_partial_spearman": 0.662462713896811
+      },
+      {
+        "rho_true": 0.8,
+        "power": 1.0,
+        "mean_partial_spearman": 0.7644282473424941
+      }
+    ],
+    "mde_80pct_power": 0.38397177419354844,
+    "power_at_observed_point_estimate": {
+      "rho": 0.117,
+      "power": 0.1385
+    }
+  }
+}

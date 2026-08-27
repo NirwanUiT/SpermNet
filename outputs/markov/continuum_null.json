@@ -1,0 +1,245 @@
+{
+  "model": "per-track 2-D AR(1)/OU velocity, fit to marginal mean/variance + pooled lag-1 autocovariance only; same track lengths; quenched per-track parameters",
+  "seed": 0,
+  "fit_summary": {
+    "n_tracks": 1176,
+    "n_too_short": 9,
+    "lag1_a": {
+      "mean": 0.5969718986560414,
+      "median": 0.7400536378986654,
+      "q10": 0.0,
+      "q90": 0.9888077511895859,
+      "frac_negative": 0.037703513281919454
+    }
+  },
+  "null": {
+    "name": "continuum-null (per-track OU velocity)",
+    "n_tracks": 1138,
+    "n_frame_states": 656145,
+    "dwell_laws": {
+      "Progressive": {
+        "n": 4009,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 958.9572732358251,
+        "dAIC": {
+          "exponential": 958.9572732358251,
+          "gamma": 470.2262537341535,
+          "weibull": 268.3531081777678,
+          "lognormal": 0.0
+        }
+      },
+      "Non-progressive": {
+        "n": 4332,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 4489.6561211135995,
+        "dAIC": {
+          "exponential": 4489.6561211135995,
+          "gamma": 2650.989603856774,
+          "weibull": 1506.0290494306803,
+          "lognormal": 0.0
+        }
+      },
+      "Immotile": {
+        "n": 1074,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 1237.0366216663679,
+        "dAIC": {
+          "exponential": 1237.0366216663679,
+          "gamma": 9.927290163674115,
+          "weibull": 1.8764296814861154,
+          "lognormal": 0.0
+        }
+      }
+    },
+    "geometric": [
+      {
+        "state": "Progressive",
+        "n_episodes": 4009,
+        "mean_dwell_frames": 31.229483661761037,
+        "mean_dwell_s": 0.6245896732352207,
+        "cv": 1.5937673176051157,
+        "emp_tail_gt3mean": 0.07333499625841856,
+        "geo_tail_gt3mean": 0.04847647853721976,
+        "tail_excess_x": 1.5127954519656928,
+        "ks_vs_geometric": 0.14513728997548242
+      },
+      {
+        "state": "Non-progressive",
+        "n_episodes": 4332,
+        "mean_dwell_frames": 30.204293628808863,
+        "mean_dwell_s": 0.6040858725761773,
+        "cv": 3.489176458252064,
+        "emp_tail_gt3mean": 0.054709141274238225,
+        "geo_tail_gt3mean": 0.04830833248091124,
+        "tail_excess_x": 1.132499063093437,
+        "ks_vs_geometric": 0.3040905501328687
+      },
+      {
+        "state": "Immotile",
+        "n_episodes": 1074,
+        "mean_dwell_frames": 372.5335195530726,
+        "mean_dwell_s": 7.450670391061452,
+        "cv": 1.393253719025365,
+        "emp_tail_gt3mean": 0.14804469273743018,
+        "geo_tail_gt3mean": 0.04966675699964211,
+        "tail_excess_x": 2.980760204224668,
+        "ks_vs_geometric": 0.3889861661093355
+      }
+    ],
+    "order_frame": {
+      "ll": {
+        "0": -0.941541662173133,
+        "1": -0.062322106493567064,
+        "2": -0.060404754640286856,
+        "3": -0.05956039867333679
+      },
+      "g2": 0.001917351853280208,
+      "g3": 0.0008443559669500666
+    },
+    "block_g2": {
+      "13": {
+        "block": 13,
+        "g2": 0.049465827323877665,
+        "n_tracks": 995,
+        "n_block_states": 49826
+      },
+      "25": {
+        "block": 25,
+        "g2": 0.051712507950468306,
+        "n_tracks": 936,
+        "n_block_states": 25458
+      },
+      "51": {
+        "block": 51,
+        "g2": 0.052898952230243323,
+        "n_tracks": 842,
+        "n_block_states": 12100
+      }
+    },
+    "eb": {
+      "n_tracks": 936,
+      "n_block_states": 25458,
+      "eb_concentration_k": {
+        "Progressive": 4.2623077235097595,
+        "Non-progressive": 1.0891405072627622,
+        "Immotile": 1.2132968061583234
+      },
+      "g2": {
+        "real": 0.05143653119254385,
+        "eb_fair": 0.024352163683909966,
+        "het_overfit": 0.045510224096211305,
+        "hom": 0.001001764383932513
+      },
+      "dwell_cv": {
+        "real": 1.7671568861313045,
+        "eb_fair": 1.4584739360379295,
+        "het_overfit": 1.866553157078403,
+        "hom": 1.36501652299719
+      },
+      "aggregation_share_eb": 0.4629822001276817,
+      "aggregation_share_het_upper": 0.8824955983474345,
+      "genuine_memory_share_eb": 0.5370177998723182
+    },
+    "memory_decomposition": {
+      "pooled_cv": {
+        "Progressive": 1.5937673176051157,
+        "Non-progressive": 3.4891764582520644,
+        "Immotile": 1.3932537190253649
+      },
+      "within_track_cv": {
+        "Progressive": {
+          "n_tracks": 230,
+          "median_cv": 0.9268309070913667,
+          "iqr": [
+            0.7604165754230886,
+            1.0609402830455787
+          ]
+        },
+        "Non-progressive": {
+          "n_tracks": 253,
+          "median_cv": 0.8032737543887487,
+          "iqr": [
+            0.6904349185548666,
+            0.9712918660287083
+          ]
+        },
+        "Immotile": {
+          "n_tracks": 42,
+          "median_cv": 0.8471017087649283,
+          "iqr": [
+            0.6521588645344464,
+            1.002975103346095
+          ]
+        }
+      },
+      "icc_logdwell": {
+        "icc": 0.12629471571113843,
+        "n_tracks": 462,
+        "n_episodes": 8719,
+        "interpretation": "fraction of state-controlled log-dwell variance that is between-cell"
+      },
+      "serial_state_controlled": {
+        "lag1_spearman": 0.04484832555875803,
+        "p": 5.379275689097212e-05,
+        "shuffle_null": 0.100768560042284,
+        "n_pairs": 8103
+      }
+    },
+    "elapsed_s": 116.9
+  },
+  "gt_reference": {
+    "block25_g2": 0.030447930627276854,
+    "frame_g2": 0.00023333296505221451,
+    "dwell_best": {
+      "Progressive": "lognormal",
+      "Non-progressive": "lognormal",
+      "Immotile": "gamma"
+    },
+    "geometric": [
+      {
+        "state": "Progressive",
+        "n_episodes": 2940,
+        "mean_dwell_frames": 42.71666666666667,
+        "mean_dwell_s": 0.8543333333333334,
+        "cv": 1.856515072962718,
+        "emp_tail_gt3mean": 0.08299319727891157,
+        "geo_tail_gt3mean": 0.04821333331753752,
+        "tail_excess_x": 1.7213743910281127,
+        "ks_vs_geometric": 0.19457667976249438
+      },
+      {
+        "state": "Non-progressive",
+        "n_episodes": 3048,
+        "mean_dwell_frames": 26.953083989501312,
+        "mean_dwell_s": 0.5390616797900263,
+        "cv": 2.1640981621632487,
+        "emp_tail_gt3mean": 0.06430446194225722,
+        "geo_tail_gt3mean": 0.0485781091614807,
+        "tail_excess_x": 1.323733324582475,
+        "ks_vs_geometric": 0.2085668373008338
+      },
+      {
+        "state": "Immotile",
+        "n_episodes": 907,
+        "mean_dwell_frames": 494.38257993384786,
+        "mean_dwell_s": 9.887651598676957,
+        "cv": 1.0540723671994932,
+        "emp_tail_gt3mean": 0.0,
+        "geo_tail_gt3mean": 0.0496508859128205,
+        "tail_excess_x": 0.0,
+        "ks_vs_geometric": 0.2063408074480507
+      }
+    ],
+    "icc": 0.10293921843022795,
+    "serial": {
+      "lag1_spearman": -0.12482151045441589,
+      "p": 2.474847005888304e-20,
+      "shuffle_null": 0.11721138076360858,
+      "n_pairs": 5439
+    }
+  },
+  "verdict": {
+    "block25_g2_null_fraction_of_gt": 1.6983915453400806,
+    "note": "fraction ~1 => classifier+continuum manufactures the memory (claim collapses); ~0 => genuine result"
+  }
+}

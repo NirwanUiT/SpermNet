@@ -1,0 +1,54 @@
+{
+  "params": {
+    "min_seq": 50,
+    "min_cells": 30,
+    "max_tracks": 6000,
+    "seed": 0
+  },
+  "orig20": {
+    "n_participants": 16,
+    "reliability": {
+      "cv_rate": 0.5647058823529412,
+      "stayer_frac": 0.7893961708394698,
+      "gini_rate": 0.5852941176470587
+    },
+    "clinical": {
+      "n": 16,
+      "PRIMARY_cv_rate_partial": {
+        "rho": -0.3558823529411765,
+        "p": 0.1761037380915931
+      },
+      "secondary_stayer_frac_partial": {
+        "rho": -0.55,
+        "p": 0.027293972709730593
+      },
+      "ref_mean_rate_vs_DFI": {
+        "rho": 0.1855672115574452,
+        "p": 0.49140782904540947
+      }
+    }
+  },
+  "extra57": {
+    "n_participants": 57,
+    "reliability": {
+      "cv_rate": 0.9543038631060411,
+      "stayer_frac": 0.9725823178636247,
+      "gini_rate": 0.953526056520612
+    },
+    "clinical": {
+      "n": 57,
+      "PRIMARY_cv_rate_partial": {
+        "rho": -0.11738397718434018,
+        "p": 0.3845150137635742
+      },
+      "secondary_stayer_frac_partial": {
+        "rho": -0.45184080891884887,
+        "p": 0.0004184025467375355
+      },
+      "ref_mean_rate_vs_DFI": {
+        "rho": -0.162562559979948,
+        "p": 0.226975835391612
+      }
+    }
+  }
+}

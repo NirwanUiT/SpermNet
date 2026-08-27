@@ -1,0 +1,50 @@
+{
+  "orig20": {
+    "n_tracks": 5186,
+    "n_block_states": 77924,
+    "eb_concentration_k": {
+      "Progressive": 0.9806550314623491,
+      "Non-progressive": 5.099101269272873,
+      "Immotile": 3.7532897406025407
+    },
+    "g2": {
+      "real": 0.058725145189646,
+      "eb_fair": 0.02860828504058993,
+      "het_overfit": 0.04369096649897619,
+      "hom": 0.001604484564773745
+    },
+    "dwell_cv": {
+      "real": 1.473925750703673,
+      "eb_fair": 1.316401774386787,
+      "het_overfit": 1.4988503217312916,
+      "hom": 0.9829117586085659
+    },
+    "aggregation_share_eb": 0.47275014295016443,
+    "aggregation_share_het_upper": 0.7367996356098966,
+    "genuine_memory_share_eb": 0.5272498570498356
+  },
+  "extra57": {
+    "n_tracks": 43275,
+    "n_block_states": 547082,
+    "eb_concentration_k": {
+      "Progressive": 2.7308325842792973,
+      "Non-progressive": 4.148701095801634,
+      "Immotile": 7.289700828144189
+    },
+    "g2": {
+      "real": 0.05651054921113685,
+      "eb_fair": 0.02170688166308976,
+      "het_overfit": 0.045593650187230494,
+      "hom": -0.0015847979924721312
+    },
+    "dwell_cv": {
+      "real": 1.212302919648698,
+      "eb_fair": 1.2509213723855834,
+      "het_overfit": 1.2709813248670556,
+      "hom": 0.8508540855937606
+    },
+    "aggregation_share_eb": 0.40092160175806596,
+    "aggregation_share_het_upper": 0.8120865172619507,
+    "genuine_memory_share_eb": 0.599078398241934
+  }
+}

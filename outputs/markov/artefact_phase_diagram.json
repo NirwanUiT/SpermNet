@@ -1,0 +1,1050 @@
+{
+  "design": "memoryless 2-D AR(1) velocity cohorts, 600 tracks x 1500 frames, W=25, 5 replicate seeds per grid point; 1-D two-threshold windowed-VCL classifier; thresholds at percentiles of each config's own wVCL marginal",
+  "axes": {
+    "tau_frames": [
+      1.0,
+      2.0,
+      3.3,
+      6.0,
+      12.0,
+      25.0,
+      50.0
+    ],
+    "pct": [
+      [
+        10,
+        60
+      ],
+      [
+        25,
+        75
+      ],
+      [
+        40,
+        90
+      ]
+    ],
+    "disp_sigma": [
+      0.0,
+      0.3,
+      0.6
+    ]
+  },
+  "n_seeds": 5,
+  "noise_floor": {
+    "g2_sd_median_disp0": 0.0003716641684586289,
+    "g2_sd_max_disp0": 0.0005692452926456624,
+    "np_dAIC_sd_median_disp0": 0.002579978844868575,
+    "np_dAIC_sd_max_disp0": 0.0069786037502670316
+  },
+  "results": [
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.0,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": -0.00021622145536528414,
+      "block_g2_sd": 0.0003412657056377634,
+      "switch_rate_per_s_mean": 5.751977401129944,
+      "np_dAIC_per_episode_mean": 0.09064361649373805,
+      "np_dAIC_per_episode_sd": 0.002001418110473342,
+      "np_cv_mean": 1.1252512615023913,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.0,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": -0.00026822787879416944,
+      "block_g2_sd": 0.0003091860485815397,
+      "switch_rate_per_s_mean": 6.47716384180791,
+      "np_dAIC_per_episode_mean": 0.08029198447156308,
+      "np_dAIC_per_episode_sd": 0.002579978844868575,
+      "np_cv_mean": 1.0617250815363801,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.0,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": -0.0001867095666832963,
+      "block_g2_sd": 0.000533027654150155,
+      "switch_rate_per_s_mean": 5.699084745762711,
+      "np_dAIC_per_episode_mean": 0.08282782877667139,
+      "np_dAIC_per_episode_sd": 0.0041994743108101605,
+      "np_cv_mean": 1.1089352873578329,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.3,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.08163314184972562,
+      "block_g2_sd": 0.0027004634779135323,
+      "switch_rate_per_s_mean": 2.193276836158192,
+      "np_dAIC_per_episode_mean": 0.7746923293429727,
+      "np_dAIC_per_episode_sd": 0.025535637314498122,
+      "np_cv_mean": 2.0979536647298067,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.3,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.08909777779843715,
+      "block_g2_sd": 0.0013361370355884968,
+      "switch_rate_per_s_mean": 2.4665197740112994,
+      "np_dAIC_per_episode_mean": 0.6205314236531084,
+      "np_dAIC_per_episode_sd": 0.02209165730330215,
+      "np_cv_mean": 1.840473272470457,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.3,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.0838308071194672,
+      "block_g2_sd": 0.0025633693969776194,
+      "switch_rate_per_s_mean": 2.115514124293785,
+      "np_dAIC_per_episode_mean": 0.7505607367658496,
+      "np_dAIC_per_episode_sd": 0.02035627061233591,
+      "np_cv_mean": 2.0205164139888785,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.6,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.08047506214110574,
+      "block_g2_sd": 0.005374434946297054,
+      "switch_rate_per_s_mean": 1.0878644067796608,
+      "np_dAIC_per_episode_mean": 1.0326198720046649,
+      "np_dAIC_per_episode_sd": 0.037841449227839836,
+      "np_cv_mean": 2.701119149625213,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.6,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.08750546879630557,
+      "block_g2_sd": 0.003341388861963768,
+      "switch_rate_per_s_mean": 1.2579209039548023,
+      "np_dAIC_per_episode_mean": 0.9884876980766123,
+      "np_dAIC_per_episode_sd": 0.02721603208337741,
+      "np_cv_mean": 2.5987516504210357,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 1.0,
+      "W_over_tau": 25.0,
+      "disp_sigma": 0.6,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.08166475321449432,
+      "block_g2_sd": 0.0030867307412913952,
+      "switch_rate_per_s_mean": 1.1456836158192092,
+      "np_dAIC_per_episode_mean": 0.9574709380594456,
+      "np_dAIC_per_episode_sd": 0.04040202614612003,
+      "np_cv_mean": 2.610595340066333,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.0,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": -0.00014160514740129136,
+      "block_g2_sd": 0.0004701245886010879,
+      "switch_rate_per_s_mean": 4.643830508474576,
+      "np_dAIC_per_episode_mean": 0.03328643275841442,
+      "np_dAIC_per_episode_sd": 0.0019692347804869006,
+      "np_cv_mean": 1.0678646076657958,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.0,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": -6.676765914237492e-05,
+      "block_g2_sd": 0.000327056643849795,
+      "switch_rate_per_s_mean": 5.1870847457627125,
+      "np_dAIC_per_episode_mean": 0.03347811079928788,
+      "np_dAIC_per_episode_sd": 0.0016023594669691858,
+      "np_cv_mean": 1.0199458715214982,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.0,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": -0.0002795905327043213,
+      "block_g2_sd": 0.000506853473258464,
+      "switch_rate_per_s_mean": 4.513276836158192,
+      "np_dAIC_per_episode_mean": 0.016252905468831534,
+      "np_dAIC_per_episode_sd": 0.0023125568883639266,
+      "np_cv_mean": 1.0452021903165805,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.3,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.07670050863000263,
+      "block_g2_sd": 0.0032688994162301276,
+      "switch_rate_per_s_mean": 2.12645197740113,
+      "np_dAIC_per_episode_mean": 0.41958725468863084,
+      "np_dAIC_per_episode_sd": 0.04007649305817219,
+      "np_cv_mean": 1.619808829023361,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.3,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.08012822316300641,
+      "block_g2_sd": 0.0036684634662271253,
+      "switch_rate_per_s_mean": 2.3843954802259892,
+      "np_dAIC_per_episode_mean": 0.2884008776101529,
+      "np_dAIC_per_episode_sd": 0.04395688705522669,
+      "np_cv_mean": 1.4648256916712843,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.3,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.07577083093789919,
+      "block_g2_sd": 0.0014334682345161602,
+      "switch_rate_per_s_mean": 2.088994350282486,
+      "np_dAIC_per_episode_mean": 0.39075746235321285,
+      "np_dAIC_per_episode_sd": 0.04184019673484603,
+      "np_cv_mean": 1.6083602890358573,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.6,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.08221197542120388,
+      "block_g2_sd": 0.0011954222966670117,
+      "switch_rate_per_s_mean": 1.133322033898305,
+      "np_dAIC_per_episode_mean": 0.8446768366900639,
+      "np_dAIC_per_episode_sd": 0.060445074064333366,
+      "np_cv_mean": 2.4683896040442312,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.6,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.09410974032112586,
+      "block_g2_sd": 0.0022112656512347033,
+      "switch_rate_per_s_mean": 1.3001694915254238,
+      "np_dAIC_per_episode_mean": 0.7964825744588594,
+      "np_dAIC_per_episode_sd": 0.06720064087284004,
+      "np_cv_mean": 2.3639351163926,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 2.0,
+      "W_over_tau": 12.5,
+      "disp_sigma": 0.6,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.08498761790130634,
+      "block_g2_sd": 0.002105192691096384,
+      "switch_rate_per_s_mean": 1.13135593220339,
+      "np_dAIC_per_episode_mean": 0.7893263097383884,
+      "np_dAIC_per_episode_sd": 0.026387169147920764,
+      "np_cv_mean": 2.3827219725581044,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.0,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": -0.0003859901223616902,
+      "block_g2_sd": 0.00019265412433638098,
+      "switch_rate_per_s_mean": 3.858689265536723,
+      "np_dAIC_per_episode_mean": 0.004203553490062269,
+      "np_dAIC_per_episode_sd": 0.0006151651319667733,
+      "np_cv_mean": 1.015199131899212,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.0,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": -0.0003233476522391143,
+      "block_g2_sd": 0.00017986406971884852,
+      "switch_rate_per_s_mean": 4.26187570621469,
+      "np_dAIC_per_episode_mean": 0.0149013243932871,
+      "np_dAIC_per_episode_sd": 0.0010404976160586319,
+      "np_cv_mean": 0.9772076845942521,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.0,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": -0.00019034174183090168,
+      "block_g2_sd": 0.00011710421854171125,
+      "switch_rate_per_s_mean": 3.675717514124294,
+      "np_dAIC_per_episode_mean": 0.003866670910671106,
+      "np_dAIC_per_episode_sd": 0.0003445762819018146,
+      "np_cv_mean": 0.9867074228435797,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.3,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.0664983623190768,
+      "block_g2_sd": 0.003350737219167816,
+      "switch_rate_per_s_mean": 2.023604519774011,
+      "np_dAIC_per_episode_mean": 0.16915541267096132,
+      "np_dAIC_per_episode_sd": 0.020238280061521646,
+      "np_cv_mean": 1.3613050156725055,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.3,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.07105443711466534,
+      "block_g2_sd": 0.001978687924408799,
+      "switch_rate_per_s_mean": 2.2625875706214686,
+      "np_dAIC_per_episode_mean": 0.07258467077954954,
+      "np_dAIC_per_episode_sd": 0.013140065173769321,
+      "np_cv_mean": 1.2316392421113609,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.3,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.06572609033059924,
+      "block_g2_sd": 0.003758514459371404,
+      "switch_rate_per_s_mean": 1.9694011299435026,
+      "np_dAIC_per_episode_mean": 0.12978481258823513,
+      "np_dAIC_per_episode_sd": 0.015765457152916603,
+      "np_cv_mean": 1.3258754521388325,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.6,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.08497671781755267,
+      "block_g2_sd": 0.0027577863531995047,
+      "switch_rate_per_s_mean": 1.0954915254237287,
+      "np_dAIC_per_episode_mean": 0.6530763770530067,
+      "np_dAIC_per_episode_sd": 0.04204480354678693,
+      "np_cv_mean": 2.225396433818312,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.6,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.08944421631005824,
+      "block_g2_sd": 0.0012964929065319777,
+      "switch_rate_per_s_mean": 1.2407457627118643,
+      "np_dAIC_per_episode_mean": 0.5538441475677287,
+      "np_dAIC_per_episode_sd": 0.03179208043020627,
+      "np_cv_mean": 2.0201124704161755,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 3.3,
+      "W_over_tau": 7.575757575757576,
+      "disp_sigma": 0.6,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.08417150754210405,
+      "block_g2_sd": 0.0012231521951720351,
+      "switch_rate_per_s_mean": 1.103412429378531,
+      "np_dAIC_per_episode_mean": 0.6013529893459189,
+      "np_dAIC_per_episode_sd": 0.02712629990921072,
+      "np_cv_mean": 2.1653005619264007,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.0,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": -0.00040054345910955913,
+      "block_g2_sd": 0.00044411976031582975,
+      "switch_rate_per_s_mean": 3.0307005649717516,
+      "np_dAIC_per_episode_mean": 0.01916221602583352,
+      "np_dAIC_per_episode_sd": 0.0022016098935665877,
+      "np_cv_mean": 0.9561535362544346,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.0,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": -0.00022079290558054687,
+      "block_g2_sd": 0.0004660283869967446,
+      "switch_rate_per_s_mean": 3.3393333333333337,
+      "np_dAIC_per_episode_mean": 0.03591900222769344,
+      "np_dAIC_per_episode_sd": 0.0028723981200795895,
+      "np_cv_mean": 0.9264590371328414,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.0,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": -0.00011350317528875386,
+      "block_g2_sd": 0.0004258896520009873,
+      "switch_rate_per_s_mean": 2.865491525423729,
+      "np_dAIC_per_episode_mean": 0.02148722047065296,
+      "np_dAIC_per_episode_sd": 0.0010896541389118063,
+      "np_cv_mean": 0.9172441444346283,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.3,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.05040283752911705,
+      "block_g2_sd": 0.0031975248821211454,
+      "switch_rate_per_s_mean": 1.8614011299435027,
+      "np_dAIC_per_episode_mean": 0.021303992350795574,
+      "np_dAIC_per_episode_sd": 0.006942434506137843,
+      "np_cv_mean": 1.1459804419337147,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.3,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.05369780402477999,
+      "block_g2_sd": 0.0036118940667337314,
+      "switch_rate_per_s_mean": 2.076124293785311,
+      "np_dAIC_per_episode_mean": 0.0021119678913503817,
+      "np_dAIC_per_episode_sd": 0.0016333991463188318,
+      "np_cv_mean": 1.053049729837482,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.3,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.051130616777686114,
+      "block_g2_sd": 0.0025489064540301074,
+      "switch_rate_per_s_mean": 1.8007344632768363,
+      "np_dAIC_per_episode_mean": 0.009483115597290254,
+      "np_dAIC_per_episode_sd": 0.004774771131289737,
+      "np_cv_mean": 1.0945199341361131,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.6,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.07721839687429347,
+      "block_g2_sd": 0.001571438727086463,
+      "switch_rate_per_s_mean": 1.0928022598870055,
+      "np_dAIC_per_episode_mean": 0.33034922421768587,
+      "np_dAIC_per_episode_sd": 0.022641291971848772,
+      "np_cv_mean": 1.7130924118322124,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.6,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.08287972679524155,
+      "block_g2_sd": 0.0014515995527035548,
+      "switch_rate_per_s_mean": 1.235175141242938,
+      "np_dAIC_per_episode_mean": 0.19097085603743602,
+      "np_dAIC_per_episode_sd": 0.024803751313557425,
+      "np_cv_mean": 1.5096065564821344,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 6.0,
+      "W_over_tau": 4.166666666666667,
+      "disp_sigma": 0.6,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.07852437507965519,
+      "block_g2_sd": 0.003050425160537364,
+      "switch_rate_per_s_mean": 1.0810734463276834,
+      "np_dAIC_per_episode_mean": 0.26040795101597625,
+      "np_dAIC_per_episode_sd": 0.03082977135545638,
+      "np_cv_mean": 1.651691180275451,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.0,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": -0.00014960004874025045,
+      "block_g2_sd": 0.00042975998906354156,
+      "switch_rate_per_s_mean": 2.357389830508475,
+      "np_dAIC_per_episode_mean": 0.054581895297633486,
+      "np_dAIC_per_episode_sd": 0.0013989359553878888,
+      "np_cv_mean": 0.8950865935501737,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.0,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 7.960107509807912e-06,
+      "block_g2_sd": 0.0002654262061905272,
+      "switch_rate_per_s_mean": 2.572677966101695,
+      "np_dAIC_per_episode_mean": 0.07861465050443424,
+      "np_dAIC_per_episode_sd": 0.0031083876621725774,
+      "np_cv_mean": 0.8705212131934477,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.0,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": -0.00016539652015421514,
+      "block_g2_sd": 0.00025464603666418593,
+      "switch_rate_per_s_mean": 2.2030621468926554,
+      "np_dAIC_per_episode_mean": 0.06702835725091214,
+      "np_dAIC_per_episode_sd": 0.003056242100905081,
+      "np_cv_mean": 0.8509479888679781,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.3,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.028865554712826813,
+      "block_g2_sd": 0.0021260218863570772,
+      "switch_rate_per_s_mean": 1.6753559322033902,
+      "np_dAIC_per_episode_mean": 0.007551194749992685,
+      "np_dAIC_per_episode_sd": 0.0022925879454927635,
+      "np_cv_mean": 0.975668578461929,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.3,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.03052873059482806,
+      "block_g2_sd": 0.0023036388103462864,
+      "switch_rate_per_s_mean": 1.8564293785310735,
+      "np_dAIC_per_episode_mean": 0.02801608643874689,
+      "np_dAIC_per_episode_sd": 0.004247313390099276,
+      "np_cv_mean": 0.9178222323452913,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.3,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.0287046855912362,
+      "block_g2_sd": 0.002549220564446879,
+      "switch_rate_per_s_mean": 1.5980338983050846,
+      "np_dAIC_per_episode_mean": 0.016424772982358084,
+      "np_dAIC_per_episode_sd": 0.0028387315315350327,
+      "np_cv_mean": 0.9329910613630293,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.6,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.06186915897055365,
+      "block_g2_sd": 0.0036484155744193757,
+      "switch_rate_per_s_mean": 1.1000564971751412,
+      "np_dAIC_per_episode_mean": 0.03752419011738772,
+      "np_dAIC_per_episode_sd": 0.008462982526273538,
+      "np_cv_mean": 1.262090297312241,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.6,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.06464744222141358,
+      "block_g2_sd": 0.002503996804817089,
+      "switch_rate_per_s_mean": 1.2188813559322031,
+      "np_dAIC_per_episode_mean": 0.006550103622101007,
+      "np_dAIC_per_episode_sd": 0.001447353558714099,
+      "np_cv_mean": 1.1225089283259082,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 12.0,
+      "W_over_tau": 2.0833333333333335,
+      "disp_sigma": 0.6,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.0617209598757789,
+      "block_g2_sd": 0.0025028893783497607,
+      "switch_rate_per_s_mean": 1.0692316384180791,
+      "np_dAIC_per_episode_mean": 0.021379538526191455,
+      "np_dAIC_per_episode_sd": 0.00655121431463605,
+      "np_cv_mean": 1.2322692889329596,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.0,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 9.402588075488883e-05,
+      "block_g2_sd": 0.00021945001621041232,
+      "switch_rate_per_s_mean": 1.8168926553672318,
+      "np_dAIC_per_episode_mean": 0.09836372162288382,
+      "np_dAIC_per_episode_sd": 0.006285234299613013,
+      "np_cv_mean": 0.8494332887841554,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.0,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.0002463003390905438,
+      "block_g2_sd": 0.00043392258543689644,
+      "switch_rate_per_s_mean": 1.9574011299435028,
+      "np_dAIC_per_episode_mean": 0.1207990311931653,
+      "np_dAIC_per_episode_sd": 0.004763415546687898,
+      "np_cv_mean": 0.8381015887317134,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.0,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.00041345079441617026,
+      "block_g2_sd": 0.0004217007261070839,
+      "switch_rate_per_s_mean": 1.6648022598870056,
+      "np_dAIC_per_episode_mean": 0.11503867389105485,
+      "np_dAIC_per_episode_sd": 0.005099917155473037,
+      "np_cv_mean": 0.8169578311712815,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.3,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.011164332822451195,
+      "block_g2_sd": 0.0010804721928255989,
+      "switch_rate_per_s_mean": 1.4340112994350283,
+      "np_dAIC_per_episode_mean": 0.05118245197234535,
+      "np_dAIC_per_episode_sd": 0.005366798761292238,
+      "np_cv_mean": 0.8929073150599207,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.3,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.011391990859557222,
+      "block_g2_sd": 0.0007660011671223383,
+      "switch_rate_per_s_mean": 1.5683389830508474,
+      "np_dAIC_per_episode_mean": 0.07910981027429018,
+      "np_dAIC_per_episode_sd": 0.0036243030246532037,
+      "np_cv_mean": 0.8516893899670803,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.3,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.011215276964407361,
+      "block_g2_sd": 0.0009801966354232373,
+      "switch_rate_per_s_mean": 1.3411186440677967,
+      "np_dAIC_per_episode_mean": 0.06639734314622463,
+      "np_dAIC_per_episode_sd": 0.005152949106400836,
+      "np_cv_mean": 0.8574763224330747,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.6,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.03916230298625891,
+      "block_g2_sd": 0.0011205054357753986,
+      "switch_rate_per_s_mean": 0.9760903954802259,
+      "np_dAIC_per_episode_mean": 0.0013609859081713499,
+      "np_dAIC_per_episode_sd": 0.001893252181858635,
+      "np_cv_mean": 1.1034616433196107,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.6,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.04013599847892115,
+      "block_g2_sd": 0.0025798101161713036,
+      "switch_rate_per_s_mean": 1.083186440677966,
+      "np_dAIC_per_episode_mean": 0.010805819882915157,
+      "np_dAIC_per_episode_sd": 0.0013938193661581048,
+      "np_cv_mean": 0.9822679566725107,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 25.0,
+      "W_over_tau": 1.0,
+      "disp_sigma": 0.6,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.03880399850830072,
+      "block_g2_sd": 0.0015621360203773593,
+      "switch_rate_per_s_mean": 0.930090395480226,
+      "np_dAIC_per_episode_mean": 0.003243183186535943,
+      "np_dAIC_per_episode_sd": 0.0015069379249866074,
+      "np_cv_mean": 1.0400765100101683,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.0,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 4.9144071493012474e-05,
+      "block_g2_sd": 0.0005692452926456624,
+      "switch_rate_per_s_mean": 1.392,
+      "np_dAIC_per_episode_mean": 0.11147332731515706,
+      "np_dAIC_per_episode_sd": 0.006492691190707297,
+      "np_cv_mean": 0.8383640682255249,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.0,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.0006321815316665536,
+      "block_g2_sd": 0.0003716641684586289,
+      "switch_rate_per_s_mean": 1.4777966101694915,
+      "np_dAIC_per_episode_mean": 0.13350957657647408,
+      "np_dAIC_per_episode_sd": 0.0069786037502670316,
+      "np_cv_mean": 0.8212479630406835,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.0,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.0003514351406348704,
+      "block_g2_sd": 0.0002495033181527209,
+      "switch_rate_per_s_mean": 1.248101694915254,
+      "np_dAIC_per_episode_mean": 0.11379059478604137,
+      "np_dAIC_per_episode_sd": 0.003893717396078047,
+      "np_cv_mean": 0.8231238558550121,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.3,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.004297259699320643,
+      "block_g2_sd": 0.0005536683839814859,
+      "switch_rate_per_s_mean": 1.1695932203389832,
+      "np_dAIC_per_episode_mean": 0.06868585863952116,
+      "np_dAIC_per_episode_sd": 0.005499877723336106,
+      "np_cv_mean": 0.8757713008934992,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.3,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.0040045343088820125,
+      "block_g2_sd": 0.0007326504664851944,
+      "switch_rate_per_s_mean": 1.2659322033898306,
+      "np_dAIC_per_episode_mean": 0.09118440670885024,
+      "np_dAIC_per_episode_sd": 0.006954148512715111,
+      "np_cv_mean": 0.8561102702163812,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.3,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.004284699133676817,
+      "block_g2_sd": 0.0008951752497559629,
+      "switch_rate_per_s_mean": 1.065401129943503,
+      "np_dAIC_per_episode_mean": 0.0671335573424738,
+      "np_dAIC_per_episode_sd": 0.005789693678112507,
+      "np_cv_mean": 0.8647739417009026,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.6,
+      "pct": [
+        10,
+        60
+      ],
+      "block_g2_mean": 0.023598876245935686,
+      "block_g2_sd": 0.001404443708124911,
+      "switch_rate_per_s_mean": 0.8337062146892655,
+      "np_dAIC_per_episode_mean": 0.00441753865514081,
+      "np_dAIC_per_episode_sd": 0.0029248457818310753,
+      "np_cv_mean": 1.0340558292532374,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.6,
+      "pct": [
+        25,
+        75
+      ],
+      "block_g2_mean": 0.0234389568550452,
+      "block_g2_sd": 0.0017158362067461784,
+      "switch_rate_per_s_mean": 0.9144858757062148,
+      "np_dAIC_per_episode_mean": 0.024058605731547902,
+      "np_dAIC_per_episode_sd": 0.004511101546705712,
+      "np_cv_mean": 0.9457816067150141,
+      "n_seeds": 5
+    },
+    {
+      "tau_frames": 50.0,
+      "W_over_tau": 0.5,
+      "disp_sigma": 0.6,
+      "pct": [
+        40,
+        90
+      ],
+      "block_g2_mean": 0.02499722680981855,
+      "block_g2_sd": 0.0025202067581609573,
+      "switch_rate_per_s_mean": 0.780497175141243,
+      "np_dAIC_per_episode_mean": 0.009777460912023566,
+      "np_dAIC_per_episode_sd": 0.0034780344764519366,
+      "np_cv_mean": 0.9926476602916547,
+      "n_seeds": 5
+    }
+  ]
+}

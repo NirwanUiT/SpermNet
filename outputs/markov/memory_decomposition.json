@@ -1,0 +1,92 @@
+{
+  "orig20": {
+    "pooled_cv": {
+      "Progressive": 2.8336149941089417,
+      "Non-progressive": 3.013791675183745,
+      "Immotile": 2.0590381536491664
+    },
+    "within_track_cv": {
+      "Progressive": {
+        "n_tracks": 574,
+        "median_cv": 0.8226282927483046,
+        "iqr": [
+          0.4499656584543338,
+          1.1737877907772674
+        ]
+      },
+      "Non-progressive": {
+        "n_tracks": 730,
+        "median_cv": 1.1556975096659698,
+        "iqr": [
+          0.8437701142493291,
+          1.641409953044182
+        ]
+      },
+      "Immotile": {
+        "n_tracks": 162,
+        "median_cv": 1.04733432076375,
+        "iqr": [
+          0.8308890236327886,
+          1.3248535252745337
+        ]
+      }
+    },
+    "icc_logdwell": {
+      "icc": 0.15616740093139758,
+      "n_tracks": 1520,
+      "n_episodes": 29936,
+      "interpretation": "fraction of state-controlled log-dwell variance that is between-cell"
+    },
+    "serial_state_controlled": {
+      "lag1_spearman": 0.07741743654160113,
+      "p": 1.9804877823633748e-38,
+      "shuffle_null": 0.10674293425157937,
+      "n_pairs": 27956
+    }
+  },
+  "extra57": {
+    "pooled_cv": {
+      "Progressive": 1.8812696914801672,
+      "Non-progressive": 2.0852256336272497,
+      "Immotile": 2.142054173563732
+    },
+    "within_track_cv": {
+      "Progressive": {
+        "n_tracks": 15403,
+        "median_cv": 0.910044360027355,
+        "iqr": [
+          0.6985699678629194,
+          1.1685969808690682
+        ]
+      },
+      "Non-progressive": {
+        "n_tracks": 21126,
+        "median_cv": 1.0631017492610257,
+        "iqr": [
+          0.7785041603712052,
+          1.3631077132338716
+        ]
+      },
+      "Immotile": {
+        "n_tracks": 6951,
+        "median_cv": 1.2241927616978472,
+        "iqr": [
+          0.9937357212719018,
+          1.4930574132314938
+        ]
+      }
+    },
+    "icc_logdwell": {
+      "icc": 0.056048796813846884,
+      "n_tracks": 56976,
+      "n_episodes": 613750,
+      "interpretation": "fraction of state-controlled log-dwell variance that is between-cell"
+    },
+    "serial_state_controlled": {
+      "lag1_spearman": 0.05751070030849138,
+      "p": 0.0,
+      "shuffle_null": 0.0571629851929602,
+      "n_pairs": 531948
+    }
+  }
+}

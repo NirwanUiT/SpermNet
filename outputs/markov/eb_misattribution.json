@@ -1,0 +1,74 @@
+{
+  "ground_truth": {
+    "n_tracks": 936,
+    "n_block_states": 25458,
+    "eb_concentration_k": {
+      "Progressive": 2.953270419412212,
+      "Non-progressive": 2.5072511292107036,
+      "Immotile": 5.295410800480046
+    },
+    "g2": {
+      "real": 0.030436140153939834,
+      "eb_fair": 0.011540293565196952,
+      "het_overfit": 0.035276532489221135,
+      "hom": 0.004107760786546788
+    },
+    "dwell_cv": {
+      "real": 1.6120465239244057,
+      "eb_fair": 1.3616538421567501,
+      "het_overfit": 1.7718053761339887,
+      "hom": 1.3163343931065714
+    },
+    "aggregation_share_eb": 0.28230118819448285,
+    "aggregation_share_het_upper": 1.183846953423802,
+    "genuine_memory_share_eb": 0.7176988118055171
+  },
+  "continuum_null": {
+    "n_tracks": 936,
+    "n_block_states": 25458,
+    "eb_concentration_k": {
+      "Progressive": 4.2623077235097595,
+      "Non-progressive": 1.0891405072627622,
+      "Immotile": 1.2132968061583234
+    },
+    "g2": {
+      "real": 0.051419733857887256,
+      "eb_fair": 0.02415435937352811,
+      "het_overfit": 0.0460201930828098,
+      "hom": 0.0011318387854746814
+    },
+    "dwell_cv": {
+      "real": 1.7671568861313045,
+      "eb_fair": 1.4584739360379295,
+      "het_overfit": 1.866553157078403,
+      "hom": 1.36501652299719
+    },
+    "aggregation_share_eb": 0.45781436178432033,
+    "aggregation_share_het_upper": 0.8926274252023806,
+    "genuine_memory_share_eb": 0.5421856382156797
+  },
+  "homogeneous_null": {
+    "n_tracks": 936,
+    "n_block_states": 25458,
+    "eb_concentration_k": {
+      "Progressive": 99988.30356000602,
+      "Non-progressive": 99729.94974353917,
+      "Immotile": Infinity
+    },
+    "g2": {
+      "real": -0.0001054753308924461,
+      "eb_fair": 3.604055717820742e-05,
+      "het_overfit": 0.0033439858842906345,
+      "hom": 1.4915672398752022e-05
+    },
+    "dwell_cv": {
+      "real": 0.7401595541527368,
+      "eb_fair": 0.7279643468812906,
+      "het_overfit": 0.7850060702299473,
+      "hom": 0.7390953597314743
+    },
+    "aggregation_share_eb": null,
+    "aggregation_share_het_upper": null,
+    "genuine_memory_share_eb": null
+  }
+}

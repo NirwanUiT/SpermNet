@@ -1,0 +1,89 @@
+{
+  "window_invariance": {
+    "13": {
+      "Progressive": {
+        "best": "lognormal",
+        "exp_dAIC": 60361.39620830136,
+        "logn_vs_gamma": 42479.455487773754,
+        "n": 159752,
+        "cv": 1.963305063369738
+      },
+      "Non-progressive": {
+        "best": "lognormal",
+        "exp_dAIC": 117778.5847856271,
+        "logn_vs_gamma": 74705.2509601319,
+        "n": 195703,
+        "cv": 2.0157533574666324
+      },
+      "Immotile": {
+        "best": "lognormal",
+        "exp_dAIC": 56588.95125969709,
+        "logn_vs_gamma": 29274.387264753364,
+        "n": 69221,
+        "cv": 2.448968782649685
+      }
+    },
+    "25": {
+      "Progressive": {
+        "best": "lognormal",
+        "exp_dAIC": 38437.64389405336,
+        "logn_vs_gamma": 25307.459465728803,
+        "n": 114922,
+        "cv": 1.8826055470266403
+      },
+      "Non-progressive": {
+        "best": "lognormal",
+        "exp_dAIC": 76841.04887455225,
+        "logn_vs_gamma": 40091.701996358854,
+        "n": 123590,
+        "cv": 2.078213659534609
+      },
+      "Immotile": {
+        "best": "lognormal",
+        "exp_dAIC": 32430.309635877027,
+        "logn_vs_gamma": 11432.584476690354,
+        "n": 36688,
+        "cv": 2.160097784710217
+      }
+    },
+    "51": {
+      "Progressive": {
+        "best": "lognormal",
+        "exp_dAIC": 18961.68213102834,
+        "logn_vs_gamma": 11268.846340732081,
+        "n": 73370,
+        "cv": 1.7014309858280536
+      },
+      "Non-progressive": {
+        "best": "lognormal",
+        "exp_dAIC": 39984.557346339556,
+        "logn_vs_gamma": 13444.507698609683,
+        "n": 71671,
+        "cv": 1.925344008031267
+      },
+      "Immotile": {
+        "best": "lognormal",
+        "exp_dAIC": 14468.31667304301,
+        "logn_vs_gamma": 2757.247031739993,
+        "n": 19517,
+        "cv": 1.7857872934371235
+      }
+    }
+  },
+  "serial_corr": {
+    "orig20": {
+      "n_tracks": 1207,
+      "n_pairs": 26079,
+      "lag1_spearman": -0.07339171504996203,
+      "p": 1.7468867799193802e-32,
+      "shuffle_null": 0.12534949985665603
+    },
+    "extra57": {
+      "n_tracks": 17400,
+      "n_pairs": 208288,
+      "lag1_spearman": 0.06406439289068713,
+      "p": 2.6524828586949784e-188,
+      "shuffle_null": 0.05216379240834004
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "observed": {
+    "gt_delta1": -0.2277,
+    "gt_rho_obs1": -0.1248,
+    "gt_perm1": 0.1029,
+    "gt_perm_flat_lags": [
+      0.1029,
+      0.1115,
+      0.1066,
+      0.1055,
+      0.1057
+    ],
+    "null_delta1": -0.0622,
+    "null_rho_obs1": 0.0448,
+    "null_perm1": 0.107,
+    "null_perm_flat_lags": [
+      0.107,
+      0.104,
+      0.1012,
+      0.1003,
+      0.0964
+    ],
+    "icc_variance_based_gt": 0.103,
+    "icc_variance_based_null": 0.126,
+    "trait_controlled_delta1_gt": 0.0253,
+    "trait_controlled_ci_gt": [
+      -0.0256,
+      0.0818
+    ]
+  },
+  "gt": {
+    "icc_state": {
+      "Progressive": {
+        "icc_rank": 0.34050698188833517,
+        "n_cells": 274,
+        "n_eps": 2522
+      },
+      "Non-progressive": {
+        "icc_rank": 0.365675553049305,
+        "n_cells": 346,
+        "n_eps": 2819
+      },
+      "Immotile": {
+        "icc_rank": 0.3273887911026998,
+        "n_cells": 104,
+        "n_eps": 396
+      }
+    },
+    "icc_rank_pooled": 0.35196861663675116,
+    "rho_AB": {
+      "Progressive|Non-progressive": {
+        "rho": -0.07341461863767038,
+        "n": 274
+      },
+      "Progressive|Immotile": {
+        "rho": 0.04079449961802903,
+        "n": 34
+      },
+      "Non-progressive|Immotile": {
+        "rho": -0.31545929798356986,
+        "n": 104
+      }
+    },
+    "rho_AB_mean": -0.11602647233440373,
+    "grand_var_rank": 0.08331283841439867,
+    "pred_rho_perm_from_ANOVA": 0.17598430831837558,
+    "icc_direct_from_perm": 0.2058,
+    "pred_delta1_floor_only": -0.1029,
+    "pred_delta1_corollary1": -0.1267782480064203
+  },
+  "continuum_null": {
+    "icc_state": {
+      "Progressive": {
+        "icc_rank": 0.1931005677035856,
+        "n_cells": 324,
+        "n_eps": 3699
+      },
+      "Non-progressive": {
+        "icc_rank": 0.20306614434582132,
+        "n_cells": 385,
+        "n_eps": 4161
+      },
+      "Immotile": {
+        "icc_rank": 0.5447126760283534,
+        "n_cells": 60,
+        "n_eps": 624
+      }
+    },
+    "icc_rank_pooled": 0.22384935601134115,
+    "rho_AB": {
+      "Progressive|Non-progressive": {
+        "rho": 0.14931615908792376,
+        "n": 324
+      },
+      "Non-progressive|Immotile": {
+        "rho": -0.10425118088357879,
+        "n": 60
+      }
+    },
+    "rho_AB_mean": 0.02253248910217248,
+    "grand_var_rank": 0.08328409108920079,
+    "pred_rho_perm_from_ANOVA": 0.11192467800567057,
+    "icc_direct_from_perm": 0.214,
+    "pred_delta1_floor_only": -0.107,
+    "pred_delta1_corollary1": -0.10217804733213509
+  }
+}

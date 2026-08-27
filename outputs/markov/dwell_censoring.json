@@ -1,0 +1,430 @@
+{
+  "orig20": {
+    "n_tracks": 6093,
+    "n_cells": 6093,
+    "n_single_episode_tracks": 4354,
+    "frac_single_episode": 0.7145905137042508,
+    "law": {
+      "Progressive": {
+        "laws": {
+          "expon": {
+            "aic": -13214.973725887114,
+            "ll": 6608.486862943557,
+            "k": 1,
+            "params": [
+              0.20927528820854743
+            ]
+          },
+          "gamma": {
+            "aic": -20520.96436978492,
+            "ll": 10262.48218489246,
+            "k": 2,
+            "params": [
+              0.45547352398923513,
+              0.5777351222601796
+            ]
+          },
+          "weibull": {
+            "aic": -23575.737527782803,
+            "ll": 11789.868763891402,
+            "k": 2,
+            "params": [
+              0.5613603282172612,
+              0.15371205420164366
+            ]
+          },
+          "lognorm": {
+            "aic": -29302.500655059215,
+            "ll": 14653.250327529608,
+            "k": 2,
+            "params": [
+              1.6344537533523227,
+              0.06564507889780469
+            ]
+          }
+        },
+        "best": "lognorm",
+        "delta_aic_vs_exponential": 16087.526929172102,
+        "n_complete": 11715,
+        "n_censored": 3793,
+        "n": 15508
+      },
+      "Non-progressive": {
+        "laws": {
+          "expon": {
+            "aic": 14746.749507600978,
+            "ll": -7372.374753800489,
+            "k": 1,
+            "params": [
+              0.6390830779960143
+            ]
+          },
+          "gamma": {
+            "aic": 6690.164006836577,
+            "ll": -3343.0820034182884,
+            "k": 2,
+            "params": [
+              0.46555198606377146,
+              1.6059541517285447
+            ]
+          },
+          "weibull": {
+            "aic": 3608.6647554833726,
+            "ll": -1802.3323777416863,
+            "k": 2,
+            "params": [
+              0.5818323342845984,
+              0.4413532761661957
+            ]
+          },
+          "lognorm": {
+            "aic": -682.2098692099753,
+            "ll": 343.10493460498765,
+            "k": 2,
+            "params": [
+              1.7061485507291558,
+              0.1908352930336866
+            ]
+          }
+        },
+        "best": "lognorm",
+        "delta_aic_vs_exponential": 15428.959376810953,
+        "n_complete": 13349,
+        "n_censored": 3697,
+        "n": 17046
+      },
+      "Immotile": {
+        "laws": {
+          "expon": {
+            "aic": -242.0908049590896,
+            "ll": 122.0454024795448,
+            "k": 1,
+            "params": [
+              0.3441703083586468
+            ]
+          },
+          "gamma": {
+            "aic": -644.4469846077574,
+            "ll": 324.2234923038787,
+            "k": 2,
+            "params": [
+              0.6061170347552055,
+              0.6034920181360439
+            ]
+          },
+          "weibull": {
+            "aic": -863.3227599871789,
+            "ll": 433.66137999358943,
+            "k": 2,
+            "params": [
+              0.6884686945455268,
+              0.2760829819909547
+            ]
+          },
+          "lognorm": {
+            "aic": -1349.9423292431368,
+            "ll": 676.9711646215684,
+            "k": 2,
+            "params": [
+              1.4554101783473274,
+              0.13352254988943837
+            ]
+          }
+        },
+        "best": "lognorm",
+        "delta_aic_vs_exponential": 1107.8515242840472,
+        "n_complete": 1832,
+        "n_censored": 342,
+        "n": 2174
+      }
+    },
+    "frailty": {
+      "Progressive": {
+        "mu": -1.4137645455655594,
+        "sigma_within": 0.7186382968795905,
+        "tau_between": 2.3650450500669815,
+        "icc": 0.9154744318038102,
+        "within_cell_cv": 0.8222237872212901,
+        "pooled_cv": 21.19632676362003,
+        "exp_logsd_benchmark": 1.282549830161864,
+        "within_over_exponential": 0.5603199813210336,
+        "within_verdict": "sub-exponential (more regular than memoryless)",
+        "n_cells": 3928,
+        "n_cells_within": 903,
+        "n_episodes": 15508,
+        "frac_censored": 0.24458344080474595,
+        "naive_within_median_cv": 0.8586575981105391,
+        "naive_within_n_cells": 574,
+        "naive_pooled_cv": 2.8336149941089412
+      },
+      "Non-progressive": {
+        "mu": 4.108634694506177,
+        "sigma_within": 1.4700084395192714,
+        "tau_between": 4.0,
+        "icc": 0.8810124024741656,
+        "within_cell_cv": 2.7711298313356867,
+        "pooled_cv": 8782.025893977789,
+        "exp_logsd_benchmark": 1.282549830161864,
+        "within_over_exponential": 1.1461608780796837,
+        "within_verdict": "consistent with memoryless single cells",
+        "n_cells": 3503,
+        "n_cells_within": 1078,
+        "n_episodes": 17046,
+        "frac_censored": 0.21688372638742226,
+        "naive_within_median_cv": 1.2361379822458975,
+        "naive_within_n_cells": 730,
+        "naive_pooled_cv": 3.0137916751837444
+      },
+      "Immotile": {
+        "mu": -1.9171060851606694,
+        "sigma_within": 1.3863470714208057,
+        "tau_between": 0.4877741729492212,
+        "icc": 0.110155860706555,
+        "within_cell_cv": 2.4154354416967987,
+        "pooled_cv": 2.769496920274764,
+        "exp_logsd_benchmark": 1.282549830161864,
+        "within_over_exponential": 1.0809303769864769,
+        "within_verdict": "consistent with memoryless single cells",
+        "n_cells": 594,
+        "n_cells_within": 284,
+        "n_episodes": 2174,
+        "frac_censored": 0.15731370745170192,
+        "naive_within_median_cv": 1.127922301762811,
+        "naive_within_n_cells": 162,
+        "naive_pooled_cv": 2.0590381536491664
+      }
+    },
+    "serial_memory": {
+      "clean": {
+        "lag1_spearman": 0.061198393674010074,
+        "null_mean": 0.07989659491941578,
+        "null_sd": 0.005282574831380662,
+        "z": -3.5395998811660405,
+        "p_perm": 0.004975124378109453,
+        "n_pairs": 25376
+      },
+      "naive_incl_censored": {
+        "lag1_spearman": 0.0651011658465865,
+        "null_mean": 0.10785307606771456,
+        "null_sd": 0.005069365782577825,
+        "z": -8.433384382728105,
+        "p_perm": 0.004975124378109453,
+        "n_pairs": 28635
+      }
+    }
+  },
+  "extra57": {
+    "n_tracks": 141477,
+    "n_cells": 141477,
+    "n_single_episode_tracks": 78032,
+    "frac_single_episode": 0.5515525491776049,
+    "law": {
+      "Progressive": {
+        "laws": {
+          "expon": {
+            "aic": 315898.9521739944,
+            "ll": -157948.4760869972,
+            "k": 1,
+            "params": [
+              0.9816257635324804
+            ]
+          },
+          "gamma": {
+            "aic": 241998.20825682965,
+            "ll": -120997.10412841482,
+            "k": 2,
+            "params": [
+              0.5249057232981953,
+              2.6131381895674086
+            ]
+          },
+          "weibull": {
+            "aic": 223723.5710420648,
+            "ll": -111859.7855210324,
+            "k": 2,
+            "params": [
+              0.6016334953103368,
+              1.0441271597093298
+            ]
+          },
+          "lognorm": {
+            "aic": 185238.06983712598,
+            "ll": -92617.03491856299,
+            "k": 2,
+            "params": [
+              1.9909986733541662,
+              0.47300775091888475
+            ]
+          }
+        },
+        "best": "lognorm",
+        "delta_aic_vs_exponential": 130660.88233686841,
+        "n_complete": 160933,
+        "n_censored": 137090,
+        "n": 298023
+      },
+      "Non-progressive": {
+        "laws": {
+          "expon": {
+            "aic": 351681.2949702902,
+            "ll": -175839.6474851451,
+            "k": 1,
+            "params": [
+              0.7227093800823682
+            ]
+          },
+          "gamma": {
+            "aic": 238454.25859917706,
+            "ll": -119225.12929958853,
+            "k": 2,
+            "params": [
+              0.5112713514520186,
+              1.562495141887002
+            ]
+          },
+          "weibull": {
+            "aic": 201080.68422316434,
+            "ll": -100538.34211158217,
+            "k": 2,
+            "params": [
+              0.6152141344813217,
+              0.5347636467682696
+            ]
+          },
+          "lognorm": {
+            "aic": 136988.10497336515,
+            "ll": -68492.05248668257,
+            "k": 2,
+            "params": [
+              1.6782714568176518,
+              0.2361216316984707
+            ]
+          }
+        },
+        "best": "lognorm",
+        "delta_aic_vs_exponential": 214693.18999692507,
+        "n_complete": 260406,
+        "n_censored": 55834,
+        "n": 316240
+      },
+      "Immotile": {
+        "laws": {
+          "expon": {
+            "aic": 142355.79197909572,
+            "ll": -71176.89598954786,
+            "k": 1,
+            "params": [
+              0.9113628772610676
+            ]
+          },
+          "gamma": {
+            "aic": 87195.85605760769,
+            "ll": -43595.92802880384,
+            "k": 2,
+            "params": [
+              0.4357449067138473,
+              2.3221236119847357
+            ]
+          },
+          "weibull": {
+            "aic": 74297.67878430459,
+            "ll": -37146.839392152295,
+            "k": 2,
+            "params": [
+              0.5530641135070405,
+              0.582161235337826
+            ]
+          },
+          "lognorm": {
+            "aic": 56354.17542720285,
+            "ll": -28175.087713601424,
+            "k": 2,
+            "params": [
+              1.8751264994556118,
+              0.23415904504342086
+            ]
+          }
+        },
+        "best": "lognorm",
+        "delta_aic_vs_exponential": 86001.61655189288,
+        "n_complete": 78459,
+        "n_censored": 11998,
+        "n": 90457
+      }
+    },
+    "frailty": {
+      "Progressive": {
+        "mu": 0.6907024019643494,
+        "sigma_within": 1.3874698859491013,
+        "tau_between": 1.9605858883190543,
+        "icc": 0.6663056349360097,
+        "within_cell_cv": 2.4198444054282273,
+        "pooled_cv": 17.866383401757865,
+        "exp_logsd_benchmark": 1.282549830161864,
+        "within_over_exponential": 1.0818058318825676,
+        "within_verdict": "consistent with memoryless single cells",
+        "n_cells": 116797,
+        "n_cells_within": 25783,
+        "n_episodes": 298023,
+        "frac_censored": 0.459998053841482,
+        "naive_within_median_cv": 0.9779704254741312,
+        "naive_within_n_cells": 15403,
+        "naive_pooled_cv": 1.8812696914801672
+      },
+      "Non-progressive": {
+        "mu": -1.2524903089062012,
+        "sigma_within": 1.5500429315759323,
+        "tau_between": 0.7224848250432702,
+        "icc": 0.1784795235950987,
+        "within_cell_cv": 3.1705267132508825,
+        "pooled_cv": 4.198463788691491,
+        "exp_logsd_benchmark": 1.282549830161864,
+        "within_over_exponential": 1.2085635155246244,
+        "within_verdict": "single-cell memory (over-dispersed vs exponential)",
+        "n_cells": 77390,
+        "n_cells_within": 38675,
+        "n_episodes": 316240,
+        "frac_censored": 0.17655578041993422,
+        "naive_within_median_cv": 1.137302333396708,
+        "naive_within_n_cells": 21126,
+        "naive_pooled_cv": 2.0852256336272488
+      },
+      "Immotile": {
+        "mu": -1.297896428952957,
+        "sigma_within": 1.770740187950004,
+        "tau_between": 0.6868442674574748,
+        "icc": 0.1307787554716134,
+        "within_cell_cv": 4.690480971697132,
+        "pooled_cv": 5.988780275152533,
+        "exp_logsd_benchmark": 1.282549830161864,
+        "within_over_exponential": 1.3806404603605364,
+        "within_verdict": "single-cell memory (over-dispersed vs exponential)",
+        "n_cells": 18186,
+        "n_cells_within": 11318,
+        "n_episodes": 90457,
+        "frac_censored": 0.13263760681870945,
+        "naive_within_median_cv": 1.3064174209436024,
+        "naive_within_n_cells": 6951,
+        "naive_pooled_cv": 2.142054173563732
+      }
+    },
+    "serial_memory": {
+      "clean": {
+        "lag1_spearman": 0.07537860802962681,
+        "null_mean": 0.05556045602963841,
+        "null_sd": 0.0013541698154231495,
+        "z": 14.634908985765312,
+        "p_perm": 0.004975124378109453,
+        "n_pairs": 442822
+      },
+      "naive_incl_censored": {
+        "lag1_spearman": 0.044506835612412574,
+        "null_mean": 0.044208285229974706,
+        "null_sd": 0.0012852939731862812,
+        "z": 0.23228178818714337,
+        "p_perm": 0.7960199004975125,
+        "n_pairs": 563243
+      }
+    }
+  }
+}

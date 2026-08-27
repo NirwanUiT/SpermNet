@@ -1,0 +1,181 @@
+{
+  "model": "single pooled 2-D AR(1)/OU velocity parameter set for ALL tracks (grand mean/variance + pooled lag-1); same track lengths as GT; NO quenched heterogeneity",
+  "seed": 0,
+  "fit": {
+    "mu": [
+      -0.0017957582556799552,
+      -0.0005021712419198507
+    ],
+    "var": [
+      0.6075429420962077,
+      0.5777784776046273
+    ],
+    "a": 0.5851451043271403
+  },
+  "fit_summary": {
+    "n_tracks": 1176
+  },
+  "null_hom": {
+    "name": "homogeneous continuum null (pooled OU)",
+    "n_tracks": 1138,
+    "n_frame_states": 656145,
+    "dwell_laws": {
+      "Progressive": {
+        "n": 27568,
+        "best": "lognormal",
+        "dAIC_exp_vs_best": 235.30603289941064,
+        "dAIC": {
+          "exponential": 235.30603289941064,
+          "gamma": 226.87587996005095,
+          "weibull": 174.25309272669438,
+          "lognormal": 0.0
+        }
+      },
+      "Non-progressive": {
+        "n": 26945,
+        "best": "gamma",
+        "dAIC_exp_vs_best": 567.3563879281792,
+        "dAIC": {
+          "exponential": 567.3563879281792,
+          "gamma": 0.0,
+          "weibull": 131.06239007572003,
+          "lognormal": 841.2399068071136
+        }
+      },
+      "Immotile": {
+        "n": 0,
+        "note": "too few episodes"
+      }
+    },
+    "geometric": [
+      {
+        "state": "Progressive",
+        "n_episodes": 27568,
+        "mean_dwell_frames": 13.909460243760883,
+        "mean_dwell_s": 0.27818920487521764,
+        "cv": 1.0618130982348948,
+        "emp_tail_gt3mean": 0.05539030760301799,
+        "geo_tail_gt3mean": 0.04693643298286948,
+        "tail_excess_x": 1.180113274121916,
+        "ks_vs_geometric": 0.07245156946797132
+      },
+      {
+        "state": "Non-progressive",
+        "n_episodes": 26945,
+        "mean_dwell_frames": 10.120207830766375,
+        "mean_dwell_s": 0.2024041566153275,
+        "cv": 0.9246758849138904,
+        "emp_tail_gt3mean": 0.038040452774169606,
+        "geo_tail_gt3mean": 0.044102084065325876,
+        "tail_excess_x": 0.8625545386431733,
+        "ks_vs_geometric": 0.03611421431411593
+      }
+    ],
+    "order_frame": {
+      "ll": {
+        "0": -0.6788348250257044,
+        "1": -0.2811231796220793,
+        "2": -0.2799751516199753,
+        "3": -0.27944107755121933
+      },
+      "g2": 0.0011480280021039513,
+      "g3": 0.0005340740687559964
+    },
+    "block_g2": {
+      "13": {
+        "block": 13,
+        "g2": 0.00021196539002621417,
+        "n_tracks": 995,
+        "n_block_states": 49826
+      },
+      "25": {
+        "block": 25,
+        "g2": -4.311814466928521e-05,
+        "n_tracks": 936,
+        "n_block_states": 25458
+      },
+      "51": {
+        "block": 51,
+        "g2": -0.0021790787935576095,
+        "n_tracks": 842,
+        "n_block_states": 12100
+      }
+    },
+    "eb": {
+      "n_tracks": 936,
+      "n_block_states": 25458,
+      "eb_concentration_k": {
+        "Progressive": 99988.30356000602,
+        "Non-progressive": 99729.94974353917,
+        "Immotile": Infinity
+      },
+      "g2": {
+        "real": -0.0002047398593101324,
+        "eb_fair": -6.143496437394091e-05,
+        "het_overfit": 0.00329217699806017,
+        "hom": 0.0001051990822142912
+      },
+      "dwell_cv": {
+        "real": 0.7401595541527368,
+        "eb_fair": 0.7279643468812906,
+        "het_overfit": 0.7850060702299473,
+        "hom": 0.7390953597314743
+      },
+      "aggregation_share_eb": null,
+      "aggregation_share_het_upper": null,
+      "genuine_memory_share_eb": null
+    },
+    "memory_decomposition": {
+      "pooled_cv": {
+        "Progressive": 1.0618130982348952,
+        "Non-progressive": 0.9246758849138903,
+        "Immotile": NaN
+      },
+      "within_track_cv": {
+        "Progressive": {
+          "n_tracks": 897,
+          "median_cv": 0.9772490073010841,
+          "iqr": [
+            0.8667465139333468,
+            1.101159107598681
+          ]
+        },
+        "Non-progressive": {
+          "n_tracks": 889,
+          "median_cv": 0.8667699674945342,
+          "iqr": [
+            0.7569544158704392,
+            0.9659307543619381
+          ]
+        },
+        "Immotile": {
+          "n_tracks": 0,
+          "median_cv": null,
+          "iqr": null
+        }
+      },
+      "icc_logdwell": {
+        "icc": 0.005356002094969797,
+        "n_tracks": 1048,
+        "n_episodes": 54409,
+        "interpretation": "fraction of state-controlled log-dwell variance that is between-cell"
+      },
+      "serial_state_controlled": {
+        "lag1_spearman": 0.12270392637852012,
+        "p": 8.969607748690197e-178,
+        "shuffle_null": 0.008012854782777854,
+        "n_pairs": 53275
+      }
+    },
+    "elapsed_s": 116.7
+  },
+  "adjudication": {
+    "block25_g2": {
+      "gt": 0.030447930627276854,
+      "null_per_track": 0.051712507950468306,
+      "null_homogeneous": -4.311814466928521e-05
+    },
+    "hom_fraction_of_per_track": -0.0008338049415546618,
+    "prereg_rule": "<25% -> aggregation (mover-stayer) attribution; >=50% -> discretisation-intrinsic; else both"
+  }
+}
