@@ -46,24 +46,30 @@ TAU_GRID = (1.0, 2.0, 3.3, 6.0, 12.0, 25.0, 50.0)     # frames
 PCT_GRID = ((10, 60), (25, 75), (40, 90))             # (immotile, progressive)
 DISP_GRID = (0.0, 0.3, 0.6)                           # lognormal sigma
 SEED = 0
+N_SEEDS = 5                                           # replicates per grid point
 
 
 def simulate_wvcl(tau: float, disp: float, rng: np.random.Generator) -> np.ndarray:
-    """(N_TRACKS, n_windows) sliding-window mean speed for the cohort."""
+    """(N_TRACKS, n_windows) sliding-window mean speed for the cohort.
+
+    Vectorised across tracks: the AR(1) recursion loops over time only; the
+    boxcar sliding mean is a cumulative-sum difference (identical to the
+    length-(W-1) `np.convolve(..., mode="valid")` used previously)."""
     a = np.exp(-1.0 / tau)
     sd_innov = np.sqrt(1.0 - a * a)
     amp = np.exp(rng.normal(0.0, disp, N_TRACKS)) if disp > 0 else np.ones(N_TRACKS)
-    kern = np.ones(W - 1) / (W - 1)
-    out = np.empty((N_TRACKS, N_FRAMES - 1 - (W - 2)))
-    for i in range(N_TRACKS):
-        eps = rng.normal(0.0, 1.0, size=(N_FRAMES - 1, 2)) * sd_innov
-        v = np.empty((N_FRAMES - 1, 2))
-        v[0] = rng.normal(0.0, 1.0, 2)
-        for t in range(1, N_FRAMES - 1):
-            v[t] = a * v[t - 1] + eps[t]
-        speed = amp[i] * np.hypot(v[:, 0], v[:, 1])
-        out[i] = np.convolve(speed, kern, mode="valid")
-    return out
+    T = N_FRAMES - 1
+    eps = rng.normal(0.0, 1.0, size=(N_TRACKS, T, 2)) * sd_innov
+    v = np.empty((N_TRACKS, T, 2))
+    v[:, 0, :] = rng.normal(0.0, 1.0, size=(N_TRACKS, 2))
+    for t in range(1, T):
+        v[:, t, :] = a * v[:, t - 1, :] + eps[:, t, :]
+    speed = amp[:, None] * np.hypot(v[:, :, 0], v[:, :, 1])   # (N_TRACKS, T)
+    k = W - 1
+    csum = np.concatenate([np.zeros((N_TRACKS, 1)), np.cumsum(speed, axis=1)],
+                          axis=1)                              # (N_TRACKS, T+1)
+    return (csum[:, k:] - csum[:, :-k]) / k                   # (N_TRACKS, T-k+1)
+
 
 
 def states_from(wvcl: np.ndarray, t_lo: float, t_hi: float) -> np.ndarray:
@@ -108,39 +114,76 @@ def block_g2(states: np.ndarray) -> float:
 
 
 def main() -> None:
+    # accumulate per grid point across replicate seeds
+    acc: dict = {}
+    for seed in range(N_SEEDS):
+        for tau in TAU_GRID:
+            for disp in DISP_GRID:
+                wvcl = simulate_wvcl(tau, disp, np.random.default_rng(
+                    SEED + seed * 100003 + int(tau * 10) * 101 + int(disp * 10)))
+                flat = wvcl.ravel()
+                for p_lo, p_hi in PCT_GRID:
+                    t_lo, t_hi = np.percentile(flat, [p_lo, p_hi])
+                    st = states_from(wvcl, t_lo, t_hi)
+                    sw = float(np.mean(np.diff(st, axis=1) != 0)) * config.FPS
+                    g2 = block_g2(st)
+                    dw = dwell_stats(st)
+                    key = (tau, disp, p_lo, p_hi)
+                    a = acc.setdefault(key, {"g2": [], "sw": [],
+                                             "np_daic": [], "np_cv": []})
+                    a["g2"].append(g2)
+                    a["sw"].append(sw)
+                    a["np_daic"].append(dw.get("NP", {}).get(
+                        "dAIC_exp_per_episode", np.nan))
+                    a["np_cv"].append(dw.get("NP", {}).get("cv", np.nan))
+                    print(f"seed={seed} tau={tau:5.1f} (W/tau {W/tau:5.2f}) "
+                          f"disp={disp:.1f} pct={p_lo}/{p_hi}  g2={g2:+.4f}  "
+                          f"sw={sw:5.2f}/s  NP dAIC/ep="
+                          f"{dw.get('NP', {}).get('dAIC_exp_per_episode', float('nan')):.3f}",
+                          flush=True)
+
     results = []
-    for tau in TAU_GRID:
-        rng = np.random.default_rng(SEED + int(tau * 10))
-        for disp in DISP_GRID:
-            wvcl = simulate_wvcl(tau, disp, np.random.default_rng(
-                SEED + int(tau * 10) * 100 + int(disp * 10)))
-            flat = wvcl.ravel()
-            for p_lo, p_hi in PCT_GRID:
-                t_lo, t_hi = np.percentile(flat, [p_lo, p_hi])
-                st = states_from(wvcl, t_lo, t_hi)
-                sw = float(np.mean(np.diff(st, axis=1) != 0)) * config.FPS
-                g2 = block_g2(st)
-                dw = dwell_stats(st)
-                row = {"tau_frames": tau, "W_over_tau": W / tau,
-                       "disp_sigma": disp, "pct": [p_lo, p_hi],
-                       "switch_rate_per_s": sw, "block_g2": g2,
-                       "dwell": dw}
-                results.append(row)
-                dnp = dw.get("NP", {})
-                print(f"tau={tau:5.1f} (W/tau {W/tau:5.2f}) disp={disp:.1f} "
-                      f"pct={p_lo}/{p_hi}  g2={g2:+.4f}  sw={sw:5.2f}/s  "
-                      f"NP dAIC/ep={dnp.get('dAIC_exp_per_episode', float('nan')):.3f} "
-                      f"CV={dnp.get('cv', float('nan')):.2f}", flush=True)
+    for (tau, disp, p_lo, p_hi), a in acc.items():
+        g2 = np.array(a["g2"], float)
+        daic = np.array(a["np_daic"], float)
+        results.append({
+            "tau_frames": tau, "W_over_tau": W / tau, "disp_sigma": disp,
+            "pct": [p_lo, p_hi],
+            "block_g2_mean": float(np.nanmean(g2)),
+            "block_g2_sd": float(np.nanstd(g2, ddof=1)),
+            "switch_rate_per_s_mean": float(np.nanmean(a["sw"])),
+            "np_dAIC_per_episode_mean": float(np.nanmean(daic)),
+            "np_dAIC_per_episode_sd": float(np.nanstd(daic, ddof=1)),
+            "np_cv_mean": float(np.nanmean(a["np_cv"])),
+            "n_seeds": int(len(a["g2"]))})
+
+    # noise floor: SD across seeds at the homogeneous (disp=0) column, where the
+    # continuum is memoryless AND unaggregated so any signal is pure seed noise.
+    floor_g2 = [r["block_g2_sd"] for r in results if r["disp_sigma"] == 0.0]
+    floor_daic = [r["np_dAIC_per_episode_sd"] for r in results
+                  if r["disp_sigma"] == 0.0]
+    noise_floor = {
+        "g2_sd_median_disp0": float(np.nanmedian(floor_g2)),
+        "g2_sd_max_disp0": float(np.nanmax(floor_g2)),
+        "np_dAIC_sd_median_disp0": float(np.nanmedian(floor_daic)),
+        "np_dAIC_sd_max_disp0": float(np.nanmax(floor_daic))}
 
     out = {"design": ("memoryless 2-D AR(1) velocity cohorts, "
-                      f"{N_TRACKS} tracks x {N_FRAMES} frames, W={W}; "
+                      f"{N_TRACKS} tracks x {N_FRAMES} frames, W={W}, "
+                      f"{N_SEEDS} replicate seeds per grid point; "
                       "1-D two-threshold windowed-VCL classifier; thresholds "
                       "at percentiles of each config's own wVCL marginal"),
            "axes": {"tau_frames": list(TAU_GRID), "pct": [list(p) for p in PCT_GRID],
                     "disp_sigma": list(DISP_GRID)},
+           "n_seeds": N_SEEDS, "noise_floor": noise_floor,
            "results": results}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2, default=float))
+    print("\nnoise floor (SD across seeds, disp=0 column):")
+    print(f"  g2      median {noise_floor['g2_sd_median_disp0']:.4f} "
+          f"max {noise_floor['g2_sd_max_disp0']:.4f}")
+    print(f"  NP dAIC median {noise_floor['np_dAIC_sd_median_disp0']:.4f} "
+          f"max {noise_floor['np_dAIC_sd_max_disp0']:.4f}")
     print(f"wrote {OUT}")
 
 

@@ -375,8 +375,9 @@ partition is lumpable in the Kemeny–Snell sense [40] — a non-generic algebra
 that a kinematic threshold partition has no reason to satisfy. Equivalently, in
 Mori–Zwanzig terms [38, 39], projecting Markovian dynamics onto a coarse observable
 converts the discarded coordinates — here the within-window kinematics and the continuous
-distance-to-threshold, with velocity relaxation time τ ≈ 3 frames against a window of
-W = 25 — into an explicit memory kernel. Non-Markovianity of the *observed* state
+distance-to-threshold, with velocity relaxation time τ ≈ 7 frames against a window of
+W = 25 (W/τ ≈ 3.6; §3.2, "Placing the ground truth on the input axes") — into an explicit
+memory kernel. Non-Markovianity of the *observed* state
 sequence is therefore the generic expectation for a windowed threshold classifier on any
 autocorrelated continuum, with the artefact's magnitude governed by W/τ and by threshold
 placement relative to the kinematic marginal — and the aggregation mechanism adds a
@@ -393,36 +394,59 @@ quantitative map, we swept synthetic memoryless cohorts (600 tracks × 1,500 fra
 W/τ (0.5–25 at fixed W = 25), threshold placement (immotile/progressive cuts at the
 10/60, 25/75, and 40/90 percentiles of each configuration's own windowed-VCL marginal),
 and trait dispersion (per-track lognormal amplitude multipliers, σ ∈ {0, 0.3, 0.6}),
-scoring each grid point with the paper's own machinery (`artefact_phase_diagram.py`).
+scoring each grid point with the paper's own machinery (`artefact_phase_diagram.py`),
+now with **five replicate seeds per grid point** so that the noise floor is explicit.
 The map is clean and confirms the mechanism split quantitatively:
 
 | W/τ | g₂, σ=0 | g₂, σ=0.3 | g₂, σ=0.6 | dwell ΔAIC/ep, σ=0 | σ=0.3 | σ=0.6 |
 |---|---|---|---|---|---|---|
-| 25.0 | −0.000 | +0.086 | +0.085 | 0.08 | 0.72 | 0.99 |
-| 7.6 | −0.000 | +0.067 | +0.087 | 0.01 | 0.13 | 0.62 |
-| 2.1 | −0.001 | +0.027 | +0.064 | 0.07 | 0.02 | 0.03 |
-| 0.5 | +0.001 | +0.004 | +0.023 | 0.12 | 0.08 | 0.02 |
+| 25.0 | −0.000 | +0.085 | +0.083 | 0.09 | 0.72 | 0.99 |
+| 7.6 | −0.000 | +0.068 | +0.086 | 0.01 | 0.12 | 0.60 |
+| 2.1 | −0.000 | +0.029 | +0.063 | 0.07 | 0.02 | 0.02 |
+| 0.5 | +0.000 | +0.004 | +0.024 | 0.12 | 0.08 | 0.01 |
 
-(Non-progressive state shown; values averaged over the three threshold placements,
-which moved every readout far less than the other two axes within the tested range.)
+(Non-progressive state shown; each cell is the mean over five replicate seeds, averaged
+over the three threshold placements, which moved every readout far less than the other
+two axes within the tested range. The **seed noise floor** — the SD across seeds in the
+homogeneous σ=0 column — is ≤ 0.0006 for g₂ and ≤ 0.007 for dwell ΔAIC/ep, so every
+non-zero entry above is real, not sampling scatter.)
 Three results. **First, the homogeneous column is zero everywhere**: at every W/τ from
 0.5 to 25 and every threshold placement, windowing plus thresholding of a homogeneous
-memoryless continuum produces no block-g₂ violation — heterogeneity is *necessary* for
-the second-order effect, not merely sufficient. **Second, the aggregation g₂ is
-governed by dispersion × W/τ**, growing towards saturation (≈ +0.09) as windows become
-long relative to the velocity relaxation time — the regime where block states are
+memoryless continuum produces no block-g₂ violation (−0.000 ± 0.0004) — heterogeneity is
+*necessary* for the second-order effect, not merely sufficient. **Second, the aggregation
+g₂ is governed by dispersion × W/τ**, growing towards saturation (≈ +0.09) as windows
+become long relative to the velocity relaxation time — the regime where block states are
 conditionally near-independent given the cell's trait and the mover–stayer mixture bites
-hardest. Our pipeline operates at W/τ ≈ 7.6, deep in the susceptible regime.
-**Third, the dwell-law distortion has two components matching the two mechanisms**: a
-small thresholding floor present even at σ = 0 (per-episode ΔAIC 0.01 at W/τ ≈ 7.6 —
-independently matching the 0.009/episode measured on the homogeneous null above), and a
-dispersion-scaled component that dominates at realistic heterogeneity. The ground
-truth's per-episode values (0.19–0.44) sit between the σ = 0.3 and σ = 0.6 columns at
-the pipeline's operating point. The practical reading for §4: the artefact cannot be
-escaped by moving the thresholds, is worst for slow classifiers on fast kinematics
-(large W/τ) applied to heterogeneous populations — the standard operating point of
-CASA-style pipelines — and is suppressed only by shrinking W towards τ, at the direct
-price of estimation noise (§3.3).
+hardest. **Third, the dwell-law distortion has two components matching the two
+mechanisms**: a small thresholding floor present even at σ = 0 that is genuinely above
+the seed noise (per-episode ΔAIC 0.01–0.12, SD ≤ 0.007 — the σ=0 column is small but not
+zero, and its non-monotonic shape in W/τ is a real windowing signature, independently
+matching the 0.009/episode measured on the homogeneous null above), and a
+dispersion-scaled component that dominates at realistic heterogeneity, reaching ΔAIC ≈ 1
+per episode at large W/τ and σ = 0.6.
+
+**Placing the ground truth on the input axes.** The pipeline's operating point is fixed
+not by its event statistics but by two quantities measured directly from the ground-truth
+trajectories (`gt_amplitude_dispersion.py`), which removes the circularity of the earlier
+placement (reading ΔAIC off the outcome axis). The window-to-relaxation ratio is
+W/τ ≈ 3.6 (τ̂ ≈ 6.9 frames from the median per-track lag-1 autocorrelation of centroid
+velocity; because differencing measurement jitter attenuates that autocorrelation, τ̂ is
+a lower bound and W/τ an upper bound — revising the rougher earlier figure downward but
+leaving the conclusion untouched). The amplitude dispersion is read on the classifier's
+own windowed-VCL surface as the between-track variance ratio **η² = 0.92**: 92 % of the
+variance the classifier partitions is quenched, between-cell heterogeneity, only 8 %
+within-cell dynamics. Inverted onto the synthetic dispersion axis at the fitted τ, this
+η² lies **beyond the σ = 0.6 edge of the grid** (σ̂ ≳ 1.2), placing the ground truth deep
+in the aggregation-dominated corner of the phase diagram — by a kinematic measurement
+that never touches an event statistic. The unimodal lognormal caricature is not expected
+to reproduce the multi-population ground truth's exact ΔAIC (the real classifier uses
+fixed physical cut-offs, not marginal percentiles); what the input-axis placement
+delivers is a genuine prediction of the *sign and regime* of every manufactured statistic
+— g₂ > 0 and dwell non-exponentiality — from heterogeneity measured upstream of the
+discretiser. The practical reading for §4: the artefact cannot be escaped by moving the
+thresholds, is worst for slow classifiers on fast kinematics (large W/τ) applied to
+heterogeneous populations — the standard operating point of CASA-style pipelines — and is
+suppressed only by shrinking W towards τ, at the direct price of estimation noise (§3.3).
 
 **What P1 can and cannot detect: an injection power test.** P1 demonstrates
 manufacture; it is a different question whether the P1 *comparison* — cohort statistics
@@ -626,11 +650,30 @@ sweeps — which is exactly the blindness documented below. The proposition is
 quantitative where its idealisations hold: the continuum null carries matched trait
 variance (ICC = 0.126), zero dynamics, and near-uncorrelated state traits, predicting
 Δρ₁ ≈ −ICC/2 = −0.063 against an observed −0.062 (Fig. 2B) — agreement to be read as
-order-of-magnitude-plus-sign given the finite-sample caveat above. The ground truth's
-larger amplitude (−0.228) exceeds its variance-based prediction, as expected where the
-idealisations fail — three states with unequal episode counts, heavy-tailed log-dwells
-whose rank-scale (Spearman) trait dispersion exceeds the variance-based ICC — but the
-*parity structure*, which is what the proposition explains, is exactly as predicted.
+order-of-magnitude-plus-sign given the finite-sample caveat above. On the ground truth
+the same closed form under-predicts (−0.052 against an observed −0.228), and we resolved
+the shortfall directly rather than by appeal to unspecified "idealisation failure."
+The trait-mixing floor is the within-cell permutation null ρ_perm, which the proposition
+identifies with the lag-independent term ICC/2; measured non-parametrically it is **+0.103
+on ground truth, near-identical to the null's +0.107, and flat across all five lags**
+(0.103, 0.112, 0.107, 0.106, 0.106) — a direct confirmation of the lag-independence the
+proposition predicts. The floor is therefore *shared* between ground truth and null, and
+the entire ground-truth-versus-null gap in Δρ₁ lives instead in the raw lag-1 correlation
+ρ_obs (**−0.125 on ground truth versus +0.045 on the null**). Corollary (1) supplies its
+origin: ground-truth cells carry **anti-correlated cross-state dwell traits** (per-cell
+Spearman between state-mean log-dwells: Non-progressive↔Immotile −0.32, Progressive↔Non-
+progressive −0.07), which by Δρ_odd = −ICC·(1 − ρ_AB)/2 push the odd lags below −ICC/2,
+whereas the null's near-zero-to-positive traits (+0.15, −0.10) do not. Two caveats keep
+this honest. First, the rank scale on which Spearman operates carries a larger effective
+ICC than the variance-based 0.10 — the direct estimate 2ρ_perm = 0.21, a bias-corrected
+per-state ANOVA on ranks 0.35 — so rank-scaling *raises* the floor (to ≈ −0.10) but on
+its own over-predicts the null (−0.107 against −0.062), and is therefore not the whole
+story. Second, the two-state closed form cannot reproduce the exact −0.228 in a three-
+state process with unequal episode counts; we claim no analytic magnitude, only that every
+contributing term — same-state trait variance and cross-state trait covariance alike — is
+static, order-independent per-cell structure. The interpretation is settled not by that
+magnitude but by P3 below, which removes all of it and returns +0.025, with demonstrated
+power to recover an injected φ = −0.3.
 
 **The kill.** The decisive estimator centres residuals on each cell's *own* per-state
 mean log-dwell, removing static traits by construction; the permutation null inherits
@@ -939,8 +982,10 @@ identity errors are the events.
 |---|---|---|
 | **Continuum null (decisive control)** | `experiments/continuum_null.py` | `outputs/tracks_continuum_null/`, `outputs/markov/continuum_null.json` |
 | **Homogeneous continuum null (mechanism attribution)** | `experiments/homogeneous_null.py` | `outputs/tracks_continuum_null_hom/`, `outputs/markov/homogeneous_null.json` |
-| **Artefact phase diagram (W/τ × threshold × dispersion)** | `experiments/artefact_phase_diagram.py` | `outputs/markov/artefact_phase_diagram.json` |
+| **Artefact phase diagram (W/τ × threshold × dispersion, 5 seeds + noise floor)** | `experiments/artefact_phase_diagram.py` | `outputs/markov/artefact_phase_diagram.json` |
+| **Ground-truth input-axis placement (W/τ, η² amplitude dispersion)** | `experiments/gt_amplitude_dispersion.py` | `outputs/markov/gt_amplitude_dispersion.json` |
 | **P1 injection power test (detection floor for genuine switching)** | `experiments/p1_power_test.py` | `outputs/markov/p1_power_test.json` |
+| **Rank-scale ICC + cross-state trait decomposition (Δρ₁)** | `experiments/rank_icc_check.py` | `outputs/markov/rank_icc_check.json` |
 | **Null calibration panel (ACF/PSD, windowed VCL, threshold crossings, switch rate)** | `experiments/null_calibration.py` | `outputs/markov/null_calibration.json` |
 | **Resolution + censoring audits** | `experiments/dwell_resolution_audit.py` | `outputs/markov/dwell_resolution_audit.json` |
 | **Serial-dwell statistic (flicker + cluster bootstrap)** | `experiments/refractory_survivor.py` | `outputs/markov/refractory_survivor.json` |
