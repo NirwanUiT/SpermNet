@@ -317,7 +317,16 @@ null is imperfectly calibrated on the surface the classifier actually thresholds
 ground truth's sliding-window VCL series retains autocorrelation the AR(1) null has
 already lost (+0.18 vs +0.05 at lag 50), and the null re-crosses the classification
 thresholds in rapid bursts (median crossing interval 0.22–0.30 s vs 0.50–0.94 s in the
-ground truth; interval CV 2.0 vs 1.4–1.6). A memoryless null that is *under*-persistent
+ground truth; interval CV 2.0 vs 1.4–1.6). Refitting the null to a higher-order AR(2)
+velocity process — so it captures a second kinematic timescale while preserving the
+velocity marginal — does **not** close this gap (`recalibrated_null.py`): the ground
+truth's windowed-VCL autocorrelation is *long-range* (0.25 at lag 25 against 0.10–0.12
+for either AR(1) or AR(2)), a persistence no low-order Markovian velocity model can
+reproduce, so the recalibrated null still switches at 0.63 s⁻¹ (vs 0.44 s⁻¹ ground
+truth on this raw-episode measure) and still over-counts episodes 1.4×, with per-episode
+dwell ΔAIC essentially unchanged (non-progressive 1.05 vs 1.04). The over-manufacturing
+is therefore intrinsic to any null that is memoryless at short lag, not an artefact of
+AR order. A memoryless null that is *under*-persistent
 on the classifier input over-manufactures switching, which inflates its episode counts
 and its total ΔAIC; the direction of the mismatch means the null, if anything,
 overstates how much artefactual structure discretisation produces from *these* data —
@@ -330,8 +339,11 @@ resolution.)
 
 Three consequences. First, the **dwell-law and memory claims collapse as biology**: a
 process with no switching dynamics at all — indeed no states at all — produces log-normal
-dwell laws with large ΔAIC in every state, and *more* second-order block memory than the
-real data (+0.052 vs +0.030, i.e. 170 %), with the same window-robustness. Second, the
+dwell laws with large ΔAIC in every state, and second-order block memory at least as
+large as the real data's (+0.052 on the null vs +0.030 on the ground truth), with the
+same window-robustness — the ground truth lying at or *below* its matched null, exactly
+as the injection power test shows genuine switching should (a real signal produces a
+*deficit* of these statistics against a variance-matched null, not an excess; §3.2). Second, the
 **decomposition machinery is equally deceived**: the
 hierarchical EB null attributes 54 % "genuine within-cell memory" to the memoryless
 continuum, so the 71 % split of §3.1 cannot be read as biology either; likewise the
@@ -359,13 +371,24 @@ within windows. **(ii) Aggregation over quenched heterogeneity** manufactures th
 second-order block memory: pooling tracks with different fitted parameters creates a
 mover–stayer mixture whose pooled statistics are history-dependent even though every
 individual trajectory is Markovian — the classical aggregation result, here arising
-inside a measurement pipeline rather than a population model [27]. This sharpens the
-EB indictment: the hierarchical decomposition is deceived *precisely by* the quenched
-heterogeneity it exists to control for (54 % "genuine memory" under heterogeneity,
-nothing under homogeneity). And it is itself a live demonstration of the extensivity
-trap flagged above: the homogeneous null's 27,568 progressive episodes accumulate a
-total ΔAIC of +235 from a per-episode effect of 0.009 — a "decisive" total from a
-negligible per-episode deviation.
+inside a measurement pipeline rather than a population model [27]. This is the
+organising failure of the whole discretise-then-model programme, and we verify its
+mechanism directly (`eb_misattribution.py`). The empirical-Bayes decomposition is not
+merely *insensitive* to the aggregation artefact — it is *deceived precisely by* the
+quenched heterogeneity it exists to control for. Run on the memoryless per-track
+continuum null, which carries genuine between-cell heterogeneity but zero within-cell
+dynamics by construction, EB fits finite concentrations (k ≈ 1.1–4.3 per state,
+signalling real row-heterogeneity) yet reconstructs only 46 % of the null's g₂ under its
+Dirichlet-fair prior, dumping the remaining 54 % into "genuine within-cell memory" — on a
+process that has none. Run instead on the *homogeneous* null (one pooled parameter set,
+no heterogeneity), the same estimator fits k → ∞ and returns a genuine-memory share of
+zero: the mis-attribution appears if and only if heterogeneity is present. The reason is
+structural and unfixable within the model class: real heterogeneity enters through
+upstream *continuous kinematic* parameters read out by a windowed classifier, inducing a
+form of per-cell dependence that no per-cell prior over transition-matrix *rows* can
+represent. The 71 % "genuine memory" split reported for the ground truth in §3.1 is
+therefore not evidence of biology; it is the same estimator failure operating on the same
+mechanism.
 
 **Why this is expected on first principles.** The block state is a function of a
 25-frame window of the continuous trajectory — a *delay-embedding observable*
@@ -829,6 +852,19 @@ the cost of running it:
    plus re-use of existing code. In our data this single control eliminated the dwell
    laws, the memory gain, the heterogeneity decomposition, and the within-cell
    regularity (§3.2).
+
+   *Reading the P1 comparison correctly — the sign is not what intuition expects.* A P1
+   null is a floor for artefact statistics, not for biology, and the two live on the same
+   side of it. Genuine switching dynamics *truncate* the manufactured heavy dwell tails
+   and *interrupt* the windowing that produces spurious block memory, so a real signal
+   produces a **deficit** of these artefact statistics relative to a variance-matched
+   memoryless null, not an excess (we establish this with an injection power test, §3.2).
+   The consequence is a standing inference error to guard against: "observed statistic
+   below the matched null, therefore no biology" is invalid — a memoryless process and a
+   genuinely switching one can sit on the *same* side of the null, and only an injected
+   detection floor (P3) separates "no dynamics" from "dynamics whose signature is a
+   deficit." Report the direction of every P1 discrepancy, and never read a null-exceeding
+   or null-undershooting result as one-signed evidence.
 2. **P2 — tracking (annotation-anchored audit).** Re-track annotated videos with the
    candidate pipelines and score the downstream dynamical observables against ground
    truth — not only MOT identity metrics, which we find do not rank pipelines by
@@ -875,13 +911,22 @@ objects carry stable traits — organelles included — so P3 must precede any s
 We set out to characterise non-Markovian structure in sperm motility switching and ended
 up with a different, more consequential result: **the standard track-then-discretise
 pipeline, together with the statistics used to interrogate it, manufactures all of it**,
-in three compounding layers. The first layer is discretisation. A windowed threshold
-classifier applied to a memoryless continuous motion process generates heavy-tailed
-(log-normal) dwell laws in every state, a window-robust second-order memory *larger*
-than the one observed, sub-exponential within-cell
-regularity — and it deceives the hierarchical null machinery built to decompose such
-effects, which attributes half of the manufactured memory to "genuine within-cell
-memory". The second layer is tracking: automated pipelines inflate the same statistics a
+in three compounding layers. The first layer is *representation*, and it manufactures
+through two separable mechanisms that the artefact phase diagram and a homogeneous null
+hold apart. Discretisation alone — a windowed threshold classifier applied to a
+memoryless continuous motion process — generates heavy-tailed (log-normal) dwell laws in
+every state, positive first-order serial dependence, and sub-exponential within-cell
+regularity, but essentially *no* second-order block memory (g₂ ≈ 0 when every track shares
+one kinematic parameter set). The second-order memory, and the deception of the
+hierarchical null machinery, are manufactured by the *other* mechanism: aggregation over
+quenched cell-to-cell heterogeneity. Pooling tracks with different fitted parameters
+builds a mover–stayer mixture whose block statistics are history-dependent even though
+every trajectory is Markovian, and this is precisely the structure a per-cell Dirichlet
+row-prior cannot represent — so the empirical-Bayes decomposition attributes 54 % of the
+memory to "genuine within-cell memory" on a continuum null that has none by construction,
+exactly as it attributes 71 % on the ground truth. The two mechanisms are neither
+redundant nor interchangeable: heterogeneity is *necessary* for the second-order effect,
+and it is the effect that survives every earlier control. The second layer is tracking: automated pipelines inflate the same statistics a
 further ~1.9-fold through identity error, and conventional MOT metrics do not rank
 pipelines by this downstream damage. The third layer is *estimation*: the one statistic
 that resisted both pipeline layers — a serial anti-correlation of successive dwells —
@@ -963,7 +1008,8 @@ one.
 null, the celebrated non-Markovian phenomenology of discretised motility states —
 heavy-tailed dwell laws, second-order memory, decomposable heterogeneity, and serial
 dwell anti-correlation — is manufactured end to end, in three compounding layers:
-discretisation, tracking, and estimation. Nothing dynamical survives; what is real is
+representation (discretisation *and* aggregation over heterogeneity), tracking, and
+estimation. Nothing dynamical survives; what is real is
 static per-cell heterogeneity. The constructive result is the protocol of §4 — simulate
 a Markovian continuum through your own classifier; audit your tracker on downstream
 dynamical observables; validate any serial statistic's null by injecting known dynamics
@@ -987,6 +1033,8 @@ identity errors are the events.
 | **P1 injection power test (detection floor for genuine switching)** | `experiments/p1_power_test.py` | `outputs/markov/p1_power_test.json` |
 | **Rank-scale ICC + cross-state trait decomposition (Δρ₁)** | `experiments/rank_icc_check.py` | `outputs/markov/rank_icc_check.json` |
 | **Null calibration panel (ACF/PSD, windowed VCL, threshold crossings, switch rate)** | `experiments/null_calibration.py` | `outputs/markov/null_calibration.json` |
+| **Recalibrated AR(2) null (classifier-surface refit; dwell rows)** | `experiments/recalibrated_null.py` | `outputs/tracks_continuum_null_ar2/`, `outputs/markov/recalibrated_null.json` |
+| **EB mis-attribution mechanism check (genuine-memory share on hom/heterogeneous nulls)** | `experiments/eb_misattribution.py` | `outputs/markov/eb_misattribution.json` |
 | **Resolution + censoring audits** | `experiments/dwell_resolution_audit.py` | `outputs/markov/dwell_resolution_audit.json` |
 | **Serial-dwell statistic (flicker + cluster bootstrap)** | `experiments/refractory_survivor.py` | `outputs/markov/refractory_survivor.json` |
 | **Threshold sweep + hysteresis control** | `experiments/threshold_hysteresis.py` | `outputs/markov/threshold_hysteresis.json` |
